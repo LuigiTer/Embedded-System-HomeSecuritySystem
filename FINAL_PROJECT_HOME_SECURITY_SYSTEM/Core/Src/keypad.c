@@ -9,6 +9,8 @@
 #include "gpio.h"
 
 static volatile KEYPAD_Button_t last_pressed_key = KEYPAD_Button_NOT_PRESSED;
+static volatile uint32_t last_pressed_time = 0;
+
 
 static KEYPAD_Button_t t;
 static const uint16_t COLUMNS_PINS[COLUMNS_N] = { COLUMN_1_PIN, COLUMN_2_PIN,
@@ -50,7 +52,12 @@ KEYPAD_Button_t KEYPAD_Read(void) {
 
 void KEYPAD_Update(uint16_t pin) {
 
-
+	if(HAL_GPIO_ReadPin(ROW_1_PORT, pin) == GPIO_PIN_SET){
+		last_pressed_time = HAL_GetTick();
+		return;
+	}else if (last_pressed_time + 100 > HAL_GetTick()){
+		return;
+	}
 
 	GPIO_PinState state;
 	uint8_t col = 0;
