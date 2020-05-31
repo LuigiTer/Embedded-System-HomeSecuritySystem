@@ -37,4 +37,6 @@
 #define ROW_4_PORT  	GPIOB
 #define ROW_4_PIN  		GPIO_PIN_15
 
+/* Buffer size. Max value is 255*/
+#define BUFFER_SIZE 	(10)
 #endif /* INC_KEYPAD_CONFIGURATION_H_ */

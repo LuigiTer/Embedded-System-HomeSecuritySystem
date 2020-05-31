@@ -7,10 +7,10 @@
 
 #include "keypad.h"
 #include "gpio.h"
+#include "tim.h"
 
 static volatile KEYPAD_Button_t last_pressed_key = KEYPAD_Button_NOT_PRESSED;
-static volatile uint32_t last_pressed_time = 0;
-
+static volatile uint8_t last_row;
 
 static KEYPAD_Button_t t;
 static const uint16_t COLUMNS_PINS[COLUMNS_N] = { COLUMN_1_PIN, COLUMN_2_PIN,
@@ -48,42 +48,49 @@ KEYPAD_Button_t KEYPAD_Read(void) {
 
 }
 
-
-
 void KEYPAD_Update(uint16_t pin) {
 
-	if(HAL_GPIO_ReadPin(ROW_1_PORT, pin) == GPIO_PIN_SET){
-		last_pressed_time = HAL_GetTick();
-		return;
-	}else if (last_pressed_time + 100 > HAL_GetTick()){
-		return;
-	}
-
-	GPIO_PinState state;
-	uint8_t col = 0;
-	uint8_t row;
+	HAL_TIM_Base_Stop_IT(&htim11);
+	HAL_TIM_Base_Init(&htim11);
+	HAL_TIM_Base_Start_IT(&htim11);
 
 	//finding the row that generated the interrupt
 	if (pin == ROWS_PINS[0]) {
-		row = 0;
+		last_row = 0;
 	} else if (pin == ROWS_PINS[1]) {
-		row = 1;
+		last_row = 1;
 	} else if (pin == ROWS_PINS[2]) {
-		row = 2;
+		last_row = 2;
 	} else if (pin == ROWS_PINS[3]) {
-		row = 3;
+		last_row = 3;
 	} else {
 		// no row has been pressed, go back to isr
+		last_row = ROWS_N;
+		return;
+	}
+	HAL_TIM_Base_Start_IT(&htim11);
+}
+
+void KEYPAD_time_elapsed() {
+	//stop the timer
+	HAL_TIM_Base_Stop_IT(&htim11);
+
+	// check that the last pressed row is valid
+	if (last_row == ROWS_N) {
 		return;
 	}
 
 	// finding the column which the button is connected to
+	uint8_t col = 0;
+	GPIO_PinState state;
+	GPIO_PinState prev_state;
 	for (; col < COLUMNS_N; col++) {
+		prev_state = HAL_GPIO_ReadPin(ROW_1_PORT, ROWS_PINS[last_row]);
 		HAL_GPIO_WritePin(COLUMN_1_PORT, COLUMNS_PINS[col], GPIO_PIN_RESET);
-		state = HAL_GPIO_ReadPin(ROW_1_PORT, ROWS_PINS[row]);
+		state = HAL_GPIO_ReadPin(ROW_1_PORT, ROWS_PINS[last_row]);
 		HAL_GPIO_WritePin(COLUMN_1_PORT, COLUMNS_PINS[col], GPIO_PIN_SET);
-		if (state == GPIO_PIN_RESET) {
-			__HAL_GPIO_EXTI_CLEAR_IT(pin);
+		if (state != prev_state) {
+			__HAL_GPIO_EXTI_CLEAR_IT(ROWS_PINS[last_row]);
 			break;
 		}
 	}
@@ -93,7 +100,8 @@ void KEYPAD_Update(uint16_t pin) {
 		return;
 	}
 
-	// save the pressed key for the next reading.
-	last_pressed_key = KEYS[row][col];
+	// save the pressed key for the next reading and stop the timer
+	last_pressed_key = KEYS[last_row][col];
+	last_row = ROWS_N;
 	return;
 }

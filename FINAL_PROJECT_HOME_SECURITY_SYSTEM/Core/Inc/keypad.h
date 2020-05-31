@@ -51,7 +51,7 @@ const static KEYPAD_Button_t KEYS[ROWS_N][COLUMNS_N] = {
  * @param  None
  * @retval None
  */
-void KEYPAD_Init();
+void KEYPAD_Init(void);
 
 /**
  * @brief  Read the pressed key on the keypad
@@ -61,10 +61,18 @@ void KEYPAD_Init();
 KEYPAD_Button_t KEYPAD_Read(void);
 
 /**
- * @brief  Updates the pressed key. Should be called only by the interrupt routine
+ * @brief  Starts a timer, which will generate an interrupt and the pressed row will be checked to prevent bouncing. should be called only
+ * by the interrupt
  * @param  None
  * @retval None
  */
 void KEYPAD_Update(uint16_t pin);
+
+/**
+ * @brief  ISR of the timer. This function will check on which column the button was pressed, if it
+ * @param  None
+ * @retval None
+ */
+void KEYPAD_time_elapsed(void);
 
 #endif /* INC_KEYPAD_H_ */

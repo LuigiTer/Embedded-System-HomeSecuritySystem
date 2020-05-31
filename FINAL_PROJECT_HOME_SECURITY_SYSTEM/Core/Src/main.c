@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -86,9 +87,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
   KEYPAD_Init();
+  KEYPAD_Button_t button = KEYPAD_Button_NOT_PRESSED;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -98,6 +101,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if(button != KEYPAD_Button_NOT_PRESSED){
+		  //todo do something, maybe send via uart or toggle some leds
+		  button = 0;
+	  }
+	  button = KEYPAD_Read();
   }
   /* USER CODE END 3 */
 }
