@@ -20,7 +20,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "i2c.h"
 #include "gpio.h"
+#include "rtc_ds1307.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -65,7 +68,7 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  date_time_t datetime;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -86,6 +89,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_I2C1_Init();
+  rtc_ds1307_init(&datetime);
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
   /* USER CODE END 2 */
@@ -95,7 +101,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  rtc_ds1307_set_second(1);
+	  HAL_Delay(1000);
+	  rtc_ds1307_get_second(&datetime);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
