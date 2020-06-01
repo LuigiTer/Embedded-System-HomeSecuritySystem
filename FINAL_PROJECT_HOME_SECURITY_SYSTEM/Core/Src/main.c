@@ -101,11 +101,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(button != KEYPAD_Button_NOT_PRESSED){
-		  //todo do something, maybe send via uart or toggle some leds
-		  button = 0;
-	  }
 	  button = KEYPAD_Read();
+	  if(button != KEYPAD_Button_NOT_PRESSED){
+		  button = 0;
+		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	  }
+
   }
   /* USER CODE END 3 */
 }

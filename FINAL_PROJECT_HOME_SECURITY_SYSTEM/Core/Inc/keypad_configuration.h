@@ -8,6 +8,7 @@
 #ifndef INC_KEYPAD_CONFIGURATION_H_
 #define INC_KEYPAD_CONFIGURATION_H_
 
+/* Number of columns and rows of the keypad*/
 #define COLUMNS_N 		(4)
 #define ROWS_N 			(4)
 
@@ -37,6 +38,10 @@
 #define ROW_4_PORT  	GPIOB
 #define ROW_4_PIN  		GPIO_PIN_15
 
-/* Buffer size. Max value is 255*/
-#define BUFFER_SIZE 	(10)
+/* For the timer clock, please refer to the configuration*/
+#define KEYPAD_TIMER 	htim11
+#define TIMER_CLOCK 	16000000
+#define KEYPAD_PRESCALER ((TIMER_CLOCK/1000) - 1)
+#define DELAY_PERIOD   (150 - 1)
+
 #endif /* INC_KEYPAD_CONFIGURATION_H_ */
