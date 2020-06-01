@@ -7,7 +7,7 @@
 #include "utils.h"
 
 extern date_time_t datetime;
-uint8_t temp_buffer[MAX_READ_SIZE];
+uint8_t temp_buffer[MAX_BUFFER_SIZE];
 
 /*
  * @fn 			static uint8_t bcd2Dec(uint8_t val)
@@ -80,7 +80,7 @@ int rtc_ds1307_init(date_time_t* datetime) {
 int rtc_ds1307_set_datetime (const date_time_t* datetime) {
 
 	HAL_StatusTypeDef return_value;
-    uint8_t buffer[MAX_WRITE_SIZE];
+    uint8_t buffer[MAX_BUFFER_SIZE];
 
 	buffer[0] = dec2Bcd(datetime->second);
 	buffer[1] = dec2Bcd(datetime->minute);
@@ -91,7 +91,7 @@ int rtc_ds1307_set_datetime (const date_time_t* datetime) {
 	buffer[6] = dec2Bcd(datetime->year);
 
 	return_value = HAL_I2C_Mem_Write(&hi2c1, DS1307_ADDRESS, DS1307_SECOND,
-			ADDRESS_SIZE, &(buffer), MAX_WRITE_SIZE, HAL_MAX_DELAY);
+			ADDRESS_SIZE, &(buffer), MAX_BUFFER_SIZE, HAL_MAX_DELAY);
 	if (return_value != HAL_OK)
 		return RTC_DS1307_I2C_ERR;
 	return RTC_DS1307_OK;
@@ -108,7 +108,7 @@ int rtc_ds1307_get_datetime (date_time_t* datetime){
 	HAL_StatusTypeDef return_value;
 
 	return_value = HAL_I2C_Mem_Read_DMA(&hi2c1, DS1307_ADDRESS, DS1307_SECOND,
-			ADDRESS_SIZE, &(temp_buffer), MAX_READ_SIZE);
+			ADDRESS_SIZE, &(temp_buffer), MAX_BUFFER_SIZE);
 	if (return_value != HAL_OK)
 		return RTC_DS1307_I2C_ERR;
 

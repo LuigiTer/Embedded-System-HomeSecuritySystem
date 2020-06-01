@@ -11,10 +11,8 @@
 
 #define MAX_RETRY 			 	 	(3)
 #define ADDRESS_SIZE 				(1)
-#define MIN_WRITE_SIZE				(1)
-#define MAX_WRITE_SIZE				(7)
-#define MIN_READ_SIZE				(1)
-#define MAX_READ_SIZE				(7)
+#define MIN_BUFFER_SIZE				(1)
+#define MAX_BUFFER_SIZE				(7)
 
 #define DS1307_ADDRESS      	 	(0xD0)
 
