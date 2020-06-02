@@ -6,7 +6,7 @@
 #include <string.h>
 
 typedef struct {
-    uint16_t year;       	// year (0 - 99)
+    uint8_t year;       	// year (0 - 99)
     uint8_t month;      	// month (01 - 12)
     uint8_t date;      		// date (01 - 31)
     uint8_t day;        	// day (01 - 07)
