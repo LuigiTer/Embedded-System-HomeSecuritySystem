@@ -12,7 +12,6 @@
 #include <string.h>
 
 #include "stm32f4xx_hal.h"
-#include "serial.h"
 #include "bool.h"
 #include "utils.h"
 
@@ -32,6 +31,7 @@ typedef struct {
 } TConsole;
 
 /*
+ * @fn		void consoleInit(UART_HandleTypeDef *huart)
  * @brief	Creates the console singleton.
  * 			This function must be called before calling every other function in this module.
  * @param	huart	pointer to the UART_HandleTypeDef structure
@@ -40,6 +40,7 @@ typedef struct {
 void consoleInit(UART_HandleTypeDef *huart);
 
 /*
+ * @fn		TConsole* getConsole(UART_HandleTypeDef *huart)
  * @brief	Returns the singleton console instance.
  * 			If the instance has not been initialized yet and huart is not NULL,
  * 				then it will be initialized with huart itself.
@@ -53,16 +54,19 @@ void consoleInit(UART_HandleTypeDef *huart);
 TConsole* getConsole(UART_HandleTypeDef *huart);
 
 /*
+ * @fn		void clearConsole()
  * @brief	Clears the console
  */
 void clearConsole();
 
 /*
+ * @fn		void freeConsole()
  * @brief	Waits unitl the console is ready to be used
  */
 void freeConsole();
 
 /*
+ * @fn		static void printMessage(const char *message)
  * @brief	Prints a string on the console.
  * 			It wraps the particular mode for transmission.
  * @param	message		string to print
@@ -73,18 +77,21 @@ static void printMessage(const char *message) {
 }
 
 /*
+ * @fn		void printOnConsole(const char *message)
  * @brief	Prints a string on the console, waiting if it is not ready to use
  * @param	message		string to print
  */
 void printOnConsole(const char *message);
 
 /*
+ * @fn		void printIntOnConsole(const uint16_t n)
  * @brief	Prints an integer on the console, waiting if it is not ready to use
- * #param	n	number to print
+ * @param	n	number to print
  */
 void printIntOnConsole(const uint16_t n);
 
 /*
+ * @fn		void transmit(uint8_t *data, uint8_t n)
  * @brief	Trasmits the content of a data buffer on the console
  * @param	data	buffer containing the data to transmit
  * @param	n		length of the data to transmit
@@ -92,6 +99,7 @@ void printIntOnConsole(const uint16_t n);
 void transmit(uint8_t *data, uint8_t n);
 
 /*
+ * @fn		void receive(uint8_t *data, uint8_t n)
  * @brief	Receives data from the console and stores them in a buffer
  * @param	data	buffer the received data will be stored in
  * @param	n		length of the data to receive
@@ -99,6 +107,7 @@ void transmit(uint8_t *data, uint8_t n);
 void receive(uint8_t *data, uint8_t n);
 
 /*
+ * @fn		void echo(const uint8_t n, char *str)
  * @brief	Echoes a message on the console, storing it in a string.
  * @param	n		number of characters to trasmit
  * @param	str		string the data will be stored in
