@@ -1,12 +1,6 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include "i2c.h"
 #include "rtc_ds1307.h"
-#include "main.h"
-#include "utils.h"
 
-extern date_time_t datetime;
+extern TDatetime datetime;
 uint8_t temp_buffer[MAX_BUFFER_SIZE];
 
 /*
@@ -34,17 +28,17 @@ uint8_t dec2Bcd(uint8_t value){
  * @brief  		initialize the datetime struct
  * @param[in]	datetime: the datetime variable to initialize
  */
-void init_struct(date_time_t* datetime){
+void init_struct(TDatetime* datetime){
 	int date_buffer[3];
 	int time_buffer[3];
 
-	retrive_date(&date_buffer);
-	retrive_time(&time_buffer);
+	retrieve_date(&date_buffer);
+	retrieve_time(&time_buffer);
 
 	datetime->second = time_buffer[2];
 	datetime->minute = time_buffer[1];
 	datetime->hour = time_buffer[0];
-	datetime->day = 1;
+	datetime->day = 0;
 	datetime->date =  date_buffer[0];
 	datetime->month = date_buffer[1];
 	datetime->year = date_buffer[2];
@@ -57,7 +51,7 @@ void init_struct(date_time_t* datetime){
  * @return     RTC_DS1307_ERR if the device is not ready
  * @return     RTC_DS1307_OK if the device is ready
  */
-int rtc_ds1307_init(date_time_t* datetime) {
+int rtc_ds1307_init(TDatetime* datetime) {
 
     HAL_StatusTypeDef is_ds1307_ready = HAL_I2C_IsDeviceReady(&hi2c1, DS1307_ADDRESS,
     		MAX_RETRY, HAL_MAX_DELAY);
@@ -77,7 +71,7 @@ int rtc_ds1307_init(date_time_t* datetime) {
  * @return     RTC_DS1307_I2C_ERR if the transmit for the setting fails
  * @return     RTC_DS1307_OK if the transmit for the setting was successful
  */
-int rtc_ds1307_set_datetime (const date_time_t* datetime) {
+int rtc_ds1307_set_datetime (const TDatetime* datetime) {
 
 	HAL_StatusTypeDef return_value;
     uint8_t buffer[MAX_BUFFER_SIZE];
@@ -104,7 +98,7 @@ int rtc_ds1307_set_datetime (const date_time_t* datetime) {
  * @return     RTC_DS1307_I2C_ERR if the transmit for the getting fails
  * @return     RTC_DS1307_OK if the transmit for the getting was successful
  */
-int rtc_ds1307_get_datetime (date_time_t* datetime){
+int rtc_ds1307_get_datetime (TDatetime* datetime){
 	HAL_StatusTypeDef return_value;
 
 	return_value = HAL_I2C_Mem_Read_DMA(&hi2c1, DS1307_ADDRESS, DS1307_SECOND,

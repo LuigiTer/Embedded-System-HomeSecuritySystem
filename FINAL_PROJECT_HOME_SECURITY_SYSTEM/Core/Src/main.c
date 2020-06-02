@@ -23,6 +23,7 @@
 #include "dma.h"
 #include "i2c.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -47,7 +48,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-date_time_t datetime;
+TDatetime datetime;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,6 +93,8 @@ int main(void)
   MX_DMA_Init();
   MX_I2C1_Init();
   MX_TIM10_Init();
+  MX_TIM11_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   rtc_ds1307_init(&datetime);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
@@ -155,9 +158,10 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	if (htim->Instance == TIM10)
+	if (htim->Instance == TIM10){
 		rtc_ds1307_get_datetime(&datetime);
 		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	}
 }
 /* USER CODE END 4 */
 
