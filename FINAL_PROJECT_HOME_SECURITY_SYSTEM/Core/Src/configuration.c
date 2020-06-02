@@ -60,7 +60,7 @@ void systemBoot() {
 	performNextStep(askForAreaAlarmDelay, tempConfiguration);
 	performNextStep(askForBarrierAlarmDelay, tempConfiguration);
 	performNextStep(askForAlarmDuration, tempConfiguration);
-	performNextStep(askForDateTime, tempConfiguration);
+	performNextStep(askForDatetime, tempConfiguration);
 
 	TConfiguration *configuration = getConfiguration();
 	if (!configuration->done) {
@@ -104,16 +104,19 @@ void configurationRecap(TConfiguration *configuration) {
 	// Print number of seconds of the delay of the alarm for the AREA Sensor
 	printOnConsole(CONFIG_MESSAGE_SHOW_AREA_ALARM_DELAY);
 	printIntOnConsole(configuration->areaAlarmDelay);
+	printOnConsole(" seconds");
 	printOnConsole(CONFIG_NEWLINE);
 
 	// Print number of seconds of the delay of the alarm for the BARRIER Sensor
 	printOnConsole(CONFIG_MESSAGE_SHOW_BARRIER_ALARM_DELAY);
 	printIntOnConsole(configuration->barrierAlarmDelay);
+	printOnConsole(" seconds");
 	printOnConsole(CONFIG_NEWLINE);
 
 	// Print number of seconds of the duration of the alarm
 	printOnConsole(CONFIG_MESSAGE_SHOW_ALARM_DURATION);
 	printIntOnConsole(configuration->alarmDuration);
+	printOnConsole(" seconds");
 	printOnConsole(CONFIG_NEWLINE);
 
 	// Print datetime of the first use of the system
@@ -253,7 +256,7 @@ void askForAlarmDuration(TConfiguration *configuration) {
  * @param	configuration	pointer to the TConfiguration structure
  * 				containing the system configuration parameters
  */
-void askForDateTime(TConfiguration *configuration) {
+void askForDatetime(TConfiguration *configuration) {
 	printOnConsole(CONFIG_REQUEST_DATE_TIME);
 	printOnConsole(CONFIG_NEWLINE);
 
@@ -325,8 +328,6 @@ void showDatetime(TDatetime *datetime) {
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM1 && systemOn) {
-		TConsole *console = getConsole(NULL);
-
 		TConfiguration *configuration = getConfiguration();
 		configuration->done = TRUE;
 	}
