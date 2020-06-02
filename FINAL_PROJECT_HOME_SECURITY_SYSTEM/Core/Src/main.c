@@ -28,7 +28,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "serial.h"
 #include "console.h"
 #include "configuration.h"
 /* USER CODE END Includes */
