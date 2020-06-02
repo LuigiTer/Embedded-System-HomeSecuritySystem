@@ -48,6 +48,7 @@ void consoleInit(UART_HandleTypeDef *huart);
  * 			If the instance has already been initialized, than the parameter huart will be uneffective
  * 				and the previous instance will be returned instead.
  * @param	huart	pointer to the UART_HandleTypeDef structure
+ * @retval	pointer to the TConsole structure representing the console
  */
 TConsole* getConsole(UART_HandleTypeDef *huart);
 
