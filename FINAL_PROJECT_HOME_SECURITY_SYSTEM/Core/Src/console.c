@@ -32,20 +32,30 @@ TConsole* getConsole(UART_HandleTypeDef *huart) {
 	return instance;
 }
 
-/*
- * Clears the console
- */
-void clearConsole() {
-	UART_HandleTypeDef *huart = getConsole(NULL)->huart;
-	clearTerminal(huart);
+void freeConsole() {
+	while (!getConsole(NULL)->ready) {
+		HAL_Delay(1);
+	}
 }
+
 
 /*
  * Prints a char message on the console
  */
 void printOnConsole(const char *message) {
-	UART_HandleTypeDef *huart = getConsole(NULL)->huart;
+	TConsole *console = getConsole(NULL);
+	UART_HandleTypeDef *huart = console->huart;
+	freeConsole();
+	console->ready = FALSE;
 	printMessage(huart, message);
+}
+
+/*
+ * Clears the console
+ */
+void clearConsole() {
+	printOnConsole(CLEAR_CONSOLE_ESCAPE_SEQUENCE);
+	printOnConsole(TOPLEFT_CURSOR_ESCAPE_SEQUENCE);
 }
 
 /*
@@ -55,4 +65,37 @@ void printIntOnConsole(const uint16_t n) {
 	char str[digitsOf(n)];
 	sprintf(str, "%d", n);
 	printOnConsole(str);
+}
+
+void transmit(uint8_t *data, uint8_t n) {
+	TConsole *console = getConsole(NULL);
+	UART_HandleTypeDef *huart = console->huart;
+	freeConsole();
+	console->ready = FALSE;
+	HAL_UART_Transmit_DMA(huart, data, n);
+}
+
+void receive(uint8_t *data, uint8_t n) {
+	TConsole *console = getConsole(NULL);
+	UART_HandleTypeDef *huart = console->huart;
+	freeConsole();
+	console->ready = FALSE;
+	HAL_UART_Receive_DMA(huart, data, n);
+	freeConsole();
+}
+
+/*
+ * Echoes a n-byte-long message on the UART interface, assigning the result to str.
+ */
+void echo(UART_HandleTypeDef *huart, const uint8_t n, char *str) {
+	uint8_t buf[1];
+	for (uint8_t i = 0; i < n; i++) {
+		// HAL_UART_Receive(huart, (uint8_t*) buf, 1, HAL_MAX_DELAY);
+		// HAL_UART_Receive_DMA(huart, (uint8_t*) buf, 1);
+		receive(buf, 1);
+		str[i] = buf[0];
+		// HAL_UART_Transmit(huart, (uint8_t*) buf, 1, HAL_MAX_DELAY);
+		// HAL_UART_Transmit_DMA(huart, (uint8_t*) buf, 1);
+		transmit(buf, 1);
+	}
 }

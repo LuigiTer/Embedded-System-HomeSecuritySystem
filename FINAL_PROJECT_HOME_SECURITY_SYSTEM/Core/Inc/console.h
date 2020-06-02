@@ -38,6 +38,8 @@ TConsole* getConsole(UART_HandleTypeDef *huart);
  */
 void clearConsole();
 
+void freeConsole();
+
 /*
  * Prints a char message on the console
  */
@@ -48,5 +50,14 @@ void printOnConsole(const char *message);
  */
 void printIntOnConsole(const uint16_t n);
 
+
+void transmit(uint8_t *data, uint8_t n);
+
+void receive(uint8_t *data, uint8_t n);
+
+/*
+ * Echoes a n-byte-long message on the UART interface, assigning the result to str.
+ */
+void echo(UART_HandleTypeDef *huart, const uint8_t n, char *str);
 
 #endif /* INC_CONSOLE_H_ */

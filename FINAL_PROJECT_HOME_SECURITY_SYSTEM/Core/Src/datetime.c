@@ -1,6 +1,13 @@
 #include "datetime.h"
 
 
+int daysOfMonth(uint8_t month) {
+	static uint8_t m[] = {
+			31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	};
+	return m[month];
+}
+
 /*
  * @fn 		   int get_month(char *month)
  * @brief  	   get the month in number
@@ -68,5 +75,24 @@ void retrive_date(int* date_buffer){
 
 	date_buffer[0] = atoi(day);
 	date_buffer[1] = get_month(month);
-	date_buffer[2] = atoi(year) - 2000;
+	date_buffer[2] = atoi(year) % 100;
+}
+
+/*
+ * @fn 		   	void retriveCurrentDateTime(TDatetime* datetime)
+ * @brief  	   	reads the current date and time from the macros __DATE__ and __TIME__ and stores it
+ * 				datetime
+ * @param[in]	datetime: pointer to the datetime structure that will store the current datetime
+ */
+void retriveCurrentDateTime(TDatetime *datetime) {
+	int currentDate[3] = {0};
+	retrive_date(currentDate);
+	int currentTime[3] = {0};
+	retrive_time(currentTime);
+	datetime->year = currentDate[2];
+	datetime->month = currentDate[1];
+	datetime->date = currentDate[0];
+	datetime->hour = currentTime[0];
+	datetime->minute = currentTime[1];
+	datetime->second = currentTime[2];
 }

@@ -15,6 +15,9 @@ typedef struct {
     uint8_t second;    		// seconds (00 - 59)
 } TDatetime;
 
+
+int daysOfMonth(uint8_t month);
+
 /*
  * @fn 		   int get_month(char *month)
  * @brief  	   get the month in number
@@ -37,6 +40,15 @@ void retrive_time(int* time_buffer);
  * @param[in]  date_buffer: pointer to the vector that will store the current date
  */
 void retrive_date(int* date_buffer);
+
+
+/*
+ * @fn 		   	void retriveCurrentDateTime(TDatetime* datetime)
+ * @brief  	   	reads the current date and time from the macros __DATE__ and __TIME__ and stores it
+ * 				datetime
+ * @param[in]	datetime: pointer to the datetime structure that will store the current datetime
+ */
+void retriveCurrentDateTime(TDatetime *datetime);
 
 
 #endif /* INC_DATETIME_H_ */

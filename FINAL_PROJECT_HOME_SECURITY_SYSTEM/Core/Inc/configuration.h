@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "stm32f4xx_hal.h"
+#include "tim.h"
 #include "console.h"
 #include "utils.h"
 #include "datetime.h"
@@ -43,7 +44,7 @@
 #define CONSOLE_MESSAGE_ERROR ("Fatal Error!")
 #define CONSOLE_NEWLINE ("\n\r")
 #define CONSOLE_PROMPT ("> ")
-#define CONSOLE_SEPARATOR ("=========================")
+#define CONSOLE_SEPARATOR ("==================================================")
 
 
 typedef struct {
@@ -52,8 +53,22 @@ typedef struct {
 	uint8_t 	barrierAlarmDelay;
 	uint8_t 	alarmDuration;
 	TDatetime 	*datetime;
+	bool		done;
 } TConfiguration;
 
+
+void configurationInit();
+
+/*
+ * TODO change documentation
+ * Returns the singleton console instance.
+ * If the instance has not been initialized yet and huart is not NULL,
+ * then it will be initialized with huart and so the instance itself will be returned.
+ * If the instance has not been initialized yet and huart is NULL, then the function will raise an error.
+ * If the instance has already been initialized,
+ * the parameter huart will be ineffective and the previous instance will be returned instead.
+ */
+TConfiguration* getConfiguration();
 
 /*
  * Prints a welcome message on the UART interface.
@@ -62,15 +77,13 @@ void printWelcomeMessage();
 
 
 static void getUserPIN(uint8_t *buf) {
-	UART_HandleTypeDef *huart = getConsole(NULL)->huart;
-
-	HAL_UART_Receive(huart, (uint8_t*) buf, USER_PIN_LENGTH, HAL_MAX_DELAY);
+	receive(buf, USER_PIN_LENGTH);
 	while (!isOnlyDigit(buf, USER_PIN_LENGTH)) {
 		printOnConsole(CONSOLE_NEWLINE);
 		printOnConsole(CONSOLE_REQUEST_DIGITS_ONLY);
 		printOnConsole(CONSOLE_NEWLINE);
 		printOnConsole(CONSOLE_PROMPT);
-		HAL_UART_Receive(huart, (uint8_t*) buf, USER_PIN_LENGTH, HAL_MAX_DELAY);
+		receive(buf, USER_PIN_LENGTH);
 	}
 }
 
@@ -106,28 +119,22 @@ static uint16_t getIntLessThan(const uint16_t max, const char *error) {
 	return getIntBetween(0, max, error);
 }
 
-static uint8_t getAlarmDelay() {
-	return getIntLessThan(MAX_ALARM_DELAY, CONSOLE_REQUEST_LESS_THAN_MAX_ALARM_DELAY);
-}
+void askForPIN(TConfiguration *configuration);
 
-static uint8_t getAlarmDuration() {
-	return getIntLessThan(MAX_ALARM_DURATION, CONSOLE_REQUEST_LESS_THAN_MAX_ALARM_DURATION);
-}
+void askForAreaAlarmDelay(TConfiguration *configuration);
 
-void askForPIN(uint8_t *userPIN);
+void askForBarrierAlarmDelay(TConfiguration *configuration);
 
-uint8_t askForAreaAlarmDelay();
-
-uint8_t askForBarrierAlarmDelay();
-
-uint8_t askForAlarmDuration();
+void askForAlarmDuration(TConfiguration *configuration);
 
 void showDatetime(TDatetime *datetime);
 
-void askForDatetime(TDatetime *datetime);
+void askForDatetime(TConfiguration *configuration);
 
 void configurationRecap(TConfiguration *configuration);
 
 void systemBoot();
+
+void performNextStep(void (*nextStep)(TConfiguration*), TConfiguration *configuration);
 
 #endif /* INC_CONFIGURATION_H_ */

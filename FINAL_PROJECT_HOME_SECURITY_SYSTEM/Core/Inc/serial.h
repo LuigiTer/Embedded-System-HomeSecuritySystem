@@ -17,9 +17,6 @@ void printMessage(UART_HandleTypeDef *huart, const char *message);
  */
 void clearTerminal(UART_HandleTypeDef *huart);
 
-/*
- * Echoes a n-byte-long message on the UART interface, assigning the result to str.
- */
-void echo(UART_HandleTypeDef *huart, const uint8_t n, char *str);
+
 
 #endif /* INC_SERIAL_H_ */
