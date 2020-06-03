@@ -39,9 +39,14 @@
 #define ROW_4_PIN  		GPIO_PIN_15
 
 /* For the timer clock, please refer to the configuration*/
-#define KEYPAD_TIMER 	htim11
-#define TIMER_CLOCK 	16000000
-#define KEYPAD_PRESCALER ((TIMER_CLOCK/1000) - 1)
-#define DELAY_PERIOD   (150 - 1)
+#define KEYPAD_TIMER 					htim11
+#define TIMER_CLOCK 					42000000U
+#define KEYPAD_PRESCALER 				((TIMER_CLOCK/1000) - 1)
+#define DELAY_PERIOD   					(70U - 1U) //In milliseconds
+
+#define DEFAULT_BUFFER_SIZE				(7U)
+#define MAX_DELAY_BETWEEN_PRESSIONS  	(5000U) //In milliseconds
+
+
 
 #endif /* INC_KEYPAD_CONFIGURATION_H_ */

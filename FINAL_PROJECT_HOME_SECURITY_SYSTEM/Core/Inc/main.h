@@ -33,8 +33,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "keypad.h"
 #include "pir_sensor.h"
+#include "keypad.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -44,7 +44,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-PIR_sensor_t PIR4;
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

@@ -11,6 +11,8 @@
 #include "stdbool.h"
 #include "stm32f401xe.h"
 #include "tim.h"
+#include "gpio.h"
+#include "pir_sensor.h"
 
 #define INACTIVE_STATE 		(0x0001)
 #define ACTIVE_STATE		(0x0002)
@@ -37,5 +39,8 @@ void PIR_sensor_deInit(PIR_sensor_t *pir);
 void PIR_sensor_Init(PIR_sensor_t *pir, uint8_t delay,uint8_t alarm_duration, IRQn_Type irq,
 		GPIO_TypeDef *port, uint16_t pin);
 void PIR_Sensor_clear_alarm(PIR_sensor_t *pir);
+
+PIR_sensor_t PIR_4;
+
 
 #endif /* INC_PIR_SENSOR_H_ */

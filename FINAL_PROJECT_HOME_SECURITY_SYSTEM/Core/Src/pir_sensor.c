@@ -5,10 +5,7 @@
  *      Author: gioam
  */
 
-#include "gpio.h"
-#include "tim.h"
 #include "pir_sensor.h"
-
 /**
  * @brief Initialize a pir sensor.
  * @param pir: the structure which will hold the sensor
@@ -97,22 +94,22 @@ void PIR_Sensor_handler(PIR_sensor_t *pir) {
  * @param pir: the structure of the pin which is currently on alarm or delayed state
  * @return None
  */
-void PIR_Time_elapsed(PIR_sensor_t pir) {
+void PIR_Time_elapsed(PIR_sensor_t* pir) {
 
 	//Decrease the remaining delay
-	--(pir.remaining_delay);
-	if (pir.remaining_delay == 0) {
+	--(pir->remaining_delay);
+	if (pir->remaining_delay == 0) {
 		// if the delay has passed, start the alarm
-		pir.state = ALARMED_STATE;
+		pir->state = ALARMED_STATE;
 		return;
 	}
 	//decreasing remaining delay will cause an under flow, so sum it to the duration and wait until it the overflow of the sum is zero
-	uint8_t t = pir.remaining_delay + pir.alarm_duration;
+	uint8_t t = pir->remaining_delay + pir->alarm_duration;
 	if (t == 0) {
 		//stop the timer, activate the sensor and restore the remaining delay
 		HAL_TIM_OC_Stop_IT(&PIR_TIMER, TIM_CHANNEL_1);
-		PIR4.state  = ACTIVE_STATE;
-		PIR4.remaining_delay = PIR4.delay;
+		pir->state  = ACTIVE_STATE;
+		pir->remaining_delay = pir->delay;
 	}
 }
 

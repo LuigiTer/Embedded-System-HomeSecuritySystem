@@ -69,7 +69,6 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,10 +97,8 @@ int main(void)
   MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-  KEYPAD_Init();
 
-  //example of usage
-  PIR_sensor_Init(&PIR4, 3, 10, EXTI4_IRQn, GPIOC, GPIO_PIN_4);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,8 +108,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
   }
   /* USER CODE END 3 */
 }
