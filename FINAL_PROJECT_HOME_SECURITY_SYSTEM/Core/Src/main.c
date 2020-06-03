@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "buzzer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,7 +65,7 @@ void SystemClock_Config(void);
  */
 int main(void) {
 	/* USER CODE BEGIN 1 */
-	uint16_t value = 0;
+
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -88,7 +88,7 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_TIM2_Init();
 	/* USER CODE BEGIN 2 */
-	HAL_TIM_PWM_Start_IT(&htim2, TIM_CHANNEL_1);
+	TBuzzer *buzzer = buzzerInit(&htim2, TIM_CHANNEL_1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 	/* USER CODE END 2 */
 
@@ -98,13 +98,6 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		while (value < 255) {
-			htim2.Instance->CCR1 = value;		// vary the duty cycle
-			value += 20;						// increase the next duty cycle
-			HAL_Delay(1000);					// wait for 1 s
-		}
-
-		value = 0;							// reset the duty cycle to 0
 	}
 	/* USER CODE END 3 */
 }
