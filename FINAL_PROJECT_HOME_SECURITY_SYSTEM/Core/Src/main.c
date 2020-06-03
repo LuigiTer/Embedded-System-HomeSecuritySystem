@@ -30,6 +30,7 @@
 /* USER CODE BEGIN Includes */
 #include "console.h"
 #include "configuration.h"
+#include "buzzer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,7 +70,7 @@ void SystemClock_Config(void);
  */
 int main(void) {
 	/* USER CODE BEGIN 1 */
-	uint8_t data[1];
+
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -78,26 +79,27 @@ int main(void) {
 	HAL_Init();
 
 	/* USER CODE BEGIN Init */
-	consoleInit(&huart2);
 	/* USER CODE END Init */
 
 	/* Configure the system clock */
 	SystemClock_Config();
 
 	/* USER CODE BEGIN SysInit */
-
+	consoleInit(&huart2);
 	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_DMA_Init();
 	MX_I2C1_Init();
-	MX_TIM10_Init();
 	MX_USART2_UART_Init();
 	MX_TIM1_Init();
+	MX_TIM2_Init();
+	MX_TIM10_Init();
 	MX_TIM11_Init();
 	/* USER CODE BEGIN 2 */
 	systemBoot();
+	TBuzzer *buzzer = buzzerInit(&htim2, TIM_CHANNEL_1);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -106,8 +108,8 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		HAL_UART_Receive(&huart2, data, 1, HAL_MAX_DELAY);
-		HAL_UART_Transmit(&huart2, data, 1, HAL_MAX_DELAY);
+		HAL_Delay(1000);
+		increaseDutyCycle(buzzer);
 	}
 	/* USER CODE END 3 */
 }
