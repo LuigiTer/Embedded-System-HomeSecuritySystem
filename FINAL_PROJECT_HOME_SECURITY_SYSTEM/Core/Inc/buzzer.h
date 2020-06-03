@@ -12,9 +12,10 @@
 #include <assert.h>
 
 #include "stm32f4xx_hal.h"
+#include "utils.h"
 
 #define MAX_VALUE	(255)
-#define STEP		(20)
+#define STEP		(50)
 
 // the duty cycle is in [0, 1[ so it's stored in a float variable
 typedef float TDutyCycle;
@@ -30,8 +31,8 @@ typedef uint32_t TValue;
  * @param	currentDutyCycle	the current duty cycle
  */
 typedef struct {
-	TIM_HandleTypeDef 	*htim;
-	TDutyCycle			currentDutyCycle;
+	TIM_HandleTypeDef *htim;
+	TDutyCycle currentDutyCycle;
 } TBuzzer;
 
 /*
@@ -85,11 +86,6 @@ void setDutyCycleToValue(TBuzzer *buzzer, const TValue value);
  * @param	value		integer duty cycle value to set
  */
 void increaseDutyCycle(TBuzzer *buzzer);
-
-// TODO remove static and move to utils
-static float map(float x, float inMin, float inMax, float outMin, float outMax) {
-    return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-}
 
 /*
  * @fn		static TValue getValueOfDutyCycle(const TDutyCycle dutyCycle)

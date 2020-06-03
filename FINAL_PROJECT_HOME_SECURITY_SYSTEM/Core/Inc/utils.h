@@ -40,4 +40,17 @@ bool isOnlyDigit(const uint8_t arr[], const uint8_t n);
  */
 uint8_t digitsOf(const uint16_t n);
 
+/*
+ * @fn		float map(float x, float inMin, float inMax, float outMin, float outMax)
+ * @brief	Converts a number from an input range to an output range.
+ * 			For example, if 75 is in [0, 100] and the output range is [50, 250], the result is 200
+ * @param	x		number to convert
+ * @param	inMin	lower bound of the input range
+ * @param	inMax	upper bound of the output range
+ * @param	outMin	lower bound of the input range
+ * @param	outMax	upper bound of the output range
+ * @retval	the converted value in [outMin, outMax]
+ */
+float map(float x, float inMin, float inMax, float outMin, float outMax);
+
 #endif /* INC_UTILS_H_ */

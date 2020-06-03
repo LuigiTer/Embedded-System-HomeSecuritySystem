@@ -92,11 +92,11 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_DMA_Init();
 	MX_I2C1_Init();
+	MX_TIM10_Init();
 	MX_USART2_UART_Init();
 	MX_TIM1_Init();
-	MX_TIM2_Init();
-	MX_TIM10_Init();
 	MX_TIM11_Init();
+	MX_TIM2_Init();
 	/* USER CODE BEGIN 2 */
 	systemBoot();
 	TBuzzer *buzzer = buzzerInit(&htim2, TIM_CHANNEL_1);
@@ -108,7 +108,7 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		HAL_Delay(1000);
+		HAL_Delay(3000);
 		increaseDutyCycle(buzzer);
 	}
 	/* USER CODE END 3 */
