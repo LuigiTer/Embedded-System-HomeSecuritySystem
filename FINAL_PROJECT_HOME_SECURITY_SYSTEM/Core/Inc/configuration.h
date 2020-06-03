@@ -51,7 +51,10 @@ You have 30 seconds to setup all the configuration parameters.\n\r")
 #define CONFIG_MESSAGE_SHOW_CONFIGURATION ("Your configuration:")
 #define CONFIG_MESSAGE_READY ("Configuration completed. Your Home Security System is ready for use.")
 
+#define CONFIG_TIMEOUT ("Timeout! Basic configuration will be used...")
 #define CONFIG_MESSAGE_ERROR ("Fatal Error!")
+#define CONFIG_MESSAGE_ERROR_WRONG_PIN ("Wrong PIN!")
+
 #define CONFIG_NEWLINE ("\n\r")
 #define CONFIG_PROMPT ("> ")
 #define CONFIG_SEPARATOR ("==================================================")

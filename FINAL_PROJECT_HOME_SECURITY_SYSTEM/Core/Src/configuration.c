@@ -46,22 +46,27 @@ TConfiguration* getConfiguration() {
  *				the basic configuration will be set.
  */
 void systemBoot() {
+	// Initial phase
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 	clearConsole();
 	printWelcomeMessage();
 	HAL_TIM_Base_Start_IT(&htim1);
 	systemOn = TRUE;
 
+	// tempConfiguration will store the information asked to the user
 	TConfiguration *tempConfiguration = NULL;
 	tempConfiguration = malloc(sizeof(*tempConfiguration));
 	tempConfiguration->datetime = malloc(sizeof(tempConfiguration->datetime));
 
+	// the actual configuration requests are here
 	performNextStep(askForPIN, tempConfiguration);
 	performNextStep(askForAreaAlarmDelay, tempConfiguration);
 	performNextStep(askForBarrierAlarmDelay, tempConfiguration);
 	performNextStep(askForAlarmDuration, tempConfiguration);
 	performNextStep(askForDatetime, tempConfiguration);
 
+	// If the timer has not fired yet (getConfiguration()->done is FALSE), set the user configuration
+	// If the timer has already fired (getConfiguration()->done is TRUE), the basic configuration is set
 	TConfiguration *configuration = getConfiguration();
 	if (!configuration->done) {
 		strcpy(configuration->userPIN, tempConfiguration->userPIN);
@@ -70,17 +75,21 @@ void systemBoot() {
 		configuration->alarmDuration = tempConfiguration->alarmDuration;
 		configuration->datetime = tempConfiguration->datetime;
 		configuration->done = TRUE;
-		// HAL_NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
 		HAL_TIM_Base_Stop_IT(&htim1);
 	} else {
 		printOnConsole(CONFIG_NEWLINE);
-		printOnConsole("Timeout! Basic configuration will be used...");
+		printOnConsole(CONFIG_TIMEOUT);
 		printOnConsole(CONFIG_NEWLINE);
 	}
 
+	// Prints all the configuration parameters in a compact way
 	configurationRecap(configuration);
+
+	// Inform the user the system is ready for use
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 	printOnConsole(CONFIG_MESSAGE_READY);
+	printOnConsole(CONFIG_NEWLINE);
+	printOnConsole(CONFIG_NEWLINE);
 }
 
 /*

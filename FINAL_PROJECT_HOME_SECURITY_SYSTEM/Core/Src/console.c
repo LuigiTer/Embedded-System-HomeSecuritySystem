@@ -56,7 +56,7 @@ void freeConsole() {
 }
 
 /*
- * @brief	Prints a string on the console, waiting if it is not ready to use
+ * @brief	Prints a string on the console, waiting if it is not ready for use
  * @param	message		string to print
  */
 void printOnConsole(const char *message) {
@@ -76,7 +76,7 @@ void clearConsole() {
 
 /*
  * @fn		void printIntOnConsole(const uint16_t n)
- * @brief	Prints an integer on the console, waiting if it is not ready to use
+ * @brief	Prints an integer on the console, waiting if it is not ready for use
  * @param	n	number to print
  */
 void printIntOnConsole(const uint16_t n) {

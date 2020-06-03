@@ -23,7 +23,7 @@
  * 			encapsulating the UART interface used for communication.
  * @param	huart	pointer to the UART_HandleTypeDef structure
  * 					representing the UART interface used for communication
- * @param	ready	a boolean value set to TRUE if the console is ready to use, FALSE otherwise
+ * @param	ready	a boolean value set to TRUE if the console is ready for use, FALSE otherwise
  */
 typedef struct {
 	UART_HandleTypeDef *huart;
@@ -78,14 +78,14 @@ static void printMessage(const char *message) {
 
 /*
  * @fn		void printOnConsole(const char *message)
- * @brief	Prints a string on the console, waiting if it is not ready to use
+ * @brief	Prints a string on the console, waiting if it is not ready for use
  * @param	message		string to print
  */
 void printOnConsole(const char *message);
 
 /*
  * @fn		void printIntOnConsole(const uint16_t n)
- * @brief	Prints an integer on the console, waiting if it is not ready to use
+ * @brief	Prints an integer on the console, waiting if it is not ready for use
  * @param	n	number to print
  */
 void printIntOnConsole(const uint16_t n);
