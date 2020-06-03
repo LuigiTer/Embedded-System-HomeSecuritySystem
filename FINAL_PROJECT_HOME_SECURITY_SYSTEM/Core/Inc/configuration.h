@@ -26,7 +26,7 @@
 #define MAX_ALARM_DELAY		(30)
 #define MAX_ALARM_DURATION	(60)
 
-#define CONFIG_MESSAGE_WELCOME_MESSAGE ("Hello, SMT32. I am your home security system, HAL9000.\n\r\
+#define CONFIG_MESSAGE_WELCOME_MESSAGE ("Hello, SMT32. I am your Home Security System, HAL9000.\n\r\
 You have 30 seconds to setup all the configuration parameters.\n\r")
 
 #define CONFIG_REQUEST_PIN ("Please insert your 4-digits PIN")
@@ -49,6 +49,7 @@ You have 30 seconds to setup all the configuration parameters.\n\r")
 #define CONFIG_MESSAGE_SHOW_DATETIME ("Current datetime: ")
 
 #define CONFIG_MESSAGE_SHOW_CONFIGURATION ("Your configuration:")
+#define CONFIG_MESSAGE_READY ("Configuration completed. Your Home Security System is ready for use.")
 
 #define CONFIG_MESSAGE_ERROR ("Fatal Error!")
 #define CONFIG_NEWLINE ("\n\r")

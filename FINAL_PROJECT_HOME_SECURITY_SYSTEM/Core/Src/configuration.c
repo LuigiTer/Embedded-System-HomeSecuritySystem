@@ -70,7 +70,8 @@ void systemBoot() {
 		configuration->alarmDuration = tempConfiguration->alarmDuration;
 		configuration->datetime = tempConfiguration->datetime;
 		configuration->done = TRUE;
-		HAL_NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
+		// HAL_NVIC_DisableIRQ(TIM1_UP_TIM10_IRQn);
+		HAL_TIM_Base_Stop_IT(&htim1);
 	} else {
 		printOnConsole(CONFIG_NEWLINE);
 		printOnConsole("Timeout! Basic configuration will be used...");
@@ -78,6 +79,8 @@ void systemBoot() {
 	}
 
 	configurationRecap(configuration);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	printOnConsole(CONFIG_MESSAGE_READY);
 }
 
 /*
