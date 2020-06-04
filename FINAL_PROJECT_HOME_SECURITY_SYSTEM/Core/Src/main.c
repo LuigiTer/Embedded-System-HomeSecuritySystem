@@ -96,10 +96,10 @@ int main(void) {
 	MX_USART2_UART_Init();
 	MX_TIM1_Init();
 	MX_TIM11_Init();
-	MX_TIM2_Init();
+	MX_TIM3_Init();
 	/* USER CODE BEGIN 2 */
 	systemBoot();
-	TBuzzer *buzzer = buzzerInit(&htim2, TIM_CHANNEL_1);
+	TBuzzer *buzzer = buzzerInit(&htim3, TIM_CHANNEL_1);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
