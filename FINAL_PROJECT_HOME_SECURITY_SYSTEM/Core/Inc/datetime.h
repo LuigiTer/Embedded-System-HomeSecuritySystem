@@ -47,17 +47,17 @@ int days_of_month(uint8_t month);
 int get_month(char *month);
 
 /*
- * @fn		void retrive_time(int* time_buffer)
+ * @fn		void retrieve_time(int* time_buffer)
  * @brief	Reads the current time from the macro __TIME__ and splits it in hour, minute and second
  * @param	timeBuffer	pointer to the vector that will store the current time
  * 						time_buffer[0] will store the current hour
  * 						time_buffer[1] will store the current minute
  * 						time_buffer[2] will store the current second
  */
-void retrive_time(int *time_buffer);
+void retrieve_time(int *time_buffer);
 
 /*
- * @fn		void retrive_date(int* date_buffer)
+ * @fn		void retrieve_date(int* date_buffer)
  * @brief	Reads the current date from the macro __DATE__ and splits it in day, month and year.
  * 			Note that the year is represented in two digits (e.g. 12 for both 1912 and 2012)
  * @param	dateBuffer	pointer to the vector that will store the current date
@@ -65,14 +65,14 @@ void retrive_time(int *time_buffer);
  * 						date_buffer[1] will store the current month
  * 						date_buffer[2] will store the current year
  */
-void retrive_date(int *date_buffer);
+void retrieve_date(int *date_buffer);
 
 /*
- * @fn		void retrive_current_date_time(TDatetime *datetime)
+ * @fn		void retrieve_current_date_time(TDatetime *datetime)
  * @brief	Reads the current date and time from the macros __DATE__ and __TIME__
  * 			and stores it in a TDatetime structure
  * @param	datetime	pointer to the TDatetime structure that will store the current date and time
  */
-void retrive_current_date_time(TDatetime *datetime);
+void retrieve_current_date_time(TDatetime *datetime);
 
 #endif /* INC_DATETIME_H_ */

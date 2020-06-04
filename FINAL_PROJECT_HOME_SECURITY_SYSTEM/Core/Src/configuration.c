@@ -32,7 +32,7 @@ TConfiguration* get_configuration() {
 		configuration->area_alarm_delay = MAX_ALARM_DELAY;
 		configuration->barrier_alarm_delay = MAX_ALARM_DELAY;
 		configuration->alarm_duration = MAX_ALARM_DURATION;
-		retrive_current_date_time(configuration->datetime);
+		retrieve_current_date_time(configuration->datetime);
 		configuration->done = FALSE;
 	}
 
