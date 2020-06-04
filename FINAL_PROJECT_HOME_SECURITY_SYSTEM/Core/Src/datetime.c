@@ -67,5 +67,5 @@ void retrieve_date(int* date_buffer){
 
 	date_buffer[0] = atoi(day);
 	date_buffer[1] = get_month(month);
-	date_buffer[2] = atoi(year) - 2000;
+	date_buffer[2] = atoi(year) % 100;
 }

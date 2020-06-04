@@ -59,9 +59,10 @@ void SysTick_Handler(void);
 void DMA1_Stream0_IRQHandler(void);
 void DMA1_Stream5_IRQHandler(void);
 void DMA1_Stream6_IRQHandler(void);
+void TIM1_BRK_TIM9_IRQHandler(void);
 void TIM1_UP_TIM10_IRQHandler(void);
 void TIM1_TRG_COM_TIM11_IRQHandler(void);
-void DMA1_Stream7_IRQHandler(void);
+void DMA2_Stream0_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

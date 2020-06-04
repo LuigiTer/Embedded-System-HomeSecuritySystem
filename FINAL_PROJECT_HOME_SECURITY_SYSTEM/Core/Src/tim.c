@@ -24,9 +24,36 @@
 
 /* USER CODE END 0 */
 
+TIM_HandleTypeDef htim9;
 TIM_HandleTypeDef htim10;
 TIM_HandleTypeDef htim11;
 
+/* TIM9 init function */
+void MX_TIM9_Init(void)
+{
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  htim9.Instance = TIM9;
+  htim9.Init.Prescaler = 41999;
+  htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim9.Init.Period = 999;
+  htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim9.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_OC_Init(&htim9) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_ACTIVE;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_OC_ConfigChannel(&htim9, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  __HAL_TIM_ENABLE_OCxPRELOAD(&htim9, TIM_CHANNEL_1);
+
+}
 /* TIM10 init function */
 void MX_TIM10_Init(void)
 {
@@ -58,6 +85,26 @@ void MX_TIM11_Init(void)
     Error_Handler();
   }
 
+}
+
+void HAL_TIM_OC_MspInit(TIM_HandleTypeDef* tim_ocHandle)
+{
+
+  if(tim_ocHandle->Instance==TIM9)
+  {
+  /* USER CODE BEGIN TIM9_MspInit 0 */
+
+  /* USER CODE END TIM9_MspInit 0 */
+    /* TIM9 clock enable */
+    __HAL_RCC_TIM9_CLK_ENABLE();
+
+    /* TIM9 interrupt Init */
+    HAL_NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn);
+  /* USER CODE BEGIN TIM9_MspInit 1 */
+
+  /* USER CODE END TIM9_MspInit 1 */
+  }
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
@@ -92,6 +139,25 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM11_MspInit 1 */
 
   /* USER CODE END TIM11_MspInit 1 */
+  }
+}
+
+void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef* tim_ocHandle)
+{
+
+  if(tim_ocHandle->Instance==TIM9)
+  {
+  /* USER CODE BEGIN TIM9_MspDeInit 0 */
+
+  /* USER CODE END TIM9_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM9_CLK_DISABLE();
+
+    /* TIM9 interrupt Deinit */
+    HAL_NVIC_DisableIRQ(TIM1_BRK_TIM9_IRQn);
+  /* USER CODE BEGIN TIM9_MspDeInit 1 */
+
+  /* USER CODE END TIM9_MspDeInit 1 */
   }
 }
 

@@ -23,6 +23,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "photoresistor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,8 +57,9 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_i2c1_tx;
+extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_i2c1_rx;
+extern TIM_HandleTypeDef htim9;
 extern TIM_HandleTypeDef htim10;
 extern TIM_HandleTypeDef htim11;
 extern DMA_HandleTypeDef hdma_usart2_tx;
@@ -245,6 +247,20 @@ void DMA1_Stream6_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM1 break interrupt and TIM9 global interrupt.
+  */
+void TIM1_BRK_TIM9_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 0 */
+
+  /* USER CODE END TIM1_BRK_TIM9_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim9);
+  /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 1 */
+
+  /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
   */
 void TIM1_UP_TIM10_IRQHandler(void)
@@ -273,20 +289,41 @@ void TIM1_TRG_COM_TIM11_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA1 stream7 global interrupt.
+  * @brief This function handles DMA2 stream0 global interrupt.
   */
-void DMA1_Stream7_IRQHandler(void)
+void DMA2_Stream0_IRQHandler(void)
 {
-  /* USER CODE BEGIN DMA1_Stream7_IRQn 0 */
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
 
-  /* USER CODE END DMA1_Stream7_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_i2c1_tx);
-  /* USER CODE BEGIN DMA1_Stream7_IRQn 1 */
+  /* USER CODE END DMA2_Stream0_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
 
-  /* USER CODE END DMA1_Stream7_IRQn 1 */
+  /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim){
+	if (htim->Instance == photoresistor1.htim->Instance){
+			photoresistor_time_elapsed(&photoresistor1);
+			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+			return;
+		}
+}
 
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+	if (hadc->Instance == photoresistor1.hadc->Instance){
+		if (photoresistor1.value > MAX_AREA_RANGE && photoresistor1.state == ALARM_STATE_ACTIVE){
+			photoresistor1.htim->Instance->CNT = 0U;
+			HAL_TIM_OC_Start_IT(photoresistor1.htim, TIM_CHANNEL_1);
+			photoresistor1.state = ALARM_STATE_DELAYED;
+		}
+		else if(photoresistor1.value < MAX_AREA_RANGE && photoresistor1.state == ALARM_STATE_DELAYED){
+			photoresistor1.state = ALARM_STATE_ACTIVE;
+			HAL_TIM_OC_Stop_IT(photoresistor1.htim, TIM_CHANNEL_1);
+			photoresistor1.remaining_delay = photoresistor1.alarm_delay;
+		}
+	}
+}
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

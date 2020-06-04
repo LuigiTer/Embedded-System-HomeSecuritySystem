@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "dma.h"
 #include "i2c.h"
 #include "tim.h"
@@ -29,6 +30,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "rtc_ds1307.h"
+#include "photoresistor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +51,7 @@
 
 /* USER CODE BEGIN PV */
 TDatetime datetime;
+uint16_t raw_value;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -93,13 +96,17 @@ int main(void)
   MX_DMA_Init();
   MX_I2C1_Init();
   MX_TIM10_Init();
+  MX_ADC1_Init();
   MX_TIM11_Init();
   MX_USART2_UART_Init();
+  MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
   rtc_ds1307_init(&datetime);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+  photoresistor_init(&photoresistor1, 3, 10, &htim9, &hadc1);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
   rtc_ds1307_set_datetime(&datetime);
   HAL_TIM_Base_Start_IT(&htim10);
+  photoresistor_activate(&photoresistor1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -109,6 +116,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }
@@ -160,7 +168,7 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	if (htim->Instance == TIM10){
 		rtc_ds1307_get_datetime(&datetime);
-		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		return;
 	}
 }
 /* USER CODE END 4 */
