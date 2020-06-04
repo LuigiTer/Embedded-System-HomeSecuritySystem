@@ -99,10 +99,10 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM11_Init();
   MX_USART2_UART_Init();
-  MX_TIM9_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   rtc_ds1307_init(&datetime);
-  photoresistor_init(&photoresistor1, 3, 10, &htim9, &hadc1);
+  photoresistor_init(&photoresistor1, 3, 10, &htim2, &hadc1);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
   rtc_ds1307_set_datetime(&datetime);
   HAL_TIM_Base_Start_IT(&htim10);
