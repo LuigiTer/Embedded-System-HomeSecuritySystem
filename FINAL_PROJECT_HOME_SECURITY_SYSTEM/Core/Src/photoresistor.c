@@ -52,6 +52,7 @@ void photoresistor_time_elapsed(TPhotoresistor* photoresistor){
 
 	if (photoresistor->remaining_delay == 0){
 		photoresistor->state = ALARM_STATE_ALARMED;
+		HAL_ADC_Stop_DMA(photoresistor->hadc);
 		return;
 	}
 
@@ -62,5 +63,6 @@ void photoresistor_time_elapsed(TPhotoresistor* photoresistor){
 		HAL_TIM_OC_Stop_IT(photoresistor->htim, TIM_CHANNEL_1);
 		photoresistor->state = ALARM_STATE_ACTIVE;
 		photoresistor->remaining_delay = photoresistor->alarm_delay;
+		HAL_ADC_Start_DMA(photoresistor->hadc, &photoresistor->value, 1);
 	}
 }

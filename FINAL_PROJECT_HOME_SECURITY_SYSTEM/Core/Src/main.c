@@ -100,6 +100,9 @@ int main(void)
   MX_TIM11_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
+  MX_TIM9_Init();
+  MX_TIM1_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   rtc_ds1307_init(&datetime);
   photoresistor_init(&photoresistor1, 3, 10, &htim2, &hadc1);
@@ -116,7 +119,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
   }
   /* USER CODE END 3 */
 }
