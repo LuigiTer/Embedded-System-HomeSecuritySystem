@@ -33,88 +33,88 @@ typedef uint32_t TValue;
  */
 typedef struct {
 	TIM_HandleTypeDef *htim;
-	TDutyCycle currentDutyCycle;
+	TDutyCycle current_duty_cycle;
 } TBuzzer;
 
 /*
- * @fn		TBuzzer* buzzerInit(TIM_HandleTypeDef *htim, uint32_t Channel)
+ * @fn		TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel)
  * @brief	Instantiates a buzzer
  * @param	htim		pointer to the TIM_HandleTypeDef structure representing the timer interface
  * 						used to generate the PWM signal that control the buzzer
  * @param	Channel		the timer channel holding the PWM signal
  * @retval	pointer to the TBuzzer structure representing the buzzer
  */
-TBuzzer* buzzerInit(TIM_HandleTypeDef *htim, uint32_t Channel);
+TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel);
 
 /*
- * @fn		TDutyCycle getDutyCycle(TBuzzer *buzzer)
+ * @fn		TDutyCycle get_duty_cycle(TBuzzer *buzzer)
  * @brief	Returns the duty cycle of a buzzer
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @retval	current duty cycle of the buzzer
  */
-TDutyCycle getDutyCycle(TBuzzer *buzzer);
+TDutyCycle get_duty_cycle(TBuzzer *buzzer);
 
 /*
- * @fn		TValue getDutyCycleValue(TBuzzer *buzzer)
+ * @fn		TValue get_duty_cycle_value(TBuzzer *buzzer)
  * @brief	Returns the integer duty cycle value of a buzzer
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @retval	current integer duty cycle value of the buzzer
  */
-TValue getDutyCycleValue(TBuzzer *buzzer);
+TValue get_duty_cycle_value(TBuzzer *buzzer);
 
 /*
- * @fn		void setDutyCycle(TBuzzer *buzzer, const TDutyCycle dutyCycle)
+ * @fn		void set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle)
  * @brief	Sets the duty cycle of a buzzer to a specified value in [0, 1[
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	dutyCycle	duty cycle to set
  */
-void setDutyCycle(TBuzzer *buzzer, const TDutyCycle dutyCycle);
+void set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle);
 
 /*
- * @fn		void setDutyCycleToValue(TBuzzer *buzzer, const TValue value)
+ * @fn		void set_duty_cycle_to_value(TBuzzer *buzzer, const TValue value)
  * @brief	Sets the duty cycle of a buzzer to a value corresponding to an integer value in [0, MAX_VALUE[
  * 			The conversion formula is dutyCycle = value / MAX_VALUE
  * 			For example, if value is 100, then the duty cycle will be 100 / 255 = 0,3922
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	value		integer duty cycle value to set
  */
-void setDutyCycleToValue(TBuzzer *buzzer, const TValue value);
+void set_duty_cycle_to_value(TBuzzer *buzzer, const TValue value);
 
 /*
- * @fn		void increaseDutyCycle(TBuzzer *buzzer)
+ * @fn		void increase_duty_cycle(TBuzzer *buzzer)
  * @brief	Sets the duty cycle of a buzzer to a new value depending on the current value
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	value		integer duty cycle value to set
  */
-void increaseDutyCycle(TBuzzer *buzzer);
+void increase_duty_cycle(TBuzzer *buzzer);
 
 /*
- * @fn		void setSoundLevel(TBuzzer *buzzer, uint8_t level)
+ * @fn		void set_sound_level(TBuzzer *buzzer, uint8_t level)
  * @brief	Sets the duty cycle of a buzzer to one of N_LEVELS different levels depending.
  * 			The conversion formula for the i-th level is dutyCycle = i / N_LEVELS
  * 			For example, if N_LEVELS is 5, the 2nd level of duty cycle is 2/5 = 0.4
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	level		the duty cycle level to set
  */
-void setSoundLevel(TBuzzer *buzzer, uint8_t level);
+void set_sound_level(TBuzzer *buzzer, uint8_t level);
 
 /*
- * @fn		static TValue getValueOfDutyCycle(const TDutyCycle dutyCycle)
+ * @fn		static TValue get_value_of_duty_cycle(const TDutyCycle duty_cycle)
  * @brief	Converts a duty cycle float value in [0,1[ to the corresponding interger value in [0, MAX_VALUE[
  * @param	dutyCycle	duty cycle value to convert
  * @retval	integer value corresponding to dutyCycle
  */
-static TValue getValueOfDutyCycle(const TDutyCycle dutyCycle) {
-	return (TValue) map(dutyCycle, 0.0, 1.0, 0, MAX_VALUE);
+static TValue get_value_of_duty_cycle(const TDutyCycle duty_cycle) {
+	return (TValue) map(duty_cycle, 0.0, 1.0, 0, MAX_VALUE);
 }
 
 /*
- * @fn		static TDutyCycle getDutyCycleOfValue(const TValue value)
+ * @fn		static TDutyCycle get_duty_cycle_of_value(const TValue value)
  * @brief	Converts a duty cycle integer value in [0, MAX_VALUE[ to the corresponding float value in [0,1[
  * @param	value	integer duty cycle value to convert
  * @retval	float duty cycle value corresponding to value
  */
-static TDutyCycle getDutyCycleOfValue(const TValue value) {
+static TDutyCycle get_duty_cycle_of_value(const TValue value) {
 	return map(value, 0, MAX_VALUE, 0.0, 1.0);
 }
 
