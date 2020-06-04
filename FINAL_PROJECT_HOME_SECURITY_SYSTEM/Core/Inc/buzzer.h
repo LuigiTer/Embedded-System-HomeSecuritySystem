@@ -14,7 +14,7 @@
 #include "stm32f4xx_hal.h"
 #include "utils.h"
 
-#define MAX_VALUE	(255)
+#define MAX_VALUE	(1000)
 #define STEP		(50)
 #define N_LEVELS	(3)
 
