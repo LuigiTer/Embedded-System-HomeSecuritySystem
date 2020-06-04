@@ -289,14 +289,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM11) {
+	if (htim->Instance == KEYPAD_1.timer->Instance) {
 		KEYPAD_time_elapsed(&KEYPAD_1);
 	}
 
 }
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM9) {
+	if (htim->Instance == PIR_4.timer->Instance) {
 		PIR_Time_elapsed(&PIR_4);
 	}
 }

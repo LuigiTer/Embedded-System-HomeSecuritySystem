@@ -98,6 +98,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
+  PIR_sensor_Init(&PIR_4, 4, 10, EXTI4_IRQn, GPIOC, GPIO_PIN_4, &htim9);
+  PIR_sensor_activate(&PIR_4);
 
   /* USER CODE END 2 */
 

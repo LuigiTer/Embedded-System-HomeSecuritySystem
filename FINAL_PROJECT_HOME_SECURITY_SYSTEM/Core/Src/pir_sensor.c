@@ -17,10 +17,10 @@
  * @param timer: the timer dedicated to the sensor
  * @return None
  */
-void PIR_sensor_Init(PIR_sensor_t *pir, uint8_t delay, uint8_t alarm_duration,
+void PIR_sensor_Init(TPIR_sensor *pir, uint8_t delay, uint8_t alarm_duration,
 		IRQn_Type irq, GPIO_TypeDef *port, uint16_t pin, TIM_HandleTypeDef *timer) {
 
-	pir->state = ACTIVE_STATE;
+	pir->state = INACTIVE_STATE;
 	pir->delay = delay;
 	pir->remaining_delay = delay;
 	pir->alarm_duration = alarm_duration;
@@ -28,7 +28,6 @@ void PIR_sensor_Init(PIR_sensor_t *pir, uint8_t delay, uint8_t alarm_duration,
 	pir->pin = pin;
 	pir->port = port;
 	pir->timer = timer;
-	HAL_NVIC_EnableIRQ(pir->irq);
 	return;
 }
 
@@ -37,10 +36,11 @@ void PIR_sensor_Init(PIR_sensor_t *pir, uint8_t delay, uint8_t alarm_duration,
  * @param pir: the structure of the pin to deactivate
  * @return None
  */
-void PIR_sensor_deInit(PIR_sensor_t *pir) {
-	pir->state = INACTIVE_STATE;
+void PIR_sensor_deactivate(TPIR_sensor *pir) {
 	HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
 	HAL_NVIC_DisableIRQ(pir->irq);
+	pir->state = INACTIVE_STATE;
+
 }
 
 /**
@@ -48,7 +48,7 @@ void PIR_sensor_deInit(PIR_sensor_t *pir) {
  * @param pir: the structure which will hold the sensor
  * @return None
  */
-void PIR_sensor_reInit(PIR_sensor_t *pir){
+void PIR_sensor_activate(TPIR_sensor *pir){
 	pir->state = ACTIVE_STATE;
 	pir->remaining_delay = pir->delay;
 	HAL_NVIC_EnableIRQ(pir->irq);
@@ -61,7 +61,7 @@ void PIR_sensor_reInit(PIR_sensor_t *pir){
  * @param pir: the structure of the pin which has triggered the interruption
  * @return None
  */
-void PIR_Sensor_handler(PIR_sensor_t *pir) {
+void PIR_Sensor_handler(TPIR_sensor *pir) {
 	__HAL_GPIO_EXTI_CLEAR_IT(pir->pin);
 
 
@@ -80,7 +80,7 @@ void PIR_Sensor_handler(PIR_sensor_t *pir) {
 		return;
 	}
 
-	// is it is rising, but it is already delayed or alarmed, don't do anything
+	// if it is rising, but it is already delayed or alarmed, don't do anything
 	if (pir->state == ALARMED_STATE || pir->state == DELAYED_STATE) {
 		return;
 	}
@@ -98,11 +98,11 @@ void PIR_Sensor_handler(PIR_sensor_t *pir) {
  * @param pir: the structure of the pin which is currently on alarm or delayed state
  * @return None
  */
-void PIR_Time_elapsed(PIR_sensor_t* pir) {
+void PIR_Time_elapsed(TPIR_sensor* pir) {
 
 	//Decrease the remaining delay
 	--(pir->remaining_delay);
-	if (pir->remaining_delay == 0) {
+	if (pir->remaining_delay == 0U) {
 		// if the delay has passed, start the alarm
 		pir->state = ALARMED_STATE;
 		return;

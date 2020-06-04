@@ -35,34 +35,34 @@ typedef enum {
 	KEYPAD_Button_STAR = '*', /*!< Button STAR code */
 	KEYPAD_Button_HASH = '#', /*!< Button HASH code */
 	KEYPAD_Button_NOT_PRESSED = '\0' /*!< No button pressed */
-} KEYPAD_Button_t;
+} TKEYPAD_Button;
 
 typedef struct Keypad {
-	KEYPAD_Button_t buffer[DEFAULT_BUFFER_SIZE];
-	KEYPAD_Button_t last_pressed_key;
+	TKEYPAD_Button buffer[DEFAULT_BUFFER_SIZE];
+	TKEYPAD_Button last_pressed_key;
 	uint8_t index;
 	TIM_HandleTypeDef *timer;
 	uint32_t last_pressed_time;
 	uint16_t rows_pins[ROWS_N];
 	uint16_t cols_pins[COLUMNS_N];
 
-} Keypad_t;
+} TKeypad;
 
-const static KEYPAD_Button_t KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
+static const TKEYPAD_Button KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
 		KEYPAD_Button_2, KEYPAD_Button_3, KEYPAD_Button_A }, { KEYPAD_Button_4,
 		KEYPAD_Button_5, KEYPAD_Button_6, KEYPAD_Button_B }, { KEYPAD_Button_7,
 		KEYPAD_Button_8, KEYPAD_Button_9, KEYPAD_Button_C },
 		{ KEYPAD_Button_STAR, KEYPAD_Button_0, KEYPAD_Button_HASH,
 				KEYPAD_Button_D } };
 
-Keypad_t KEYPAD_1;
+TKeypad KEYPAD_1;
 
- void KEYPAD_init_columns(Keypad_t *keypad);
+ void KEYPAD_init_columns(TKeypad *keypad);
 
-void KEYPAD_Init_default(Keypad_t *keypad);
-bool KEYPAD_buffer_read(Keypad_t *keypad, KEYPAD_Button_t *buffer);
-void KEYPAD_clear_buffer(Keypad_t *keypad);
-void KEYPAD_key_pressed(Keypad_t *keypad, uint16_t pin);
-void KEYPAD_time_elapsed(Keypad_t *keypad);
+void KEYPAD_Init_default(TKeypad *keypad);
+bool KEYPAD_buffer_read(TKeypad *keypad, TKEYPAD_Button *buffer);
+void KEYPAD_clear_buffer(TKeypad *keypad);
+void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin);
+void KEYPAD_time_elapsed(TKeypad *keypad);
 
 #endif /* INC_KEYPAD_H_ */

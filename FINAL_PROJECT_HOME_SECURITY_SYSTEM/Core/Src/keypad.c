@@ -8,7 +8,7 @@
 #include "keypad.h"
 
 /* Private variable definition*/
-static volatile KEYPAD_Button_t last_pressed_key = KEYPAD_Button_NOT_PRESSED;
+static volatile TKEYPAD_Button last_pressed_key = KEYPAD_Button_NOT_PRESSED;
 static volatile uint8_t last_row;
 
 /* Private function definition*/
@@ -17,7 +17,7 @@ static volatile uint8_t last_row;
  * @param Keypad_t *keypad a pointer to the structure of the keypad to inizialize
  * @return none
  */
- void KEYPAD_init_columns(Keypad_t *keypad) {
+ void KEYPAD_init_columns(TKeypad *keypad) {
 	for (uint8_t i = 0; i < COLUMNS_N; i++) {
 		HAL_GPIO_WritePin(COLUMN_1_PORT, keypad->cols_pins[i], GPIO_PIN_SET);
 	}
@@ -31,7 +31,7 @@ static volatile uint8_t last_row;
  * @param Keypad_t *keypad a pointer to the structure of the keyboard to inizialize
  * @return none
  */
-void KEYPAD_Init_default(Keypad_t *keypad) {
+void KEYPAD_Init_default(TKeypad *keypad) {
 
 	keypad->last_pressed_key = KEYPAD_Button_NOT_PRESSED;
 	keypad->index = 0; //top of the buffer
@@ -66,7 +66,7 @@ void KEYPAD_Init_default(Keypad_t *keypad) {
  * @param[out]  KEYPAD_Button_t *buffer a pointer to the buffer where the keypad buffer will be copied
  * @return true if the buffer was modified, false otherwise
  */
-bool KEYPAD_buffer_read(Keypad_t *keypad, KEYPAD_Button_t *buffer) {
+bool KEYPAD_buffer_read(TKeypad *keypad, TKEYPAD_Button *buffer) {
 	if (keypad->index == DEFAULT_BUFFER_SIZE) {
 		for (uint8_t i = 0; i < DEFAULT_BUFFER_SIZE; i++) {
 			buffer[i] = keypad->buffer[i];
@@ -82,7 +82,7 @@ bool KEYPAD_buffer_read(Keypad_t *keypad, KEYPAD_Button_t *buffer) {
  * @param Keypad_t *keypad a pointer to the structure of the keyboard which needs the buffer cleared.
  * @return none
  */
-void KEYPAD_clear_buffer(Keypad_t *keypad) {
+void KEYPAD_clear_buffer(TKeypad *keypad) {
 	keypad->index = 0;
 }
 
@@ -92,7 +92,7 @@ void KEYPAD_clear_buffer(Keypad_t *keypad) {
  * @param uint16_t pin the pin that triggered the interruption
  * @return none
  */
-void KEYPAD_key_pressed(Keypad_t *keypad, uint16_t pin) {
+void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin) {
 	if ((HAL_GetTick() - keypad->last_pressed_time)
 			> MAX_DELAY_BETWEEN_PRESSIONS) {
 		//if the last pressed valid button was a long time ago, discard everything
@@ -132,7 +132,7 @@ void KEYPAD_key_pressed(Keypad_t *keypad, uint16_t pin) {
  * @param Keypad_t *keypad a pointer to the structure of the keyboard that has started the timer
  * @return none
  */
-void KEYPAD_time_elapsed(Keypad_t *keypad) {
+void KEYPAD_time_elapsed(TKeypad *keypad) {
 	//stop the timer
 	HAL_TIM_Base_Stop_IT(keypad->timer);
 
