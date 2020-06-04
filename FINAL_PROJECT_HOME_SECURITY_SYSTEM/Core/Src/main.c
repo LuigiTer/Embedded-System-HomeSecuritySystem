@@ -104,12 +104,14 @@ int main(void) {
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
+	uint8_t level = 0;
 	while (1) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
 		HAL_Delay(3000);
-		increaseDutyCycle(buzzer);
+		setSoundLevel(buzzer, level);
+		level = (level + 1) % (N_LEVELS + 1);
 	}
 	/* USER CODE END 3 */
 }

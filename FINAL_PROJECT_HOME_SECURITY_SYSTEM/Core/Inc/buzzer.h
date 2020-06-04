@@ -16,6 +16,7 @@
 
 #define MAX_VALUE	(255)
 #define STEP		(50)
+#define N_LEVELS	(3)
 
 // the duty cycle is in [0, 1[ so it's stored in a float variable
 typedef float TDutyCycle;
@@ -86,6 +87,16 @@ void setDutyCycleToValue(TBuzzer *buzzer, const TValue value);
  * @param	value		integer duty cycle value to set
  */
 void increaseDutyCycle(TBuzzer *buzzer);
+
+/*
+ * @fn		void setSoundLevel(TBuzzer *buzzer, uint8_t level)
+ * @brief	Sets the duty cycle of a buzzer to one of N_LEVELS different levels depending.
+ * 			The conversion formula for the i-th level is dutyCycle = i / N_LEVELS
+ * 			For example, if N_LEVELS is 5, the 2nd level of duty cycle is 2/5 = 0.4
+ * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
+ * @param	level		the duty cycle level to set
+ */
+void setSoundLevel(TBuzzer *buzzer, uint8_t level);
 
 /*
  * @fn		static TValue getValueOfDutyCycle(const TDutyCycle dutyCycle)

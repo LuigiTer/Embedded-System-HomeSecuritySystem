@@ -86,3 +86,18 @@ void increaseDutyCycle(TBuzzer *buzzer) {
 		value = 0;
 	setDutyCycleToValue(buzzer, value);
 }
+
+/*
+ * @fn		void setSoundLevel(TBuzzer *buzzer, uint8_t level)
+ * @brief	Sets the duty cycle of a buzzer to one of N_LEVELS different levels depending.
+ * 			The conversion formula for the i-th level is dutyCycle = i / (N_LEVELS + 1)
+ * 			For example, if N_LEVELS is 5, the 3rd level of duty cycle is 3/6 = 0.5
+ * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
+ * @param	level		the duty cycle level to set
+ */
+void setSoundLevel(TBuzzer *buzzer, uint8_t level) {
+	assert(0 <= level && level <= N_LEVELS);
+
+	TValue value = MAX_VALUE * level / (N_LEVELS + 1);
+	setDutyCycleToValue(buzzer, value);
+}
