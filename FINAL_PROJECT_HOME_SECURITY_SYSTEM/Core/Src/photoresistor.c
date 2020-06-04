@@ -55,8 +55,8 @@ void photoresistor_time_elapsed(TPhotoresistor* photoresistor){
 		return;
 	}
 
-	//decreasing remaining delay will cause an under flow, so we sum it to the duration (example 255 + 10 = 9 beacause uint8_t)
-	// and wait until it the overflow of the sum is zero
+	// decreasing remaining delay will cause an underflow, so we sum it to the alarm duration (example 255 + 10 = 9 beacause uint8_t)
+	// and wait until the total sum overflows the variable and then we have that the sum is zero so the alarm duration is elapsed
 	uint8_t temp = photoresistor->remaining_delay + photoresistor->alarm_duration;
 	if (temp == 0){
 		HAL_TIM_OC_Stop_IT(photoresistor->htim, TIM_CHANNEL_1);
