@@ -85,7 +85,7 @@ int main(void) {
 	SystemClock_Config();
 
 	/* USER CODE BEGIN SysInit */
-	consoleInit(&huart2);
+	console_init(&huart2);
 	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
@@ -98,8 +98,8 @@ int main(void) {
 	MX_TIM11_Init();
 	MX_TIM3_Init();
 	/* USER CODE BEGIN 2 */
-	systemBoot();
-	TBuzzer *buzzer = buzzerInit(&htim3, TIM_CHANNEL_1);
+	system_boot();
+	TBuzzer *buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -110,7 +110,7 @@ int main(void) {
 
 		/* USER CODE BEGIN 3 */
 		HAL_Delay(3000);
-		setSoundLevel(buzzer, level);
+		set_sound_level(buzzer, level);
 		level = (level + 1) % (N_LEVELS + 1);
 	}
 	/* USER CODE END 3 */

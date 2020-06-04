@@ -173,10 +173,10 @@ void ask_for_datetime(TConfiguration *configuration);
 static void get_user_PIN(uint8_t *buf) {
 	receive(buf, USER_PIN_LENGTH);
 	while (!isOnlyDigit(buf, USER_PIN_LENGTH)) {
-		printOnConsole(CONFIG_NEWLINE);
-		printOnConsole(CONFIG_REQUEST_DIGITS_ONLY);
-		printOnConsole(CONFIG_NEWLINE);
-		printOnConsole(CONFIG_PROMPT);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(CONFIG_REQUEST_DIGITS_ONLY);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(CONFIG_PROMPT);
 		receive(buf, USER_PIN_LENGTH);
 	}
 }
@@ -198,20 +198,20 @@ static uint16_t get_int_between(const uint8_t min, const uint16_t max,
 	echo(n, str);
 
 	while (!isOnlyDigit((uint8_t*) str, n)) {
-		printOnConsole(CONFIG_NEWLINE);
-		printOnConsole(CONFIG_REQUEST_DIGITS_ONLY);
-		printOnConsole(CONFIG_NEWLINE);
-		printOnConsole(CONFIG_PROMPT);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(CONFIG_REQUEST_DIGITS_ONLY);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(CONFIG_PROMPT);
 		echo(n, str);
 	}
 
 	uint16_t retVal = atoi(str);
 
 	if (!(min <= retVal && retVal <= max)) {
-		printOnConsole(CONFIG_NEWLINE);
-		printOnConsole(error);
-		printOnConsole(CONFIG_NEWLINE);
-		printOnConsole(CONFIG_PROMPT);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(error);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(CONFIG_PROMPT);
 		return get_int_between(min, max, error);
 	} else {
 		return retVal;

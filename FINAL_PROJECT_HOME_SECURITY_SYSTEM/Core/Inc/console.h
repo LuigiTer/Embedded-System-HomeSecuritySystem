@@ -31,16 +31,16 @@ typedef struct {
 } TConsole;
 
 /*
- * @fn		void consoleInit(UART_HandleTypeDef *huart)
+ * @fn		void console_init(UART_HandleTypeDef *huart)
  * @brief	Creates the console singleton.
  * 			This function must be called before calling every other function in this module.
  * @param	huart	pointer to the UART_HandleTypeDef structure
  * 					representing the UART interface that will be used for communication
  */
-void consoleInit(UART_HandleTypeDef *huart);
+void console_init(UART_HandleTypeDef *huart);
 
 /*
- * @fn		TConsole* getConsole(UART_HandleTypeDef *huart)
+ * @fn		TConsole* get_console(UART_HandleTypeDef *huart)
  * @brief	Returns the singleton console instance.
  * 			If the instance has not been initialized yet and huart is not NULL,
  * 				then it will be initialized with huart itself.
@@ -51,44 +51,43 @@ void consoleInit(UART_HandleTypeDef *huart);
  * @param	huart	pointer to the UART_HandleTypeDef structure
  * @retval	pointer to the TConsole structure representing the console
  */
-TConsole* getConsole(UART_HandleTypeDef *huart);
+TConsole* get_console(UART_HandleTypeDef *huart);
 
 /*
- * @fn		void clearConsole()
+ * @fn		void clear_console()
  * @brief	Clears the console
  */
-void clearConsole();
+void clear_console();
 
 /*
- * @fn		void freeConsole()
+ * @fn		void free_console()
  * @brief	Waits unitl the console is ready to be used
  */
-void freeConsole();
+void free_console();
 
 /*
- * @fn		static void printMessage(const char *message)
+ * @fn		static void print_message(const char *message)
  * @brief	Prints a string on the console.
  * 			It wraps the particular mode for transmission.
  * @param	message		string to print
  */
-static void printMessage(const char *message) {
-	HAL_UART_Transmit_DMA(getConsole(NULL)->huart, (uint8_t*) message,
-			strlen(message));
+static void print_message(const char *message) {
+	HAL_UART_Transmit_DMA(get_console(NULL)->huart, (uint8_t*) message, strlen(message));
 }
 
 /*
- * @fn		void printOnConsole(const char *message)
+ * @fn		void print_on_console(const char *message)
  * @brief	Prints a string on the console, waiting if it is not ready for use
  * @param	message		string to print
  */
-void printOnConsole(const char *message);
+void print_on_console(const char *message);
 
 /*
- * @fn		void printIntOnConsole(const uint16_t n)
+ * @fn		void print_int_on_console(const uint16_t n)
  * @brief	Prints an integer on the console, waiting if it is not ready for use
  * @param	n	number to print
  */
-void printIntOnConsole(const uint16_t n);
+void print_int_on_console(const uint16_t n);
 
 /*
  * @fn		void transmit(uint8_t *data, uint8_t n)

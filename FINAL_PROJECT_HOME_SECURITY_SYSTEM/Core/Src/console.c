@@ -7,18 +7,18 @@
 #include "console.h"
 
 /*
- * @fn		void consoleInit(UART_HandleTypeDef *huart)
+ * @fn		void console_init(UART_HandleTypeDef *huart)
  * @brief	Creates the console singleton.
  * 			This function must be called before calling every other function in this module.
  * @param	huart	pointer to the UART_HandleTypeDef structure
  * 					representing the UART interface that will be used for communication
  */
-void consoleInit(UART_HandleTypeDef *huart) {
-	getConsole(huart);
+void console_init(UART_HandleTypeDef *huart) {
+	get_console(huart);
 }
 
 /*
- * @fn		TConsole* getConsole(UART_HandleTypeDef *huart)
+ * @fn		TConsole* get_console(UART_HandleTypeDef *huart)
  * @brief	Returns the singleton console instance.
  * 			If the instance has not been initialized yet and huart is not NULL,
  * 				then it will be initialized with huart itself.
@@ -29,7 +29,7 @@ void consoleInit(UART_HandleTypeDef *huart) {
  * @param	huart	pointer to the UART_HandleTypeDef structure
  * @retval	pointer to the TConsole structure representing the console
  */
-TConsole* getConsole(UART_HandleTypeDef *huart) {
+TConsole* get_console(UART_HandleTypeDef *huart) {
 	static TConsole *console = NULL;
 
 	if (huart == NULL && console == NULL) {
@@ -46,43 +46,44 @@ TConsole* getConsole(UART_HandleTypeDef *huart) {
 }
 
 /*
- * @fn		void freeConsole()
+ * @fn		void free_console()
  * @brief	Waits unitl the console is ready to be used
  */
-void freeConsole() {
-	while (!getConsole(NULL)->ready) {
+void free_console() {
+	while (!get_console(NULL)->ready) {
 		HAL_Delay(1);
 	}
 }
 
 /*
+ * @fn		void print_on_console(const char *message)
  * @brief	Prints a string on the console, waiting if it is not ready for use
  * @param	message		string to print
  */
-void printOnConsole(const char *message) {
-	freeConsole();
-	getConsole(NULL)->ready = FALSE;
-	printMessage(message);
+void print_on_console(const char *message) {
+	free_console();
+	get_console(NULL)->ready = FALSE;
+	print_message(message);
 }
 
 /*
- * @fn		void clearConsole()
+ * @fn		void clear_console()
  * @brief	Clears the console
  */
-void clearConsole() {
-	printOnConsole(ESCAPE_SEQUENCE_CLEAR_CONSOLE);
-	printOnConsole(ESCAPE_SEQUENCE_TOPLEFT_CURSOR);
+void clear_console() {
+	print_on_console(ESCAPE_SEQUENCE_CLEAR_CONSOLE);
+	print_on_console(ESCAPE_SEQUENCE_TOPLEFT_CURSOR);
 }
 
 /*
- * @fn		void printIntOnConsole(const uint16_t n)
+ * @fn		void print_int_on_console(const uint16_t n)
  * @brief	Prints an integer on the console, waiting if it is not ready for use
  * @param	n	number to print
  */
-void printIntOnConsole(const uint16_t n) {
+void print_int_on_console(const uint16_t n) {
 	char str[digitsOf(n)];
 	sprintf(str, "%d", n);
-	printOnConsole(str);
+	print_on_console(str);
 }
 
 /*
@@ -92,9 +93,9 @@ void printIntOnConsole(const uint16_t n) {
  * @param	n		length of the data to transmit
  */
 void transmit(uint8_t *data, uint8_t n) {
-	TConsole *console = getConsole(NULL);
+	TConsole *console = get_console(NULL);
 	UART_HandleTypeDef *huart = console->huart;
-	freeConsole();
+	free_console();
 	console->ready = FALSE;
 	HAL_UART_Transmit_DMA(huart, data, n);
 }
@@ -106,12 +107,12 @@ void transmit(uint8_t *data, uint8_t n) {
  * @param	n		length of the data to receive
  */
 void receive(uint8_t *data, uint8_t n) {
-	TConsole *console = getConsole(NULL);
+	TConsole *console = get_console(NULL);
 	UART_HandleTypeDef *huart = console->huart;
-	freeConsole();
+	free_console();
 	console->ready = FALSE;
 	HAL_UART_Receive_DMA(huart, data, n);
-	freeConsole();
+	free_console();
 }
 
 /*
