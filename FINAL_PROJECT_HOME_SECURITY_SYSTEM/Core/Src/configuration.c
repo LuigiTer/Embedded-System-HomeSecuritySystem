@@ -32,7 +32,7 @@ TConfiguration* get_configuration() {
 		configuration->area_alarm_delay = MAX_ALARM_DELAY;
 		configuration->barrier_alarm_delay = MAX_ALARM_DELAY;
 		configuration->alarm_duration = MAX_ALARM_DURATION;
-		retriveCurrentDateTime(configuration->datetime);
+		retrive_current_date_time(configuration->datetime);
 		configuration->done = FALSE;
 	}
 
@@ -284,7 +284,7 @@ void ask_for_datetime(TConfiguration *configuration) {
 	// Ask date
 	char msg[32];
 	char msg2[32];
-	uint8_t maxDays = daysOfMonth(datetime->month - 1);
+	uint8_t maxDays = days_of_month(datetime->month - 1);
 	sprintf(msg, "date [01-%d]: ", maxDays);
 	print_on_console(msg);
 	sprintf(msg2, "Date number must be in [01-%d]", maxDays);
