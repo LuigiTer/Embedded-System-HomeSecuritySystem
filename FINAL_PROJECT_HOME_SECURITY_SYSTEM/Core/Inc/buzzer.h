@@ -29,7 +29,7 @@ typedef uint32_t TValue;
  * 			encapsulating the timer interface used to generate the PWM signal that control the buzzer.
  * @param	htim				pointer to the TIM_HandleTypeDef structure representing the timer interface
  * 								used to generate the PWM signal that control the buzzer
- * @param	currentDutyCycle	the current duty cycle
+ * @param	current_duty_cycle	the current duty cycle
  */
 typedef struct {
 	TIM_HandleTypeDef *htim;
@@ -102,7 +102,7 @@ void set_sound_level(TBuzzer *buzzer, uint8_t level);
  * @fn		static TValue get_value_of_duty_cycle(const TDutyCycle duty_cycle)
  * @brief	Converts a duty cycle float value in [0,1[ to the corresponding interger value in [0, MAX_VALUE[
  * @param	dutyCycle	duty cycle value to convert
- * @retval	integer value corresponding to dutyCycle
+ * @retval	integer value corresponding to duty_cycle
  */
 static TValue get_value_of_duty_cycle(const TDutyCycle duty_cycle) {
 	return (TValue) map(duty_cycle, 0.0, 1.0, 0, MAX_VALUE);

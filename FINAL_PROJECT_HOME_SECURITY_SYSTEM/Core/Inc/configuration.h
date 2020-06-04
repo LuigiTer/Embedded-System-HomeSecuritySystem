@@ -61,32 +61,32 @@ You have 30 seconds to setup all the configuration parameters.\n\r")
 
 /*
  * @brief	This struct represents the system configuration, storing all the useful parameters.
- * @param	userPIN				pointer to the array containing the characters of the user PIN
- * @param	areaAlarmDelay		number of seconds of the delay of the alarm for the AREA Sensor
- * @param	barrierAlarmDelay	number of seconds of the delay of the alarm for the BARRIER Sensor
- * @param	alarmDuration		number of seconds of the duration of the alarm
- * @param	datetime			datetime of the first use of the system
- * @param	done				boolean value representing if the configuration is set or not
+ * @param	user_PIN				pointer to the array containing the characters of the user PIN
+ * @param	area_alarm_delay		number of seconds of the delay of the alarm for the AREA Sensor
+ * @param	barrier_alarm_delay		number of seconds of the delay of the alarm for the BARRIER Sensor
+ * @param	alarm_duration			number of seconds of the duration of the alarm
+ * @param	datetime				datetime of the first use of the system
+ * @param	done					boolean value representing if the configuration is set or not
  */
 typedef struct {
-	uint8_t userPIN[USER_PIN_LENGTH];
-	uint8_t areaAlarmDelay;
-	uint8_t barrierAlarmDelay;
-	uint8_t alarmDuration;
+	uint8_t user_PIN[USER_PIN_LENGTH];
+	uint8_t area_alarm_delay;
+	uint8_t barrier_alarm_delay;
+	uint8_t alarm_duration;
 	TDatetime *datetime;
 	bool done;
 } TConfiguration;
 
 /*
- * @fn		void configurationInit()
+ * @fn		void configuration_init()
  * @brief	Creates the configuration singleton.
  * 			This function must be called before calling every other function in this module.
  * 			Note that after calling this function for the first time, the done paramter will be FALSE.
  */
-void configurationInit();
+void configuration_init();
 
 /*
- * @fn		TConfiguration* getConfiguration()
+ * @fn		TConfiguration* get_configuration()
  * @brief	Returns the singleton configuration instance.
  * 			If the instance has not been initialized yet,
  * 				then it will be initialized with the basic configuration.
@@ -94,32 +94,32 @@ void configurationInit();
  * 				the configuration structure itself will be returned.
  * @retval	pointer to the TConfiguration structure representing the configuration
  */
-TConfiguration* getConfiguration();
+TConfiguration* get_configuration();
 
 /*
- *	@fn		void systemBoot()
+ *	@fn		void system_boot()
  *	@brief	Performs all the steps needed to setup all the configuration parameters, asking them to the user.
  *			If the user does not provide these parameters in 30 seconds,
  *				the basic configuration will be set.
  */
-void systemBoot();
+void system_boot();
 
 /*
- * @fn		void configurationRecap(TConfiguration *configuration)
+ * @fn		void configuration_recap(TConfiguration *configuration)
  * @brief	Prints all the configuration parameters in a compact way
  * @param	configuration	pointer to the TConfiguration structure
  * 				containing the system configuration parameters
  */
-void configurationRecap(TConfiguration *configuration);
+void configuration_recap(TConfiguration *configuration);
 
 /*
- * @fn		void printWelcomeMessage()
+ * @fn		void print_welcome_message()
  * @brief	Prints a welcome message on the console.
  */
-void printWelcomeMessage();
+void print_welcome_message();
 
 /*
- * @fn		void askForPIN(TConfiguration *configuration)
+ * @fn		void ask_for_PIN(TConfiguration *configuration)
  * @brief	Prints a series of messages on the console, reading the user PIN
  * 				and setting it in the configuration strucutre.
  * 			For confirmation purposes, it will be asked twice.
@@ -127,50 +127,50 @@ void printWelcomeMessage();
  * @param	configuration	pointer to the TConfiguration structure
  * 				containing the system configuration parameters
  */
-void askForPIN(TConfiguration *configuration);
+void ask_for_PIN(TConfiguration *configuration);
 
 /*
- * @fn		void askForAreaAlarmDelay(TConfiguration *configuration)
+ * @fn		void ask_for_area_alarm_delay(TConfiguration *configuration)
  * @brief	Prints a series of messages on the console,
  * 				reading the number of seconds of the delay of the alarm for the AREA Sensor
  * @param	configuration	pointer to the TConfiguration structure
  * 				containing the system configuration parameters
  */
-void askForAreaAlarmDelay(TConfiguration *configuration);
+void ask_for_area_alarm_delay(TConfiguration *configuration);
 
 /*
- * @fn		void askForBarrierAlarmDelay(TConfiguration *configuration)
+ * @fn		void ask_for_barrier_alarm_delay(TConfiguration *configuration)
  * @brief	Prints a series of messages on the console,
  * 				reading the number of seconds of the delay of the alarm for the BARRIER Sensor
  * @param	configuration	pointer to the TConfiguration structure
  * 				containing the system configuration parameters
  */
-void askForBarrierAlarmDelay(TConfiguration *configuration);
+void ask_for_barrier_alarm_delay(TConfiguration *configuration);
 
 /*
- * @fn		void askForAlarmDuration(TConfiguration *configuration)
+ * @fn		void ask_for_alarm_duration(TConfiguration *configuration)
  * @brief	Prints a series of messages on the console,
  * 				reading the number of seconds of the duration of the alarm
  * @param	configuration	pointer to the TConfiguration structure
  * 				containing the system configuration parameters
  */
-void askForAlarmDuration(TConfiguration *configuration);
+void ask_for_alarm_duration(TConfiguration *configuration);
 
 /*
- * @fn		void askForDatetime(TConfiguration *configuration)
+ * @fn		void ask_for_datetime(TConfiguration *configuration)
  * @brief	Prints a series of messages on the console,
  * 				reading the datetime set by the user
  * @param	configuration	pointer to the TConfiguration structure
  * 				containing the system configuration parameters
  */
-void askForDatetime(TConfiguration *configuration);
+void ask_for_datetime(TConfiguration *configuration);
 
 /*
- * @fn		static void getUserPIN(uint8_t *buf)
+ * @fn		static void get_user_PIN(uint8_t *buf)
  * @brief	Receives the user PIN from the console and stored it in a buffer
  * @param	buf		buffer the received user PIN will be stored in
  */
-static void getUserPIN(uint8_t *buf) {
+static void get_user_PIN(uint8_t *buf) {
 	receive(buf, USER_PIN_LENGTH);
 	while (!isOnlyDigit(buf, USER_PIN_LENGTH)) {
 		printOnConsole(CONFIG_NEWLINE);
@@ -182,7 +182,7 @@ static void getUserPIN(uint8_t *buf) {
 }
 
 /*
- * @fn		static uint16_t getIntBetween(const uint8_t min, const uint16_t max, const char *error)
+ * @fn		static uint16_t get_int_between(const uint8_t min, const uint16_t max, const char *error)
  * @brief	Receives an integer from the console in a specified range,
  *			printing an error message if the constraints are not respected.
  * @param	min		lower bound of the constraint range
@@ -190,7 +190,7 @@ static void getUserPIN(uint8_t *buf) {
  * @param	error	string printed if the received number is not in [min, max]
  * @retval	number in [min, max] read from the console
  */
-static uint16_t getIntBetween(const uint8_t min, const uint16_t max,
+static uint16_t get_int_between(const uint8_t min, const uint16_t max,
 		const char *error) {
 	uint8_t n = digitsOf(max);
 	char str[n];
@@ -212,41 +212,41 @@ static uint16_t getIntBetween(const uint8_t min, const uint16_t max,
 		printOnConsole(error);
 		printOnConsole(CONFIG_NEWLINE);
 		printOnConsole(CONFIG_PROMPT);
-		return getIntBetween(min, max, error);
+		return get_int_between(min, max, error);
 	} else {
 		return retVal;
 	}
 }
 
 /*
- * @fn		static uint16_t getIntLessThan(const uint16_t max, const char *error)
+ * @fn		static uint16_t get_int_less_than(const uint16_t max, const char *error)
  * @brief	Receives an integer from the console less than a specified limit,
  *			printing an error message if the constraint is not respected.
  * @param	max		upper bound of the constraint
  * @param	error	string printed if the received number is not in [0, max]
  * @retval	number in [0, max] read from the console
  */
-static uint16_t getIntLessThan(const uint16_t max, const char *error) {
-	return getIntBetween(0, max, error);
+static uint16_t get_int_less_than(const uint16_t max, const char *error) {
+	return get_int_between(0, max, error);
 }
 
 /*
- * @fn		void showDatetime(TDatetime *datetime)
+ * @fn		void show_date_time(TDatetime *datetime)
  * @brief	Prints a TDatetime structure in a compact and readble way (e.g. 08-11-1997 @ 23:00:00)
  * @param	datetime	pointer to the TDatetime structure to print
  */
-void showDatetime(TDatetime *datetime);
+void show_date_time(TDatetime *datetime);
 
 /*
- * @fn		Performs the next step needed to setup the next configuration parameter, asking it to the user.
+ * @fn		static void perform_next_step(void (*nextStep)(TConfiguration*), TConfiguration *configuration)
+ * @brief	Performs the next step needed to setup the next configuration parameter, asking it to the user.
  * 			If the configuration is done, nothing will be performed at all.
  * @param	nextStep		a void(TConfiguration*) function containing the next step to perform
  * 								if the configuration is not done yet
  * @pram	configuration	pointer to the TConfiguration structure that will store the next parameter.
  */
-static void performNextStep(void (*nextStep)(TConfiguration*),
-		TConfiguration *configuration) {
-	TConfiguration *currentConfiguration = getConfiguration();
+static void perform_next_step(void (*nextStep)(TConfiguration*), TConfiguration *configuration) {
+	TConfiguration *currentConfiguration = get_configuration();
 	if (!currentConfiguration->done) {
 		(nextStep)(configuration);
 	}
