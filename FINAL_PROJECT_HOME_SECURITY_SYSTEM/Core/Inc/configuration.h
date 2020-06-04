@@ -172,7 +172,7 @@ void ask_for_datetime(TConfiguration *configuration);
  */
 static void get_user_PIN(uint8_t *buf) {
 	receive(buf, USER_PIN_LENGTH);
-	while (!isOnlyDigit(buf, USER_PIN_LENGTH)) {
+	while (!is_only_digit(buf, USER_PIN_LENGTH)) {
 		print_on_console(CONFIG_NEWLINE);
 		print_on_console(CONFIG_REQUEST_DIGITS_ONLY);
 		print_on_console(CONFIG_NEWLINE);
@@ -192,12 +192,12 @@ static void get_user_PIN(uint8_t *buf) {
  */
 static uint16_t get_int_between(const uint8_t min, const uint16_t max,
 		const char *error) {
-	uint8_t n = digitsOf(max);
+	uint8_t n = digits_of(max);
 	char str[n];
 
 	echo(n, str);
 
-	while (!isOnlyDigit((uint8_t*) str, n)) {
+	while (!is_only_digit((uint8_t*) str, n)) {
 		print_on_console(CONFIG_NEWLINE);
 		print_on_console(CONFIG_REQUEST_DIGITS_ONLY);
 		print_on_console(CONFIG_NEWLINE);

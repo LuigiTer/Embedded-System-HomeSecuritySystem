@@ -177,7 +177,7 @@ void ask_for_PIN(TConfiguration *configuration) {
 	get_user_PIN(userPIN2);
 
 	// If the two sequences are not the same, an error message will be printed and the program ends
-	if (!areEqual(configuration->user_PIN, userPIN2, USER_PIN_LENGTH, USER_PIN_LENGTH)) {
+	if (!are_equal(configuration->user_PIN, userPIN2, USER_PIN_LENGTH, USER_PIN_LENGTH)) {
 		print_on_console(CONFIG_MESSAGE_ERROR);
 		exit(1);
 	}

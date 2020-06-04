@@ -81,7 +81,7 @@ void clear_console() {
  * @param	n	number to print
  */
 void print_int_on_console(const uint16_t n) {
-	char str[digitsOf(n)];
+	char str[digits_of(n)];
 	sprintf(str, "%d", n);
 	print_on_console(str);
 }
