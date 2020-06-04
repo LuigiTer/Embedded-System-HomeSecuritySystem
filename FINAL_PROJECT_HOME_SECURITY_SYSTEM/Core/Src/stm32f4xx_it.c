@@ -23,6 +23,9 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "configuration.h"
+#include "rtc_ds1307.h"
+#include "photoresistor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +45,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+extern bool systemOn;
+extern TDatetime datetime;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -336,6 +340,39 @@ void DMA2_Stream0_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	/*
+	 * TIM1 lasts 10 seconds in One-Pulse Mode.
+	 * When this time has passed, the basic configuration will be set, and it's considered done.
+	 */
+	if (htim->Instance == TIM1 && systemOn) {
+		TConfiguration *configuration = get_configuration();
+		configuration->done = TRUE;
+	} else if (htim->Instance == TIM10) {
+		rtc_ds1307_get_datetime(&datetime);
+	}
+}
 
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim){
+	if (htim->Instance == photoresistor1.htim->Instance){
+			photoresistor_time_elapsed(&photoresistor1);
+			return;
+		}
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+	if (hadc->Instance == photoresistor1.hadc->Instance){
+		if (photoresistor1.value > MAX_AREA_RANGE && photoresistor1.state == ALARM_STATE_ACTIVE){
+			photoresistor1.htim->Instance->CNT = 0U;
+			HAL_TIM_OC_Start_IT(photoresistor1.htim, TIM_CHANNEL_1);
+			photoresistor1.state = ALARM_STATE_DELAYED;
+		}
+		else if(photoresistor1.value < MAX_AREA_RANGE && photoresistor1.state == ALARM_STATE_DELAYED){
+			photoresistor1.state = ALARM_STATE_ACTIVE;
+			HAL_TIM_OC_Stop_IT(photoresistor1.htim, TIM_CHANNEL_1);
+			photoresistor1.remaining_delay = photoresistor1.alarm_delay;
+		}
+	}
+}
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

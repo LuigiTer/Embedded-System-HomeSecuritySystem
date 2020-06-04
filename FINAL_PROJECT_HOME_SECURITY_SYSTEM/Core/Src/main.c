@@ -32,6 +32,8 @@
 #include "console.h"
 #include "configuration.h"
 #include "buzzer.h"
+#include "rtc_ds1307.h"
+#include "photoresistor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +53,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+TDatetime datetime;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -102,8 +104,12 @@ int main(void) {
 	MX_TIM2_Init();
 	MX_TIM9_Init();
 	/* USER CODE BEGIN 2 */
+	rtc_ds1307_init(&datetime);
+	rtc_ds1307_set_datetime(&datetime);
 	system_boot();
+	photoresistor_init(&photoresistor1, 3, 10, &htim2, &hadc1);		// TODO parameters 3 and 10 hardcoded
 	TBuzzer *buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
+	HAL_TIM_Base_Start_IT(&htim10);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

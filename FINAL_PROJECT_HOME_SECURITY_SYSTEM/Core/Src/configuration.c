@@ -1,6 +1,6 @@
 #include <configuration.h>
 
-static bool systemOn = FALSE;
+bool systemOn = FALSE;
 
 /*
  * @fn		void configuration_init()
@@ -331,17 +331,6 @@ void show_date_time(TDatetime *datetime) {
 	print_on_console(":");
 	print_int_on_console(datetime->second);
 	print_on_console("]");
-}
-
-/*
- * TIM1 lasts 10 seconds in One-Pulse Mode.
- * When this time has passed, the basic configuration will be set, and it's considered done.
- */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == TIM1 && systemOn) {
-		TConfiguration *configuration = get_configuration();
-		configuration->done = TRUE;
-	}
 }
 
 /*
