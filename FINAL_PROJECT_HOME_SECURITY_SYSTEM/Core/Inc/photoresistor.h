@@ -3,8 +3,9 @@
 
 #include "stm32f4xx_hal.h"
 #include "adc.h"
+#include "buzzer.h"
 
-#define MAX_AREA_RANGE (1000)
+#define MAX_AREA_RANGE (3000)
 
 typedef enum {
 	ALARM_STATE_INACTIVE, ALARM_STATE_ACTIVE, ALARM_STATE_ALARMED, ALARM_STATE_DELAYED
@@ -14,7 +15,7 @@ typedef struct {
 	uint16_t value;
 	uint8_t alarm_delay;
 	uint8_t alarm_duration;
-	uint8_t remaining_delay;
+	uint16_t counter;
 	TAlarmState state;
 	TIM_HandleTypeDef* htim;
 	ADC_HandleTypeDef* hadc;
@@ -49,6 +50,8 @@ void photoresistor_activate(TPhotoresistor* photoresistor);
  * @param   	photoresistor: reference to the photoresistor variable
  */
 void photoresistor_deactivate(TPhotoresistor* photoresistor);
+
+void photoresistor_change_state(TPhotoresistor *photoresistor, TAlarmState new_state);
 
 /*
  * @fn 			void photoresistor_time_elapsed(TPhotoresistor* photoresistor)

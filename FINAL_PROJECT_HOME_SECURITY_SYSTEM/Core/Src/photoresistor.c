@@ -1,5 +1,7 @@
 #include "photoresistor.h"
 
+extern TBuzzer *buzzer;
+
 /*
  * @fn 			void photoresistor_init(TPhotoresistor* photoresistor, uint8_t alarm_delay,
  * 											uint8_t alarm_duration, TIM_HandleTypeDef* htim, ADC_HandleTypeDef* hadc)
@@ -10,10 +12,12 @@
  * @param   	htim: reference to the timer used for control the alarm duration
  * @param   	hadc: reference to the ADC who does the conversion
  */
-void photoresistor_init(TPhotoresistor* photoresistor, uint8_t alarm_delay, uint8_t alarm_duration, TIM_HandleTypeDef* htim, ADC_HandleTypeDef* hadc) {
+void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
+		uint8_t alarm_duration, TIM_HandleTypeDef *htim,
+		ADC_HandleTypeDef *hadc) {
 	photoresistor->value = 0;
 	photoresistor->alarm_delay = alarm_delay;
-	photoresistor->remaining_delay = alarm_delay;
+	photoresistor->counter = 0;
 	photoresistor->alarm_duration = alarm_duration;
 	photoresistor->state = ALARM_STATE_ACTIVE;
 	photoresistor->htim = htim;
@@ -25,10 +29,8 @@ void photoresistor_init(TPhotoresistor* photoresistor, uint8_t alarm_delay, uint
  * @brief  	 	activate the photoresistor module
  * @param   	photoresistor: reference to the photoresistor variable
  */
-void photoresistor_activate(TPhotoresistor* photoresistor){
-	photoresistor->state = ALARM_STATE_ACTIVE;
-	photoresistor->remaining_delay = photoresistor->alarm_delay;
-	HAL_ADC_Start_DMA(photoresistor->hadc, &photoresistor->value, 1);
+void photoresistor_activate(TPhotoresistor *photoresistor) {
+	photoresistor_change_state(photoresistor, ALARM_STATE_ACTIVE);
 }
 
 /*
@@ -36,10 +38,43 @@ void photoresistor_activate(TPhotoresistor* photoresistor){
  * @brief  	 	deactivate the photoresistor module
  * @param   	photoresistor: reference to the photoresistor variable
  */
-void photoresistor_deactivate(TPhotoresistor* photoresistor){
-	photoresistor->state = ALARM_STATE_INACTIVE;
-	HAL_TIM_OC_Stop_IT(photoresistor->htim, TIM_CHANNEL_1);
-	HAL_ADC_Stop_DMA(photoresistor->hadc);
+void photoresistor_deactivate(TPhotoresistor *photoresistor) {
+	photoresistor_change_state(photoresistor, ALARM_STATE_INACTIVE);
+}
+
+/*
+ * INACTIVE -> ACTIVE -> DELAYED -> ALARMED -> ACTIVE
+ * INACTIVE <- ...
+ */
+void photoresistor_change_state(TPhotoresistor *photoresistor, TAlarmState new_state) {
+	switch (new_state) {
+	case ALARM_STATE_INACTIVE:
+		photoresistor->state = ALARM_STATE_INACTIVE;
+		photoresistor->counter = 0;
+		set_sound_level(buzzer, 0);
+		HAL_ADC_Stop_DMA(photoresistor->hadc);
+		HAL_TIM_Base_Stop_IT(photoresistor->htim);
+		break;
+	case ALARM_STATE_ACTIVE:
+		photoresistor->state = ALARM_STATE_ACTIVE;
+		photoresistor->counter = 0;
+		set_sound_level(buzzer, 0);
+		HAL_TIM_Base_Start_IT(photoresistor->htim);
+		break;
+	case ALARM_STATE_DELAYED:
+		photoresistor->state = ALARM_STATE_DELAYED;
+		photoresistor->counter = 0;
+		set_sound_level(buzzer, 0);
+		break;
+	case ALARM_STATE_ALARMED:
+		photoresistor->state = ALARM_STATE_ALARMED;
+		photoresistor->counter = 0;
+		set_sound_level(buzzer, 1);
+		HAL_ADC_Stop_DMA(photoresistor->hadc);
+		break;
+	default:
+		break;
+	}
 }
 
 /*
@@ -47,22 +82,25 @@ void photoresistor_deactivate(TPhotoresistor* photoresistor){
  * @brief  	 	check if the period of the alarm high is elapsed
  * @param   	photoresistor: reference to the photoresistor variable
  */
-void photoresistor_time_elapsed(TPhotoresistor* photoresistor){
-	photoresistor->remaining_delay -=1;
+/*
+void photoresistor_time_elapsed(TPhotoresistor *photoresistor) {
 
-	if (photoresistor->remaining_delay == 0){
-		photoresistor->state = ALARM_STATE_ALARMED;
-		HAL_ADC_Stop_DMA(photoresistor->hadc);
+	static uint8_t counter = 0;
+
+
+
+	photoresistor->remaining_delay -= 1;
+
+	if (photoresistor->remaining_delay == 0) {
+		photoresistor_change_state(photoresistor, ALARM_STATE_ALARMED);
 		return;
 	}
 
 	// decreasing remaining delay will cause an underflow, so we sum it to the alarm duration (example 255 + 10 = 9 beacause uint8_t)
 	// and wait until the total sum overflows the variable and then we have that the sum is zero so the alarm duration is elapsed
 	uint8_t temp = photoresistor->remaining_delay + photoresistor->alarm_duration;
-	if (temp == 0){
-		HAL_TIM_OC_Stop_IT(photoresistor->htim, TIM_CHANNEL_1);
-		photoresistor->state = ALARM_STATE_ACTIVE;
-		photoresistor->remaining_delay = photoresistor->alarm_delay;
-		HAL_ADC_Start_DMA(photoresistor->hadc, &photoresistor->value, 1);
+	if (temp == 0) {
+		photoresistor_change_state(photoresistor, ALARM_STATE_ACTIVE);
 	}
 }
+*/

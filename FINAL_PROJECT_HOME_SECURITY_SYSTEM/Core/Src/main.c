@@ -55,6 +55,7 @@
 
 /* USER CODE BEGIN PV */
 TDatetime datetime;
+TBuzzer *buzzer;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,15 +113,12 @@ int main(void) {
 	system_boot();
 	// TODO logger prints [DATETIME] Configuration loaded / rejected
 
-	/*
+	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
 	configure_photoresistor();
 
-	configure_PIR_sensor();
+	// configure_PIR_sensor();
 
-	TBuzzer *buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
-
-	HAL_TIM_Base_Start_IT(&htim10);
-	*/
+	// HAL_TIM_Base_Start_IT(&htim10);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -130,13 +128,14 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
-		HAL_Delay(2000);
-		rtc_ds1307_get_datetime(get_configuration()->datetime);
-		show_date_time(get_configuration()->datetime);
-		print_on_console(CONFIG_NEWLINE);
 		// HAL_Delay(3000);
 		// set_sound_level(buzzer, level);
 		// level = (level + 1) % (N_LEVELS + 1);
+		/*
+		 HAL_Delay(1000);
+		 rtc_ds1307_get_datetime(get_configuration()->datetime);
+		 show_date_time(get_configuration()->datetime);
+		 */
 	}
 	/* USER CODE END 3 */
 }
@@ -185,13 +184,16 @@ void SystemClock_Config(void) {
 void configure_photoresistor() {
 	uint8_t area_alarm_delay = get_configuration()->area_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
-	photoresistor_init(&photoresistor1, area_alarm_delay, alarm_duration, &htim2, &hadc1);
+	photoresistor_init(&photoresistor1, area_alarm_delay, alarm_duration,
+			&htim2, &hadc1);
+	photoresistor_activate(&photoresistor1);
 }
 
 void configure_PIR_sensor() {
 	uint8_t barrier_alarm_delay = get_configuration()->barrier_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
-	PIR_sensor_Init(&PIR_4, barrier_alarm_delay, alarm_duration, EXTI4_IRQn, GPIOC, GPIO_PIN_4, &htim9);
+	PIR_sensor_Init(&PIR_4, barrier_alarm_delay, alarm_duration, EXTI4_IRQn,
+	GPIOC, GPIO_PIN_4, &htim9);
 }
 /* USER CODE END 4 */
 

@@ -37,7 +37,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define ALARM_COUNTER_FACTOR		(4)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -369,33 +369,49 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		configuration->done = TRUE;
 	} else if (htim->Instance == TIM10) {
 		rtc_ds1307_get_datetime(get_configuration()->datetime);
+		show_date_time(get_configuration()->datetime);
+		TConsole *console = get_console(NULL);
+
+		//HAL_UART_Transmit(get_console(NULL)->huart, (uint8_t*)"H\n\r", 3, HAL_MAX_DELAY);
 	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
 		KEYPAD_time_elapsed(&KEYPAD_1);
+	} else if (htim->Instance == photoresistor1.htim->Instance) {
+		TAlarmState state = photoresistor1.state;
+
+		if (state == ALARM_STATE_DELAYED || state == ALARM_STATE_ALARMED) {
+			photoresistor1.counter += 1;
+			if (state == ALARM_STATE_DELAYED &&
+					photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
+				photoresistor_change_state(&photoresistor1,
+						ALARM_STATE_ALARMED);
+			} else if (state == ALARM_STATE_ALARMED &&
+					photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
+				photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
+			}
+		}
+
+		if (state == ALARM_STATE_ACTIVE || state == ALARM_STATE_DELAYED) {
+			HAL_ADC_Start_DMA(photoresistor1.hadc, &photoresistor1.value, 1);
+		}
 	}
 }
 
-void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == photoresistor1.htim->Instance) {
-		photoresistor_time_elapsed(&photoresistor1);
-	} else if (htim->Instance == PIR_4.timer->Instance) {
-		PIR_Time_elapsed(&PIR_4);
-	}
-}
+/*
+ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
+ if (htim->Instance == PIR_4.timer->Instance) {
+ PIR_Time_elapsed(&PIR_4);
+ }
+ }
+ */
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-if (hadc->Instance == photoresistor1.hadc->Instance) {
-	if (photoresistor1.value > MAX_AREA_RANGE
-			&& photoresistor1.state == ALARM_STATE_ACTIVE) {
-		photoresistor1.htim->Instance->CNT = 0U;
-		HAL_TIM_OC_Start_IT(photoresistor1.htim, TIM_CHANNEL_1);
-		photoresistor1.state = ALARM_STATE_DELAYED;
-	} else if (photoresistor1.value < MAX_AREA_RANGE
-			&& photoresistor1.state == ALARM_STATE_DELAYED) {
-		photoresistor1.state = ALARM_STATE_ACTIVE;
-		HAL_TIM_OC_Stop_IT(photoresistor1.htim, TIM_CHANNEL_1);
-		photoresistor1.remaining_delay = photoresistor1.alarm_delay;
+	if (hadc->Instance == photoresistor1.hadc->Instance) {
+		if (photoresistor1.state == ALARM_STATE_ACTIVE && photoresistor1.value > MAX_AREA_RANGE) {
+			photoresistor_change_state(&photoresistor1, ALARM_STATE_DELAYED);
+		} else if (photoresistor1.state == ALARM_STATE_DELAYED && photoresistor1.value < MAX_AREA_RANGE) {
+			photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
+		}
 	}
-}
 }
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

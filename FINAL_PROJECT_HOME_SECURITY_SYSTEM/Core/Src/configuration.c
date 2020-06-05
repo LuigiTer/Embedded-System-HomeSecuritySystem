@@ -93,7 +93,7 @@ void system_boot() {
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 	print_on_console(CONFIG_MESSAGE_READY);
 	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_NEWLINE);
+	// print_on_console(CONFIG_NEWLINE);
 }
 
 /*
