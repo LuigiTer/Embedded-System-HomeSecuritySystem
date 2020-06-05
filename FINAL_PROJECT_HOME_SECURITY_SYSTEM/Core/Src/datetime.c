@@ -105,6 +105,7 @@ void retrieve_current_date_time(TDatetime *datetime) {
 	datetime->year = current_date[2];
 	datetime->month = current_date[1];
 	datetime->date = current_date[0];
+	datetime->day = 0;
 	datetime->hour = current_time[0];
 	datetime->minute = current_time[1];
 	datetime->second = current_time[2];

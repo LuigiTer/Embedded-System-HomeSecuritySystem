@@ -7,6 +7,7 @@
 #include "i2c.h"
 #include "main.h"
 #include "datetime.h"
+#include "configuration.h"
 
 /**
  * Define constrains

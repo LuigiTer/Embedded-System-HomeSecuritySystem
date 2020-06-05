@@ -9,8 +9,8 @@ uint8_t temp_buffer[MAX_BUFFER_SIZE];
  * @param[in]	value: value to convert from BCD to Decimal
  * @return 		converted value
  */
-uint8_t bcd2Dec(uint8_t value){
-	return ((value/16*10) + (value % 16));
+uint8_t bcd2Dec(uint8_t value) {
+	return ((value / 16 * 10) + (value % 16));
 }
 
 /*
@@ -19,8 +19,8 @@ uint8_t bcd2Dec(uint8_t value){
  * @param[in]	value: value to convert from Decimal to BCD
  * @return 		converted value
  */
-uint8_t dec2Bcd(uint8_t value){
-	return ((value/10*16) + (value % 10));
+uint8_t dec2Bcd(uint8_t value) {
+	return ((value / 10 * 16) + (value % 10));
 }
 
 /*
@@ -28,20 +28,8 @@ uint8_t dec2Bcd(uint8_t value){
  * @brief  		initialize the datetime struct
  * @param[in]	datetime: the datetime variable to initialize
  */
-void init_struct(TDatetime* datetime){
-	int date_buffer[3];
-	int time_buffer[3];
-
-	retrieve_date(&date_buffer);
-	retrieve_time(&time_buffer);
-
-	datetime->second = time_buffer[2];
-	datetime->minute = time_buffer[1];
-	datetime->hour = time_buffer[0];
-	datetime->day = 0;
-	datetime->date =  date_buffer[0];
-	datetime->month = date_buffer[1];
-	datetime->year = date_buffer[2];
+void init_struct(TDatetime *datetime) {
+	retrieve_current_date_time(datetime);
 }
 
 /*
@@ -51,17 +39,18 @@ void init_struct(TDatetime* datetime){
  * @return     RTC_DS1307_ERR if the device is not ready
  * @return     RTC_DS1307_OK if the device is ready
  */
-int rtc_ds1307_init(TDatetime* datetime) {
+int rtc_ds1307_init(TDatetime *datetime) {
 
-    HAL_StatusTypeDef is_ds1307_ready = HAL_I2C_IsDeviceReady(&hi2c1, DS1307_ADDRESS,
-    		MAX_RETRY, HAL_MAX_DELAY);
+	HAL_StatusTypeDef is_ds1307_ready = HAL_I2C_IsDeviceReady(&hi2c1,
+			DS1307_ADDRESS,
+			MAX_RETRY, HAL_MAX_DELAY);
 
-    if (is_ds1307_ready != HAL_OK)
-    	return RTC_DS1307_ERR;
+	if (is_ds1307_ready != HAL_OK)
+		return RTC_DS1307_ERR;
 
-    init_struct(datetime);
+	init_struct(datetime);
 
-    return RTC_DS1307_OK;
+	return RTC_DS1307_OK;
 }
 
 /*
@@ -71,10 +60,10 @@ int rtc_ds1307_init(TDatetime* datetime) {
  * @return     RTC_DS1307_I2C_ERR if the transmit for the setting fails
  * @return     RTC_DS1307_OK if the transmit for the setting was successful
  */
-int rtc_ds1307_set_datetime (const TDatetime* datetime) {
+int rtc_ds1307_set_datetime(const TDatetime *datetime) {
 
 	HAL_StatusTypeDef return_value;
-    uint8_t buffer[MAX_BUFFER_SIZE];
+	uint8_t buffer[MAX_BUFFER_SIZE];
 
 	buffer[0] = dec2Bcd(datetime->second);
 	buffer[1] = dec2Bcd(datetime->minute);
@@ -85,7 +74,7 @@ int rtc_ds1307_set_datetime (const TDatetime* datetime) {
 	buffer[6] = dec2Bcd(datetime->year);
 
 	return_value = HAL_I2C_Mem_Write(&hi2c1, DS1307_ADDRESS, DS1307_SECOND,
-			ADDRESS_SIZE, &(buffer), MAX_BUFFER_SIZE, HAL_MAX_DELAY);
+	ADDRESS_SIZE, &(buffer), MAX_BUFFER_SIZE, HAL_MAX_DELAY);
 	if (return_value != HAL_OK)
 		return RTC_DS1307_I2C_ERR;
 	return RTC_DS1307_OK;
@@ -98,26 +87,25 @@ int rtc_ds1307_set_datetime (const TDatetime* datetime) {
  * @return     RTC_DS1307_I2C_ERR if the transmit for the getting fails
  * @return     RTC_DS1307_OK if the transmit for the getting was successful
  */
-int rtc_ds1307_get_datetime (TDatetime* datetime){
+int rtc_ds1307_get_datetime(TDatetime *datetime) {
 	HAL_StatusTypeDef return_value;
 
 	return_value = HAL_I2C_Mem_Read_DMA(&hi2c1, DS1307_ADDRESS, DS1307_SECOND,
-			ADDRESS_SIZE, &(temp_buffer), MAX_BUFFER_SIZE);
+	ADDRESS_SIZE, &(temp_buffer), MAX_BUFFER_SIZE);
 	if (return_value != HAL_OK)
 		return RTC_DS1307_I2C_ERR;
 
 	return RTC_DS1307_OK;
 }
 
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c){
-	if (hi2c->Instance == I2C1)
-	{
-		datetime.second = bcd2Dec(temp_buffer[0]);
-		datetime.minute = bcd2Dec(temp_buffer[1]);
-		datetime.hour = bcd2Dec(temp_buffer[2]);
-		datetime.day = bcd2Dec(temp_buffer[3]);
-		datetime.date = bcd2Dec(temp_buffer[4]);
-		datetime.month = bcd2Dec(temp_buffer[5]);
-		datetime.year = bcd2Dec(temp_buffer[6]);
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
+	if (hi2c->Instance == I2C1) {
+		get_configuration()->datetime->second = bcd2Dec(temp_buffer[0]);
+		get_configuration()->datetime->minute = bcd2Dec(temp_buffer[1]);
+		get_configuration()->datetime->hour = bcd2Dec(temp_buffer[2]);
+		get_configuration()->datetime->day = bcd2Dec(temp_buffer[3]);
+		get_configuration()->datetime->date = bcd2Dec(temp_buffer[4]);
+		get_configuration()->datetime->month = bcd2Dec(temp_buffer[5]);
+		get_configuration()->datetime->year = bcd2Dec(temp_buffer[6]);
 	}
 }

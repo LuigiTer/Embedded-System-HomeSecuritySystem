@@ -2,6 +2,8 @@
 
 bool systemOn = FALSE;
 
+extern TDatetime datetime;
+
 /*
  * @fn		void configuration_init()
  * @brief	Creates the configuration singleton.
@@ -26,13 +28,13 @@ TConfiguration* get_configuration() {
 
 	if (configuration == NULL) {
 		configuration = malloc(sizeof(*configuration));
-		configuration->datetime = malloc(sizeof(configuration->datetime));
+		configuration->datetime = &datetime; // malloc(sizeof(configuration->datetime));
 
 		strcpy(configuration->user_PIN, "0000");
 		configuration->area_alarm_delay = MAX_ALARM_DELAY;
 		configuration->barrier_alarm_delay = MAX_ALARM_DELAY;
 		configuration->alarm_duration = MAX_ALARM_DURATION;
-		retrieve_current_date_time(configuration->datetime);
+		rtc_ds1307_get_datetime(configuration->datetime);
 		configuration->done = FALSE;
 	}
 
@@ -75,7 +77,9 @@ void system_boot() {
 		configuration->alarm_duration = tempConfiguration->alarm_duration;
 		configuration->datetime = tempConfiguration->datetime;
 		configuration->done = TRUE;
+
 		HAL_TIM_Base_Stop_IT(&htim1);
+		rtc_ds1307_set_datetime(configuration->datetime);
 	} else {
 		print_on_console(CONFIG_NEWLINE);
 		print_on_console(CONFIG_TIMEOUT);
@@ -132,6 +136,7 @@ void configuration_recap(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 
 	// Print datetime of the first use of the system
+	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
 	show_date_time(configuration->datetime);
 	print_on_console(CONFIG_NEWLINE);
 
@@ -307,6 +312,7 @@ void ask_for_datetime(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 
 	// Print datetime set by the user
+	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
 	show_date_time(datetime);
 	print_on_console(CONFIG_NEWLINE);
 }
@@ -317,7 +323,6 @@ void ask_for_datetime(TConfiguration *configuration) {
  * @param	datetime	pointer to the TDatetime structure to print
  */
 void show_date_time(TDatetime *datetime) {
-	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
 	print_on_console("[");
 	print_int_on_console(datetime->date);
 	print_on_console("-");

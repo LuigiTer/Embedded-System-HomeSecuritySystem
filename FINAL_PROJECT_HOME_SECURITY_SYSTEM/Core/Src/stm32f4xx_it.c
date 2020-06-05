@@ -368,7 +368,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		TConfiguration *configuration = get_configuration();
 		configuration->done = TRUE;
 	} else if (htim->Instance == TIM10) {
-		rtc_ds1307_get_datetime(&datetime);
+		rtc_ds1307_get_datetime(get_configuration()->datetime);
 	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
 		KEYPAD_time_elapsed(&KEYPAD_1);
 	}
