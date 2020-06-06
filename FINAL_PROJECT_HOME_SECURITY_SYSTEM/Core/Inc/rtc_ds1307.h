@@ -8,6 +8,7 @@
 #include "main.h"
 #include "datetime.h"
 #include "configuration.h"
+#include "bool.h"
 
 /**
  * Define constrains

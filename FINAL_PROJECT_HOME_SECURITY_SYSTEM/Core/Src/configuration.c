@@ -28,13 +28,14 @@ TConfiguration* get_configuration() {
 
 	if (configuration == NULL) {
 		configuration = malloc(sizeof(*configuration));
-		configuration->datetime = &datetime; // malloc(sizeof(configuration->datetime));
+		configuration->datetime = malloc(sizeof(configuration->datetime));
 
 		strcpy(configuration->user_PIN, "0000");
 		configuration->area_alarm_delay = MAX_ALARM_DELAY;
 		configuration->barrier_alarm_delay = MAX_ALARM_DELAY;
 		configuration->alarm_duration = MAX_ALARM_DURATION;
-		rtc_ds1307_get_datetime(configuration->datetime);
+		//rtc_ds1307_get_datetime(configuration->datetime);
+		retrieve_current_date_time(configuration->datetime);
 		configuration->done = FALSE;
 	}
 
@@ -77,10 +78,8 @@ void system_boot() {
 		configuration->alarm_duration = tempConfiguration->alarm_duration;
 		configuration->datetime = tempConfiguration->datetime;
 		configuration->done = TRUE;
-
 		HAL_TIM_Base_Stop_IT(&htim1);
-		rtc_ds1307_set_datetime(configuration->datetime);
-	} else {
+		} else {
 		print_on_console(CONFIG_NEWLINE);
 		print_on_console(CONFIG_TIMEOUT);
 		print_on_console(CONFIG_NEWLINE);
@@ -88,12 +87,16 @@ void system_boot() {
 
 	// Prints all the configuration parameters in a compact way
 	configuration_recap(configuration);
+	rtc_ds1307_set_datetime(configuration->datetime);
 
 	// Inform the user the system is ready for use
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 	print_on_console(CONFIG_MESSAGE_READY);
 	print_on_console(CONFIG_NEWLINE);
-	// print_on_console(CONFIG_NEWLINE);
+	print_on_console(CONFIG_NEWLINE);
+	while (!get_console(NULL)->ready){
+		HAL_Delay(1);
+	}
 }
 
 /*
@@ -111,6 +114,11 @@ void configuration_recap(TConfiguration *configuration) {
 	print_on_console(CONFIG_MESSAGE_SHOW_CONFIGURATION);
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_NEWLINE);
+
+	// Print datetime of the first use of the system
+	/*print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
+	show_date_time(configuration->datetime);
+	print_on_console(CONFIG_NEWLINE);*/
 
 	// Print user PIN
 	print_on_console(CONFIG_MESSAGE_SHOW_PIN);
@@ -133,11 +141,6 @@ void configuration_recap(TConfiguration *configuration) {
 	print_on_console(CONFIG_MESSAGE_SHOW_ALARM_DURATION);
 	print_int_on_console(configuration->alarm_duration);
 	print_on_console(" seconds");
-	print_on_console(CONFIG_NEWLINE);
-
-	// Print datetime of the first use of the system
-	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
-	show_date_time(configuration->datetime);
 	print_on_console(CONFIG_NEWLINE);
 
 	// Recap end
@@ -312,9 +315,9 @@ void ask_for_datetime(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 
 	// Print datetime set by the user
-	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
+	/*print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
 	show_date_time(datetime);
-	print_on_console(CONFIG_NEWLINE);
+	print_on_console(CONFIG_NEWLINE);*/
 }
 
 /*
@@ -336,8 +339,15 @@ void show_date_time(TDatetime *datetime) {
 	print_on_console(":");
 	print_int_on_console(datetime->second);
 	print_on_console("]");
+
+	// print_on_console("OK");
 }
 
+void show_date_time_callback(TDatetime *datetime){
+	uint8_t msg[200] = {'\0'};
+	sprintf(msg, (uint8_t *)"[*** %u %u-%u-%u %u:%u:%u]", HAL_GetTick(), datetime->date, datetime->month, datetime->year, datetime->hour, datetime->minute, datetime->second);
+	print_on_console(msg);
+}
 /*
  * When the UART interface has fully received the data, the console will be set to be ready to use
  */

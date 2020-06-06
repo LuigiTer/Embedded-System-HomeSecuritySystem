@@ -77,6 +77,7 @@ int rtc_ds1307_set_datetime(const TDatetime *datetime) {
 	ADDRESS_SIZE, &(buffer), MAX_BUFFER_SIZE, HAL_MAX_DELAY);
 	if (return_value != HAL_OK)
 		return RTC_DS1307_I2C_ERR;
+
 	return RTC_DS1307_OK;
 }
 
@@ -96,16 +97,4 @@ int rtc_ds1307_get_datetime(TDatetime *datetime) {
 		return RTC_DS1307_I2C_ERR;
 
 	return RTC_DS1307_OK;
-}
-
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-	if (hi2c->Instance == I2C1) {
-		get_configuration()->datetime->second = bcd2Dec(temp_buffer[0]);
-		get_configuration()->datetime->minute = bcd2Dec(temp_buffer[1]);
-		get_configuration()->datetime->hour = bcd2Dec(temp_buffer[2]);
-		get_configuration()->datetime->day = bcd2Dec(temp_buffer[3]);
-		get_configuration()->datetime->date = bcd2Dec(temp_buffer[4]);
-		get_configuration()->datetime->month = bcd2Dec(temp_buffer[5]);
-		get_configuration()->datetime->year = bcd2Dec(temp_buffer[6]);
-	}
 }

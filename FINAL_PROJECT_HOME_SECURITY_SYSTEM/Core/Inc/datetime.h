@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_DURATION (4)
+
 /*
  * @brief	This struct represents date and time data.
  * 			It stores year, month, date, day, hour, minute and second.
@@ -29,6 +31,7 @@ typedef struct {
 	uint8_t minute;    		// minute (0 - 59)
 	uint8_t second;    		// second (0 - 59)
 } TDatetime;
+
 
 /*
  * @fn		int days_of_month(uint8_t month);

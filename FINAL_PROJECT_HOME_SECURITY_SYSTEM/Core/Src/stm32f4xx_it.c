@@ -37,7 +37,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ALARM_COUNTER_FACTOR		(4)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -49,6 +48,7 @@
 /* USER CODE BEGIN PV */
 extern bool systemOn;
 extern TDatetime datetime;
+extern bool show_log;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,7 +62,7 @@ extern TDatetime datetime;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_adc1;
+extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_i2c1_rx;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
@@ -255,6 +255,20 @@ void DMA1_Stream6_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles ADC1 global interrupt.
+  */
+void ADC_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC_IRQn 0 */
+
+  /* USER CODE END ADC_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  /* USER CODE BEGIN ADC_IRQn 1 */
+
+  /* USER CODE END ADC_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM1 break interrupt and TIM9 global interrupt.
   */
 void TIM1_BRK_TIM9_IRQHandler(void)
@@ -327,20 +341,6 @@ void USART2_IRQHandler(void)
   /* USER CODE END USART2_IRQn 1 */
 }
 
-/**
-  * @brief This function handles DMA2 stream0 global interrupt.
-  */
-void DMA2_Stream0_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream0_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_adc1);
-  /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream0_IRQn 1 */
-}
-
 /* USER CODE BEGIN 1 */
 void EXTI4_IRQHandler(void) {
 	PIR_Sensor_handler(&PIR_4);
@@ -359,42 +359,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 	}
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	/*
-	 * TIM1 lasts 10 seconds in One-Pulse Mode.
-	 * When this time has passed, the basic configuration will be set, and it's considered done.
-	 */
-	if (htim->Instance == TIM1 && systemOn) {
-		TConfiguration *configuration = get_configuration();
-		configuration->done = TRUE;
-	} else if (htim->Instance == TIM10) {
-		rtc_ds1307_get_datetime(get_configuration()->datetime);
-		show_date_time(get_configuration()->datetime);
-		TConsole *console = get_console(NULL);
-
-		//HAL_UART_Transmit(get_console(NULL)->huart, (uint8_t*)"H\n\r", 3, HAL_MAX_DELAY);
-	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
-		KEYPAD_time_elapsed(&KEYPAD_1);
-	} else if (htim->Instance == photoresistor1.htim->Instance) {
-		TAlarmState state = photoresistor1.state;
-
-		if (state == ALARM_STATE_DELAYED || state == ALARM_STATE_ALARMED) {
-			photoresistor1.counter += 1;
-			if (state == ALARM_STATE_DELAYED &&
-					photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1,
-						ALARM_STATE_ALARMED);
-			} else if (state == ALARM_STATE_ALARMED &&
-					photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
-			}
-		}
-
-		if (state == ALARM_STATE_ACTIVE || state == ALARM_STATE_DELAYED) {
-			HAL_ADC_Start_DMA(photoresistor1.hadc, &photoresistor1.value, 1);
-		}
-	}
-}
 
 /*
  void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -404,14 +368,25 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  }
  */
 
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+
+}
+
+void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc){
 	if (hadc->Instance == photoresistor1.hadc->Instance) {
-		if (photoresistor1.state == ALARM_STATE_ACTIVE && photoresistor1.value > MAX_AREA_RANGE) {
-			photoresistor_change_state(&photoresistor1, ALARM_STATE_DELAYED);
-		} else if (photoresistor1.state == ALARM_STATE_DELAYED && photoresistor1.value < MAX_AREA_RANGE) {
+		photoresistor1.value = HAL_ADC_GetValue(photoresistor1.hadc);
+		if (photoresistor1.state == ALARM_STATE_ACTIVE) {
+				photoresistor_change_state(&photoresistor1, ALARM_STATE_DELAYED);
+				photoresistor1.hadc->Instance->HTR = 4095;
+				photoresistor1.hadc->Instance->LTR = 1000;
+		}
+		else if (photoresistor1.state == ALARM_STATE_DELAYED) {
 			photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
+			photoresistor1.hadc->Instance->HTR = 2500;
+			photoresistor1.hadc->Instance->LTR = 0;
 		}
 	}
 }
+
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -52,7 +52,7 @@ void photoresistor_change_state(TPhotoresistor *photoresistor, TAlarmState new_s
 		photoresistor->state = ALARM_STATE_INACTIVE;
 		photoresistor->counter = 0;
 		set_sound_level(buzzer, 0);
-		HAL_ADC_Stop_DMA(photoresistor->hadc);
+		HAL_ADC_Stop_IT(photoresistor->hadc);
 		HAL_TIM_Base_Stop_IT(photoresistor->htim);
 		break;
 	case ALARM_STATE_ACTIVE:
@@ -70,7 +70,7 @@ void photoresistor_change_state(TPhotoresistor *photoresistor, TAlarmState new_s
 		photoresistor->state = ALARM_STATE_ALARMED;
 		photoresistor->counter = 0;
 		set_sound_level(buzzer, 1);
-		HAL_ADC_Stop_DMA(photoresistor->hadc);
+		HAL_ADC_Stop_IT(photoresistor->hadc);
 		break;
 	default:
 		break;

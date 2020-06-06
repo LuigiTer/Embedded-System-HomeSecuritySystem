@@ -20,6 +20,7 @@
 #include "console.h"
 #include "datetime.h"
 #include "utils.h"
+#include "rtc_ds1307.h"
 
 
 #define USER_PIN_LENGTH		(4)
@@ -236,6 +237,8 @@ static uint16_t get_int_less_than(const uint16_t max, const char *error) {
  * @param	datetime	pointer to the TDatetime structure to print
  */
 void show_date_time(TDatetime *datetime);
+
+void show_date_time_callback(TDatetime *datetime);
 
 /*
  * @fn		static void perform_next_step(void (*nextStep)(TConfiguration*), TConfiguration *configuration)

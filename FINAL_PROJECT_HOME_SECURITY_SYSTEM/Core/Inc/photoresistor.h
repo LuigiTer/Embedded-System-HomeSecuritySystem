@@ -5,7 +5,8 @@
 #include "adc.h"
 #include "buzzer.h"
 
-#define MAX_AREA_RANGE (3000)
+#define MAX_AREA_RANGE 				(3000)
+#define ALARM_COUNTER_FACTOR		(20)
 
 typedef enum {
 	ALARM_STATE_INACTIVE, ALARM_STATE_ACTIVE, ALARM_STATE_ALARMED, ALARM_STATE_DELAYED
