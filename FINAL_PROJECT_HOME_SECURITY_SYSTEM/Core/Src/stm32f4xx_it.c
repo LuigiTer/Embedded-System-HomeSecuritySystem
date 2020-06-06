@@ -377,13 +377,10 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc){
 		photoresistor1.value = HAL_ADC_GetValue(photoresistor1.hadc);
 		if (photoresistor1.state == ALARM_STATE_ACTIVE) {
 				photoresistor_change_state(&photoresistor1, ALARM_STATE_DELAYED);
-				photoresistor1.hadc->Instance->HTR = 4095;
-				photoresistor1.hadc->Instance->LTR = 1000;
+
 		}
 		else if (photoresistor1.state == ALARM_STATE_DELAYED) {
 			photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
-			photoresistor1.hadc->Instance->HTR = 2500;
-			photoresistor1.hadc->Instance->LTR = 0;
 		}
 	}
 }

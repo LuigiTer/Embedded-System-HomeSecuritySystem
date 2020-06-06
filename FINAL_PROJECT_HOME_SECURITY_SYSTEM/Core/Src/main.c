@@ -122,7 +122,7 @@ int main(void)
 	// TODO logger prints [DATETIME] Configuration loaded / rejected
 
 	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
-	// configure_photoresistor();
+	configure_photoresistor();
 
 	// configure_PIR_sensor();
 
