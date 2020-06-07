@@ -36,6 +36,7 @@
 #include "pir_sensor.h"
 #include "buzzer.h"
 #include "keypad.h"
+#include "logger.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,8 +60,11 @@ TDatetime datetime;
 TBuzzer *buzzer;
 extern uint8_t temp_buffer[MAX_BUFFER_SIZE];
 extern bool systemOn;
-extern bool rtc_ready;
+bool rtc_ready = FALSE;
 bool log_on = FALSE;
+
+bool periodic_call = TRUE;
+extern char *message_to_log;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -117,10 +121,11 @@ int main(void) {
 	rtc_ds1307_set_datetime(get_configuration()->datetime);
 	// TODO logger prints [DATETIME] System boot
 	system_boot();
-	KEYPAD_Init_default(&KEYPAD_1);
-	// first_log();
+	message_to_log = "System boot";
+	rtc_ds1307_get_datetime(get_configuration()->datetime);
 	// TODO logger prints [DATETIME] Configuration loaded / rejected
 
+	KEYPAD_Init_default(&KEYPAD_1);
 	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
 	configure_photoresistor();
 	configure_PIR_sensor();
@@ -198,7 +203,6 @@ void configure_photoresistor() {
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
 	photoresistor_init(&photoresistor1, area_alarm_delay, alarm_duration,
 			&htim2, &hadc1);
-	//photoresistor_activate(&photoresistor1);
 }
 
 void configure_PIR_sensor() {

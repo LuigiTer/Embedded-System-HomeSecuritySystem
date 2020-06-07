@@ -50,6 +50,11 @@ extern bool systemOn;
 extern bool log_on;
 extern TDatetime datetime;
 extern uint8_t temp_buffer[MAX_BUFFER_SIZE];
+
+extern bool periodic_call;
+extern bool rtc_ready;
+
+extern char *message_to_log;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -340,14 +345,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	if (hi2c->Instance == I2C1) {
-		get_configuration()->datetime->second = bcd2Dec(temp_buffer[0]);
-		get_configuration()->datetime->minute = bcd2Dec(temp_buffer[1]);
-		get_configuration()->datetime->hour = bcd2Dec(temp_buffer[2]);
-		get_configuration()->datetime->day = bcd2Dec(temp_buffer[3]);
-		get_configuration()->datetime->date = bcd2Dec(temp_buffer[4]);
-		get_configuration()->datetime->month = bcd2Dec(temp_buffer[5]);
-		get_configuration()->datetime->year = bcd2Dec(temp_buffer[6]);
-		show_date_time_callback(get_configuration()->datetime);
+		TDatetime *datetime = get_configuration()->datetime;
+		datetime->second = bcd2Dec(temp_buffer[0]);
+		datetime->minute = bcd2Dec(temp_buffer[1]);
+		datetime->hour = bcd2Dec(temp_buffer[2]);
+		datetime->day = bcd2Dec(temp_buffer[3]);
+		datetime->date = bcd2Dec(temp_buffer[4]);
+		datetime->month = bcd2Dec(temp_buffer[5]);
+		datetime->year = bcd2Dec(temp_buffer[6]);
+
+		// rtc_ready = TRUE;
+		// show_date_time_callback(datetime);
+		show_log_general();
 	}
 }
 
@@ -360,7 +369,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		TConfiguration *configuration = get_configuration();
 		configuration->done = TRUE;
 	} else if (htim->Instance == TIM10 && log_on) {
+		message_to_log = "\0";
 		rtc_ds1307_get_datetime(get_configuration()->datetime);
+		// rtc_ready = FALSE;
 	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
 		KEYPAD_time_elapsed(&KEYPAD_1);
 	} else if (htim->Instance == photoresistor1.htim->Instance) {
