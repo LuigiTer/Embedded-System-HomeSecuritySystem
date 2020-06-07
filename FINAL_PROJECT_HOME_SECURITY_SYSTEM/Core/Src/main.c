@@ -117,6 +117,7 @@ int main(void) {
 	rtc_ds1307_set_datetime(get_configuration()->datetime);
 	// TODO logger prints [DATETIME] System boot
 	system_boot();
+	KEYPAD_Init_default(&KEYPAD_1);
 	// first_log();
 	// TODO logger prints [DATETIME] Configuration loaded / rejected
 
