@@ -59,7 +59,7 @@ void KEYPAD_Init_default(TKeypad *keypad) {
 
 	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
-	system_state = SYSTEM_STATE_ENABLED;
+	system_state = SYSTEM_STATE_DISABLED;
 
 	return;
 }
@@ -193,8 +193,8 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	 * Structure of correct message
 	 * buffer[0] 	must be always the character '#'
 	 * buffer[1:4] 	must be the user pin
-	 * buffer[5]	must be a letter from {'A', 'B', 'C', 'D'}
-	 * buffer[6]	must be a value from {'#', '*'}
+	 * buffer[5]	must be a letter from {'A', 'B', 'C', 'D'} a area b barrie c both dsystem
+	 * buffer[6]	must be a value from {'#', '*'} hash enables star disable
 	 */
 
 	// Checking the structure of the buffer
@@ -233,16 +233,16 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 			PIR_sensor_deactivate(&PIR_4);
 			break;
 		case KEYPAD_Button_B:
-			//photoresistor_deactivate(&photoresistor1);
+			photoresistor_deactivate(&photoresistor1);
 			break;
 		case KEYPAD_Button_C:
 			PIR_sensor_deactivate(&PIR_4);
-			//photoresistor_deactivate(&photoresistor1);
+			photoresistor_deactivate(&photoresistor1);
 			break;
 		case KEYPAD_Button_D:
 			system_state = SYSTEM_STATE_DISABLED;
 			PIR_sensor_deactivate(&PIR_4);
-			//photoresistor_deactivate(&photoresistor1);
+			photoresistor_deactivate(&photoresistor1);
 			break;
 		default:
 			break;
@@ -252,13 +252,14 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 		switch (buffer[5]) {
 		case KEYPAD_Button_A:
 			PIR_sensor_activate(&PIR_4);
+			print_on_console("pir enabled");
 			break;
 		case KEYPAD_Button_B:
-			//photoresistor_activate(&photoresistor1);
+			photoresistor_activate(&photoresistor1);
 			break;
 		case KEYPAD_Button_C:
 			PIR_sensor_activate(&PIR_4);
-			//photoresistor_activate(&photoresistor1);
+			photoresistor_activate(&photoresistor1);
 			break;
 		case KEYPAD_Button_D:
 			system_state = SYSTEM_STATE_ENABLED;

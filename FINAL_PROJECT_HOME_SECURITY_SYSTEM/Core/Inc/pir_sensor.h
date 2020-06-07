@@ -62,7 +62,7 @@ static inline void PIR_Change_State(TPIR_sensor *pir, TAlarmState state) {
 		set_sound_level(pir->buzzer, 0);
 		break;
 	case ALARM_STATE_ALARMED:
-		set_sound_level(pir->buzzer, 1);
+		set_sound_level(pir->buzzer, 2);
 		break;
 	default:
 		break;
