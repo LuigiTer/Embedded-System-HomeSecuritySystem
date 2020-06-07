@@ -2,7 +2,6 @@
 
 extern TDatetime datetime;
 uint8_t temp_buffer[MAX_BUFFER_SIZE];
-bool rtc_ready = FALSE;
 
 /*
  * @fn 			static uint8_t bcd2Dec(uint8_t val)

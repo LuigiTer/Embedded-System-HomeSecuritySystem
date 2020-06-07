@@ -50,7 +50,6 @@ extern bool systemOn;
 extern bool log_on;
 extern TDatetime datetime;
 extern uint8_t temp_buffer[MAX_BUFFER_SIZE];
-extern bool rtc_ready;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -348,7 +347,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 		get_configuration()->datetime->date = bcd2Dec(temp_buffer[4]);
 		get_configuration()->datetime->month = bcd2Dec(temp_buffer[5]);
 		get_configuration()->datetime->year = bcd2Dec(temp_buffer[6]);
-		rtc_ready = TRUE;
+		show_date_time_callback(get_configuration()->datetime);
 	}
 }
 
@@ -362,7 +361,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		configuration->done = TRUE;
 	} else if (htim->Instance == TIM10 && log_on) {
 		rtc_ds1307_get_datetime(get_configuration()->datetime);
-		rtc_ready = FALSE;
 	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
 		KEYPAD_time_elapsed(&KEYPAD_1);
 	} else if (htim->Instance == photoresistor1.htim->Instance) {
