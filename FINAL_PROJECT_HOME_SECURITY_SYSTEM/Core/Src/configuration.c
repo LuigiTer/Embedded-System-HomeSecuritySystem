@@ -345,7 +345,7 @@ void show_date_time(TDatetime *datetime) {
 
 void show_date_time_callback(TDatetime *datetime){
 	uint8_t msg[200] = {'\0'};
-	sprintf(msg, (uint8_t *)"[*** %u %u-%u-%u %u:%u:%u]", HAL_GetTick(), datetime->date, datetime->month, datetime->year, datetime->hour, datetime->minute, datetime->second);
+	sprintf(msg, (uint8_t *)"[%u-%u-%u %u:%u:%u]", datetime->date, datetime->month, datetime->year, datetime->hour, datetime->minute, datetime->second);
 	print_on_console(msg);
 }
 /*

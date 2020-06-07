@@ -59,8 +59,7 @@ TDatetime datetime;
 TBuzzer *buzzer;
 extern uint8_t temp_buffer[MAX_BUFFER_SIZE];
 extern bool systemOn;
-bool first_call = TRUE;
-uint8_t log_counter = 0;
+bool log_on = FALSE;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,11 +128,15 @@ int main(void)
 	TConfiguration *configuration = get_configuration();
 
 	HAL_TIM_Base_Start_IT(&htim10);
+	log_on = TRUE;
+	rtc_ds1307_get_datetime(get_configuration()->datetime);
+	show_date_time(get_configuration()->datetime);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	uint8_t level = 0;
+	//uint8_t level = 0;
 	while (1) {
     /* USER CODE END WHILE */
 
@@ -211,62 +214,6 @@ void configure_PIR_sensor() {
 	GPIOC, GPIO_PIN_4, &htim9);
 }
 
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-	if (hi2c->Instance == I2C1) {
-		get_configuration()->datetime->second = bcd2Dec(temp_buffer[0]);
-		get_configuration()->datetime->minute = bcd2Dec(temp_buffer[1]);
-		get_configuration()->datetime->hour = bcd2Dec(temp_buffer[2]);
-		get_configuration()->datetime->day = bcd2Dec(temp_buffer[3]);
-		get_configuration()->datetime->date = bcd2Dec(temp_buffer[4]);
-		get_configuration()->datetime->month = bcd2Dec(temp_buffer[5]);
-		get_configuration()->datetime->year = bcd2Dec(temp_buffer[6]);
-	}
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	/*
-	 * TIM1 lasts 10 seconds in One-Pulse Mode.
-	 * When this time has passed, the basic configuration will be set, and it's considered done.
-	 */
-	if (htim->Instance == TIM1 && systemOn) {
-		TConfiguration *configuration = get_configuration();
-		configuration->done = TRUE;
-	} else if (htim->Instance == TIM10) {
-		rtc_ds1307_get_datetime(get_configuration()->datetime);
-		show_date_time_callback(get_configuration()->datetime);
-		/*if (first_call) {
-			show_date_time_callback(get_configuration()->datetime);
-			// print_on_console("FIRST BLOOD");
-			first_call = FALSE;
-		} else {
-			if (log_counter < MAX_DURATION) {
-				log_counter++;
-			}
-			if (log_counter == MAX_DURATION) {
-				show_date_time_callback(get_configuration()->datetime);
-				log_counter = 0;
-			}
-		}*/
-	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
-		KEYPAD_time_elapsed(&KEYPAD_1);
-	} else if (htim->Instance == photoresistor1.htim->Instance) {
-		TAlarmState state = photoresistor1.state;
-		if (state == ALARM_STATE_DELAYED || state == ALARM_STATE_ALARMED) {
-			photoresistor1.counter += 1;
-			if (state == ALARM_STATE_DELAYED &&
-					photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1, ALARM_STATE_ALARMED);
-			} else if (state == ALARM_STATE_ALARMED &&
-					photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
-			}
-		}
-
-		if (state == ALARM_STATE_ACTIVE || state == ALARM_STATE_DELAYED) {
-			HAL_ADC_Start_IT(photoresistor1.hadc);
-		}
-	}
-}
 /* USER CODE END 4 */
 
 /**
