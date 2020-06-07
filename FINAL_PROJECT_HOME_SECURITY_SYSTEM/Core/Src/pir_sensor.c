@@ -6,6 +6,7 @@
  */
 
 #include "pir_sensor.h"
+
 /**
  * @brief Initialize a pir sensor.
  * @param pir: the structure which will hold the sensor
@@ -18,9 +19,10 @@
  * @return None
  */
 void PIR_sensor_Init(TPIR_sensor *pir, uint8_t delay, uint8_t alarm_duration,
-		IRQn_Type irq, GPIO_TypeDef *port, uint16_t pin, TIM_HandleTypeDef *timer) {
+		IRQn_Type irq, GPIO_TypeDef *port, uint16_t pin,
+		TIM_HandleTypeDef *timer, TBuzzer *buzzer) {
 
-	pir->state = INACTIVE_STATE;
+	pir->state = ALARM_STATE_INACTIVE;
 	pir->delay = delay;
 	pir->remaining_delay = delay;
 	pir->alarm_duration = alarm_duration;
@@ -28,6 +30,7 @@ void PIR_sensor_Init(TPIR_sensor *pir, uint8_t delay, uint8_t alarm_duration,
 	pir->pin = pin;
 	pir->port = port;
 	pir->timer = timer;
+	pir->buzzer = buzzer;
 	return;
 }
 
@@ -37,10 +40,7 @@ void PIR_sensor_Init(TPIR_sensor *pir, uint8_t delay, uint8_t alarm_duration,
  * @return None
  */
 void PIR_sensor_deactivate(TPIR_sensor *pir) {
-	HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
-	HAL_NVIC_DisableIRQ(pir->irq);
-	pir->state = INACTIVE_STATE;
-
+	PIR_Change_State(pir, ALARM_STATE_INACTIVE);
 }
 
 /**
@@ -48,13 +48,10 @@ void PIR_sensor_deactivate(TPIR_sensor *pir) {
  * @param pir: the structure which will hold the sensor
  * @return None
  */
-void PIR_sensor_activate(TPIR_sensor *pir){
-	pir->state = ACTIVE_STATE;
-	pir->remaining_delay = pir->delay;
-	HAL_NVIC_EnableIRQ(pir->irq);
+void PIR_sensor_activate(TPIR_sensor *pir) {
+	PIR_Change_State(pir, ALARM_STATE_ACTIVE);
 	return;
 }
-
 
 /**
  * @brief ISR of the pir_sensor. This should be called both on rising and falling edge
@@ -64,14 +61,11 @@ void PIR_sensor_activate(TPIR_sensor *pir){
 void PIR_Sensor_handler(TPIR_sensor *pir) {
 	__HAL_GPIO_EXTI_CLEAR_IT(pir->pin);
 
-
 	//If the interrupt is on the falling edge, then check the state of the sensor
 	if (HAL_GPIO_ReadPin(pir->port, pir->pin) == GPIO_PIN_RESET) {
-		if (pir->state == DELAYED_STATE) {
+		if (pir->state == ALARM_STATE_DELAYED) {
 			//if the sensor was on delayed state, stop the timer and set the sensor back to active
-			HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
-			pir->state = ACTIVE_STATE;
-			pir->remaining_delay = pir->delay;
+			PIR_Change_State(pir, ALARM_STATE_ACTIVE);
 		}
 		//in any other case, ignore the interrupt. There are 3 other possible states
 		// active: it is not possible since if it is falling, it has raised, so it was already in delayed
@@ -80,16 +74,12 @@ void PIR_Sensor_handler(TPIR_sensor *pir) {
 		return;
 	}
 
-	// if it is rising, but it is already delayed or alarmed, don't do anything
-	if (pir->state == ALARMED_STATE || pir->state == DELAYED_STATE) {
+	// if it is rising, but it is already alarmed, don't do anything
+	if (pir->state == ALARM_STATE_ALARMED) {
 		return;
 	}
 
-	//set as delayed and start a timer
-	pir->state = DELAYED_STATE;
-	pir->remaining_delay = pir->delay;
-	pir->timer->Instance->CNT = 0;
-	HAL_TIM_OC_Start_IT(pir->timer, TIM_CHANNEL_1);
+	PIR_Change_State(pir, ALARM_STATE_DELAYED);
 
 }
 
@@ -98,22 +88,19 @@ void PIR_Sensor_handler(TPIR_sensor *pir) {
  * @param pir: the structure of the pin which is currently on alarm or delayed state
  * @return None
  */
-void PIR_Time_elapsed(TPIR_sensor* pir) {
+void PIR_Time_elapsed(TPIR_sensor *pir) {
 
 	//Decrease the remaining delay
 	--(pir->remaining_delay);
 	if (pir->remaining_delay == 0U) {
 		// if the delay has passed, start the alarm
-		pir->state = ALARMED_STATE;
+		PIR_Change_State(pir, ALARM_STATE_ALARMED);
 		return;
 	}
 	//decreasing remaining delay will cause an under flow, so sum it to the duration and wait until it the overflow of the sum is zero
 	uint8_t t = pir->remaining_delay + pir->alarm_duration;
 	if (t == 0) {
-		//stop the timer, activate the sensor and restore the remaining delay
-		HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
-		pir->state  = ACTIVE_STATE;
-		pir->remaining_delay = pir->delay;
+		PIR_Change_State(pir, ALARM_STATE_ACTIVE);
 	}
 }
 

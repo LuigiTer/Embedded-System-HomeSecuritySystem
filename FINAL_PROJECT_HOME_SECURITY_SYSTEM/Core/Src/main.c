@@ -204,7 +204,7 @@ void configure_PIR_sensor() {
 	uint8_t barrier_alarm_delay = get_configuration()->barrier_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
 	PIR_sensor_Init(&PIR_4, barrier_alarm_delay, alarm_duration, EXTI4_IRQn,
-	GPIOC, GPIO_PIN_4, &htim9);
+	GPIOC, GPIO_PIN_4, &htim9, buzzer);
 }
 
 /* USER CODE END 4 */
