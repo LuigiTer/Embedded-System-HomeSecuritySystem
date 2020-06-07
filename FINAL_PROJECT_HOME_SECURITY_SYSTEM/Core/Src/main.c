@@ -141,10 +141,12 @@ int main(void) {
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */
+		/*
 		if (rtc_ready) {
 			show_date_time_callback(get_configuration()->datetime);
 			rtc_ready = FALSE;
 		}
+		*/
 
 	}
 	/* USER CODE END 3 */

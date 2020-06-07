@@ -115,11 +115,6 @@ void configuration_recap(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_NEWLINE);
 
-	// Print datetime of the first use of the system
-	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
-	show_date_time(configuration->datetime);
-	print_on_console(CONFIG_NEWLINE);
-
 	// Print user PIN
 	print_on_console(CONFIG_MESSAGE_SHOW_PIN);
 	transmit(configuration->user_PIN, USER_PIN_LENGTH);
@@ -141,6 +136,11 @@ void configuration_recap(TConfiguration *configuration) {
 	print_on_console(CONFIG_MESSAGE_SHOW_ALARM_DURATION);
 	print_int_on_console(configuration->alarm_duration);
 	print_on_console(" seconds");
+	print_on_console(CONFIG_NEWLINE);
+
+	// Print datetime of the first use of the system
+	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
+	show_date_time(configuration->datetime);
 	print_on_console(CONFIG_NEWLINE);
 
 	// Recap end
@@ -339,15 +339,8 @@ void show_date_time(TDatetime *datetime) {
 	print_on_console(":");
 	print_int_on_console(datetime->second);
 	print_on_console("]");
-
-	// print_on_console("OK");
 }
 
-void show_date_time_callback(TDatetime *datetime){
-	uint8_t msg[200] = {'\0'};
-	sprintf(msg, (uint8_t *)"[%u-%u-%u %u:%u:%u]", datetime->date, datetime->month, datetime->year, datetime->hour, datetime->minute, datetime->second);
-	print_on_console(msg);
-}
 /*
  * When the UART interface has fully received the data, the console will be set to be ready to use
  */

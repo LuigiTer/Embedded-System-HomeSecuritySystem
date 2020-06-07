@@ -139,9 +139,10 @@ void KEYPAD_time_elapsed(TKeypad *keypad) {
 	//stop the timer
 	HAL_TIM_Base_Stop_IT(keypad->timer);
 
-	if(keypad->index == KEYPAD_DEFAULT_BUFFER_SIZE){
+	if (keypad->index == KEYPAD_DEFAULT_BUFFER_SIZE) {
 		KEYPAD_check_buffer(keypad->buffer);
 		keypad->index = 0;
+		keypad->last_pressed_time = 0;
 		return;
 	}
 
@@ -177,8 +178,7 @@ void KEYPAD_time_elapsed(TKeypad *keypad) {
 	keypad->buffer[keypad->index++] = KEYS[last_row][col];
 	if (keypad->index < KEYPAD_DEFAULT_BUFFER_SIZE) {
 		keypad->last_pressed_time = HAL_GetTick();
-	}
-	else {
+	} else {
 		//buffer is full, restart the timer and check it in a few ms
 		keypad->timer->Instance->CNT = 0;
 		HAL_TIM_Base_Start_IT(keypad->timer);
@@ -199,31 +199,32 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 
 	// Checking the structure of the buffer
 	if (buffer[0] != KEYPAD_Button_HASH) {
-		return ;
+		write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
+		return;
 	}
 
 	//if the pin is not correct, do not process the message
-	//fixme should we check the entire string?
-	for(uint8_t i = 1; i < USER_PIN_LENGTH;i++){
-		if(buffer[i] !=  get_configuration()->user_PIN[i-1]){
-			//todo log MESSAGE_WRONG_USER_PIN
-			return ;
+	for (uint8_t i = 1; i < USER_PIN_LENGTH; i++) {
+		if (buffer[i] != get_configuration()->user_PIN[i - 1]) {
+			write_message_with_date_time(MESSAGE_WRONG_USER_PIN);
+			return;
 		}
 	}
 
 	if (!isalpha(buffer[5])) {
-		return ;
+		write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
+		return;
 	}
 
-	if (buffer[6] != KEYPAD_Button_HASH
-			&& buffer[6] != KEYPAD_Button_STAR) {
-		return ;
+	if (buffer[6] != KEYPAD_Button_HASH && buffer[6] != KEYPAD_Button_STAR) {
+		write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
+		return;
 	}
 
 	//if the system is disabled and we are not trying to enable it, return
-	if (system_state == SYSTEM_STATE_DISABLED
-			&& buffer[5] != KEYPAD_Button_D) {
-		return ;
+	if (system_state == SYSTEM_STATE_DISABLED && buffer[5] != KEYPAD_Button_D) {
+		write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
+		return;
 	}
 
 	if (buffer[6] == KEYPAD_Button_STAR) {
@@ -252,7 +253,6 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 		switch (buffer[5]) {
 		case KEYPAD_Button_A:
 			PIR_sensor_activate(&PIR_4);
-			print_on_console("pir enabled");
 			break;
 		case KEYPAD_Button_B:
 			photoresistor_activate(&photoresistor1);
@@ -268,6 +268,8 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 			break;
 		}
 	}
+	write_message_with_date_time(MESSAGE_COMMAND_ACCEPTED);
+
 //todo log on console the changed status, the enableb process and make the buzzer sound for a second
 	return;
 }

@@ -19,7 +19,7 @@ void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 	photoresistor->alarm_delay = alarm_delay;
 	photoresistor->counter = 0;
 	photoresistor->alarm_duration = alarm_duration;
-	photoresistor->state = ALARM_STATE_ACTIVE;
+	photoresistor->state = ALARM_STATE_INACTIVE;
 	photoresistor->htim = htim;
 	photoresistor->hadc = hadc;
 }
