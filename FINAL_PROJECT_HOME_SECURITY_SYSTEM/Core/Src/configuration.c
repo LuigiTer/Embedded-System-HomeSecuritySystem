@@ -116,9 +116,9 @@ void configuration_recap(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 
 	// Print datetime of the first use of the system
-	/*print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
+	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
 	show_date_time(configuration->datetime);
-	print_on_console(CONFIG_NEWLINE);*/
+	print_on_console(CONFIG_NEWLINE);
 
 	// Print user PIN
 	print_on_console(CONFIG_MESSAGE_SHOW_PIN);
@@ -315,9 +315,9 @@ void ask_for_datetime(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 
 	// Print datetime set by the user
-	/*print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
+	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
 	show_date_time(datetime);
-	print_on_console(CONFIG_NEWLINE);*/
+	print_on_console(CONFIG_NEWLINE);
 }
 
 /*
