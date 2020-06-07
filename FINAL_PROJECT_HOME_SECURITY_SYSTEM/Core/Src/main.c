@@ -123,8 +123,7 @@ int main(void) {
 
 	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
 	configure_photoresistor();
-
-	// configure_PIR_sensor();
+	configure_PIR_sensor();
 
 	TConfiguration *configuration = get_configuration();
 
