@@ -10,9 +10,17 @@
 
 #include "keypad_configuration.h"
 #include "tim.h"
-#include "stdbool.h"
+#include "bool.h"
 #include "pir_sensor.h"
-#include "keypad.h"
+#include "photoresistor.h"
+
+
+#define SYSTEM_STATE_DISABLED 	(0X0001U)
+#define SYSTEM_STATE_ENABLED 	(0X0002U)
+#define SYSTEM_STATE_ALARMED 	(0X0004U)
+
+#define MESSAGE_WRONG_USER_PIN "Wrong user pin inserted"
+
 
 /**
  * @brief  Keypad Keys enumeration
@@ -37,15 +45,15 @@ typedef enum {
 	KEYPAD_Button_NOT_PRESSED = '\0' /*!< No button pressed */
 } TKEYPAD_Button;
 
+
 typedef struct Keypad {
-	TKEYPAD_Button buffer[DEFAULT_BUFFER_SIZE];
+	TKEYPAD_Button buffer[KEYPAD_DEFAULT_BUFFER_SIZE];
 	TKEYPAD_Button last_pressed_key;
 	uint8_t index;
 	TIM_HandleTypeDef *timer;
 	uint32_t last_pressed_time;
 	uint16_t rows_pins[ROWS_N];
 	uint16_t cols_pins[COLUMNS_N];
-
 } TKeypad;
 
 static const TKEYPAD_Button KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
@@ -57,12 +65,15 @@ static const TKEYPAD_Button KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
 
 TKeypad KEYPAD_1;
 
- void KEYPAD_init_columns(TKeypad *keypad);
+void KEYPAD_init_columns(TKeypad *keypad);
 
 void KEYPAD_Init_default(TKeypad *keypad);
 bool KEYPAD_buffer_read(TKeypad *keypad, TKEYPAD_Button *buffer);
 void KEYPAD_clear_buffer(TKeypad *keypad);
 void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin);
 void KEYPAD_time_elapsed(TKeypad *keypad);
+void KEYPAD_check_buffer(uint8_t *buffer);
+
+uint8_t system_state;
 
 #endif /* INC_KEYPAD_H_ */

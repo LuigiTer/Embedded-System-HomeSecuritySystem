@@ -6,6 +6,7 @@
  */
 
 #include "keypad.h"
+#include "configuration.h"
 
 /* Private variable definition*/
 static volatile TKEYPAD_Button last_pressed_key = KEYPAD_Button_NOT_PRESSED;
@@ -17,7 +18,7 @@ static volatile uint8_t last_row;
  * @param Keypad_t *keypad a pointer to the structure of the keypad to inizialize
  * @return none
  */
- void KEYPAD_init_columns(TKeypad *keypad) {
+void KEYPAD_init_columns(TKeypad *keypad) {
 	for (uint8_t i = 0; i < COLUMNS_N; i++) {
 		HAL_GPIO_WritePin(COLUMN_1_PORT, keypad->cols_pins[i], GPIO_PIN_SET);
 	}
@@ -53,12 +54,15 @@ void KEYPAD_Init_default(TKeypad *keypad) {
 	KEYPAD_init_columns(keypad);
 
 	//setting up the timer, so even if it is not configured via gui, it is done directly here.
-	KEYPAD_TIMER.Init.Prescaler = KEYPAD_PRESCALER;
-	KEYPAD_TIMER.Init.Period = DELAY_PERIOD;
+	keypad->timer->Init.Prescaler = KEYPAD_PRESCALER;
+	keypad->timer->Init.Period = DELAY_PERIOD;
+
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
+	system_state = SYSTEM_STATE_ENABLED;
 
 	return;
 }
-
 
 /**
  * @brief This function will copy the buffer of the keypad into the destination buffer, without cleaning the keypad buffer.
@@ -67,15 +71,14 @@ void KEYPAD_Init_default(TKeypad *keypad) {
  * @return true if the buffer was modified, false otherwise
  */
 bool KEYPAD_buffer_read(TKeypad *keypad, TKEYPAD_Button *buffer) {
-	if (keypad->index == DEFAULT_BUFFER_SIZE) {
-		for (uint8_t i = 0; i < DEFAULT_BUFFER_SIZE; i++) {
+	if (keypad->index == KEYPAD_DEFAULT_BUFFER_SIZE) {
+		for (uint8_t i = 0; i < KEYPAD_DEFAULT_BUFFER_SIZE; i++) {
 			buffer[i] = keypad->buffer[i];
 		}
-		return true;
+		return TRUE;
 	}
-	return false;
+	return FALSE;
 }
-
 
 /**
  * @brief This function will clear the buffer of the keypad. Note that the clear process consists in just resetting the index
@@ -100,7 +103,7 @@ void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin) {
 	}
 
 	// Now that the buffer is validated, check if there is space.
-	if (keypad->index >= DEFAULT_BUFFER_SIZE) {
+	if (keypad->index >= KEYPAD_DEFAULT_BUFFER_SIZE) {
 		// if not, return. user must wait MAX_DELAY_BETWEEN_PRESSIONS to cancel everything typed
 		return;
 	}
@@ -122,7 +125,7 @@ void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin) {
 
 	//initializing the timer
 	HAL_TIM_Base_Stop_IT(keypad->timer);
-	KEYPAD_TIMER.Instance->CNT = 0;
+	keypad->timer->Instance->CNT = 0;
 	HAL_TIM_Base_Start_IT(keypad->timer);
 	return;
 }
@@ -135,6 +138,12 @@ void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin) {
 void KEYPAD_time_elapsed(TKeypad *keypad) {
 	//stop the timer
 	HAL_TIM_Base_Stop_IT(keypad->timer);
+
+	if(keypad->index == KEYPAD_DEFAULT_BUFFER_SIZE){
+		KEYPAD_check_buffer(keypad->buffer);
+		keypad->index = 0;
+		return;
+	}
 
 	// check that the last pressed row is valid
 	if (last_row == ROWS_N) {
@@ -166,7 +175,99 @@ void KEYPAD_time_elapsed(TKeypad *keypad) {
 
 	//now save the pressed key, the time and increase buffer
 	keypad->buffer[keypad->index++] = KEYS[last_row][col];
-	keypad->last_pressed_time = HAL_GetTick();
+	if (keypad->index < KEYPAD_DEFAULT_BUFFER_SIZE) {
+		keypad->last_pressed_time = HAL_GetTick();
+	}
+	else {
+		//buffer is full, restart the timer and check it in a few ms
+		keypad->timer->Instance->CNT = 0;
+		HAL_TIM_Base_Start_IT(keypad->timer);
+	}
+
+	return;
+}
+
+void KEYPAD_check_buffer(uint8_t *buffer) {
+	//when 7 button have been pressed in a short period of time, check them
+	/**
+	 * Structure of correct message
+	 * buffer[0] 	must be always the character '#'
+	 * buffer[1:4] 	must be the user pin
+	 * buffer[5]	must be a letter from {'A', 'B', 'C', 'D'}
+	 * buffer[6]	must be a value from {'#', '*'}
+	 */
+
+	// Checking the structure of the buffer
+	if (buffer[0] != KEYPAD_Button_HASH) {
+		return ;
+	}
+
+	//if the pin is not correct, do not process the message
+	//fixme should we check the entire string?
+	for(uint8_t i = 1; i < USER_PIN_LENGTH;i++){
+		if(buffer[i] !=  get_configuration()->user_PIN[i-1]){
+			//todo log MESSAGE_WRONG_USER_PIN
+			return ;
+		}
+	}
+
+	if (!isalpha(buffer[5])) {
+		return ;
+	}
+
+	if (buffer[6] != KEYPAD_Button_HASH
+			&& buffer[6] != KEYPAD_Button_STAR) {
+		return ;
+	}
+
+	//if the system is disabled and we are not trying to enable it, return
+	if (system_state == SYSTEM_STATE_DISABLED
+			&& buffer[5] != KEYPAD_Button_D) {
+		return ;
+	}
+
+	if (buffer[6] == KEYPAD_Button_STAR) {
+		//if last element is '*' deactivate the corresponding sensor
+		switch (buffer[5]) {
+		case KEYPAD_Button_A:
+			PIR_sensor_deactivate(&PIR_4);
+			break;
+		case KEYPAD_Button_B:
+			//photoresistor_deactivate(&photoresistor1);
+			break;
+		case KEYPAD_Button_C:
+			PIR_sensor_deactivate(&PIR_4);
+			//photoresistor_deactivate(&photoresistor1);
+			break;
+		case KEYPAD_Button_D:
+			system_state = SYSTEM_STATE_DISABLED;
+			PIR_sensor_deactivate(&PIR_4);
+			//photoresistor_deactivate(&photoresistor1);
+			break;
+		default:
+			break;
+		}
+	} else if (buffer[6] == KEYPAD_Button_HASH) {
+		//if last element is '#' activate the corresponding sensor
+		switch (buffer[5]) {
+		case KEYPAD_Button_A:
+			PIR_sensor_activate(&PIR_4);
+			break;
+		case KEYPAD_Button_B:
+			//photoresistor_activate(&photoresistor1);
+			break;
+		case KEYPAD_Button_C:
+			PIR_sensor_activate(&PIR_4);
+			//photoresistor_activate(&photoresistor1);
+			break;
+		case KEYPAD_Button_D:
+			system_state = SYSTEM_STATE_ENABLED;
+			break;
+		default:
+			break;
+		}
+	}
+//todo log on console the changed status, the enableb process and make the buzzer sound for a second
 	return;
 }
 
