@@ -104,3 +104,23 @@ void PIR_Time_elapsed(TPIR_sensor *pir) {
 	}
 }
 
+
+void PIR_get_string_state(TPIR_sensor *pir, char *area_state) {
+	switch (pir->state) {
+	case ALARM_STATE_INACTIVE:
+		strncpy(area_state, "Inactive", 8);
+		break;
+	case ALARM_STATE_ACTIVE:
+		strncpy(area_state, "Active", 6);
+		break;
+	case ALARM_STATE_DELAYED:
+		strncpy(area_state, "Delayed", 7);
+		break;
+	case ALARM_STATE_ALARMED:
+		strncpy(area_state, "Alarmed", 7);
+		break;
+	default:
+		break;
+	}
+	return;
+}
