@@ -16,12 +16,12 @@
  * @retval	pointer to the TBuzzer structure representing the buzzer
  */
 TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel) {
-	HAL_TIM_PWM_Start(htim, Channel);
-
 	TBuzzer *buzzer = NULL;
 	buzzer = malloc(sizeof(buzzer));
 	buzzer->htim = htim;
-	buzzer->current_duty_cycle = 0;
+	buzzer->Channel = Channel;
+	buzzer->pulse = 0;
+	buzzer->duty_cycle = 0;
 
 	return buzzer;
 }
@@ -32,8 +32,8 @@ TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel) {
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @retval	current duty cycle of the buzzer
  */
-TDutyCycle get_duty_cycle(TBuzzer *buzzer) {
-	return buzzer->current_duty_cycle;
+TDutyCycle buzzer_get_duty_cycle(TBuzzer *buzzer) {
+	return buzzer->duty_cycle;
 }
 
 /*
@@ -42,8 +42,8 @@ TDutyCycle get_duty_cycle(TBuzzer *buzzer) {
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @retval	current integer duty cycle value of the buzzer
  */
-TValue get_duty_cycle_value(TBuzzer *buzzer) {
-	return get_value_of_duty_cycle(get_duty_cycle(buzzer));
+TPulse buzzer_get_pulse(TBuzzer *buzzer) {
+	return buzzer->pulse;
 }
 
 /*
@@ -52,11 +52,11 @@ TValue get_duty_cycle_value(TBuzzer *buzzer) {
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	dutyCycle	duty cycle to set
  */
-void set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle) {
+void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle) {
 	assert(0 <= duty_cycle && duty_cycle < 1);
 
-	buzzer->htim->Instance->CCR1 = get_value_of_duty_cycle(duty_cycle);
-	buzzer->current_duty_cycle = duty_cycle;
+	buzzer_change_pulse(buzzer, get_pulse_of_duty_cycle(duty_cycle));
+	buzzer->duty_cycle = duty_cycle;
 }
 
 /*
@@ -67,12 +67,140 @@ void set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle) {
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	value		integer duty cycle value to set
  */
-void set_duty_cycle_to_value(TBuzzer *buzzer, const TValue value) {
-	assert(0 <= value && value < MAX_VALUE);
+void buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse) {
+	assert(0 <= value && value < BUZZER_MAX_PULSE);
 
-	buzzer->htim->Instance->CCR1 = value;
-	buzzer->current_duty_cycle = get_duty_cycle_of_value(value);
+	buzzer_change_pulse(buzzer, pulse);
+	buzzer->duty_cycle = get_duty_cycle_of_pulse(pulse);
 }
+
+void buzzer_play_duty_cycle(TBuzzer *buzzer, TDutyCycle duty_cycle) {
+	buzzer_set_duty_cycle(buzzer, duty_cycle);
+	HAL_TIM_PWM_Start_IT(buzzer->htim, buzzer->Channel);
+}
+
+void buzzer_play_pulse(TBuzzer *buzzer, TPulse pulse) {
+	buzzer_set_pulse(buzzer, pulse);
+	HAL_TIM_PWM_Start_IT(buzzer->htim, buzzer->Channel);
+}
+
+void buzzer_play_beep(TBuzzer *buzzer) {
+	buzzer->single_pulse_mode = TRUE;
+	buzzer_play_sound(buzzer, BUZZER_BEEP);
+}
+
+void buzzer_stop(TBuzzer *buzzer) {
+	buzzer_set_pulse(buzzer, 0);
+	HAL_TIM_PWM_Stop_IT(buzzer->htim, buzzer->Channel);
+
+void buzzer_increase_pulse(TBuzzer *buzzer, TPulse next_pulse) {
+	TPulse current_pulse = buzzer->pulse;
+
+	switch (current_pulse) {
+
+	case 0:
+		buzzer_play_pulse(buzzer, next_pulse);
+		break;
+
+	case BUZZER_SHORT_PULSE:
+		switch (next_pulse)
+		case BUZZER_MEDIUM_PULSE:
+			buzzer_play_pulse(buzzer, BUZZER_LONG_PULSE);
+			break;
+		default:
+			break;
+		}
+
+		break;
+
+	case BUZZER_MEDIUM_PULSE:
+		switch (next_pulse) {
+		case BUZZER_SHORT_PULSE:
+			buzzer_play_pulse(buzzer, BUZZER_LONG_PULSE);
+			break;
+		default:
+			break;
+		}
+
+		break;
+
+	default:
+		break;
+
+	}
+}
+
+void buzzer_decrease_pulse(TBuzzer *buzzer, TPulse previous_pulse) {
+	TPulse current_pulse = buzzer->pulse;
+
+	switch (current_pulse) {
+
+	case BUZZER_SHORT_PULSE:
+		switch (previous_pulse) {
+		case BUZZER_SHORT_PULSE:
+			buzzer_stop(buzzer);
+			break;
+		default:
+			break;
+		}
+
+		break;
+
+	case BUZZER_MEDIUM_PULSE:
+		switch (previous_pulse) {
+		case BUZZER_MEDIUM_PULSE:
+			buzzer_stop(buzzer);
+		default:
+			break;
+		}
+
+		break;
+
+	case BUZZER_LONG_PULSE:
+		switch (previous_pulse) {
+		case BUZZER_SHORT_PULSE:
+			buzzer_play_pulse(buzzer, BUZZER_MEDIUM_PULSE);
+			break;
+		case BUZZER_MEDIUM_PULSE:
+			buzzer_play_pulse(buzzer, BUZZER_SHORT_PULSE);
+		default:
+			break;
+		}
+
+	default:
+		break;
+
+	}
+}
+
+void buzzer_change_pulse(TBuzzer *buzzer, uint16_t pulse) {
+	TIM_OC_InitTypeDef sConfigOC = { 0 };
+	TIM_HandleTypeDef *htim = buzzer->htim;
+	uint32_t Channel = buzzer->Channel;
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = pulse;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	if (HAL_TIM_PWM_ConfigChannel(htim, &sConfigOC, Channel) != HAL_OK) {
+		Error_Handler();
+	}
+	HAL_TIM_MspPostInit(htim);
+}
+
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
+	if (htim->Instance == TIM3) {
+		if (buzzer->single_pulse_mode) {
+			HAL_TIM_PWM_Stop_IT(buzzer->htim, buzzer->Channel);
+			buzzer->single_pulse_mode = FALSE;
+		}
+	}
+}
+
+
+
+
+
 
 /*
  * @fn		void increase_duty_cycle(TBuzzer *buzzer)
@@ -81,7 +209,7 @@ void set_duty_cycle_to_value(TBuzzer *buzzer, const TValue value) {
  * @param	value		integer duty cycle value to set
  */
 void increase_duty_cycle(TBuzzer *buzzer) {
-	TValue value = get_value_of_duty_cycle(buzzer->current_duty_cycle) + STEP;
+	TPulse value = get_pulse_of_duty_cycle(buzzer->current_duty_cycle) + STEP;
 	if (value >= MAX_VALUE)
 		value = 0;
 	set_duty_cycle_to_value(buzzer, value);
@@ -98,6 +226,6 @@ void increase_duty_cycle(TBuzzer *buzzer) {
 void set_sound_level(TBuzzer *buzzer, uint8_t level) {
 	assert(0 <= level && level <= N_LEVELS);
 
-	TValue value = MAX_VALUE * level / (N_LEVELS + 1);
+	TPulse value = MAX_VALUE * level / (N_LEVELS + 1);
 	set_duty_cycle_to_value(buzzer, value);
 }

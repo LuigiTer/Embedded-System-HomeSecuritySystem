@@ -52,4 +52,8 @@ uint8_t digits_of(const uint16_t n);
  */
 float map(float x, float in_min, float in_max, float out_min, float out_max);
 
+float min(float x, float y);
+
+float max(float x, float y);
+
 #endif /* INC_UTILS_H_ */
