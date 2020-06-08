@@ -122,11 +122,8 @@ int main(void) {
 	logger_init(&logger, get_console(NULL)->huart, &PIR_4, &photoresistor1);
 	logger_print(&logger, "System boot");
 
-	TConfiguration *configuration = get_configuration();
-
 	HAL_TIM_Base_Start_IT(&htim10);
 	log_on = TRUE;
-
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -190,7 +187,7 @@ void configure_photoresistor() {
 void configure_PIR_sensor() {
 	uint8_t barrier_alarm_delay = get_configuration()->barrier_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
-	PIR_sensor_Init(&PIR_4, barrier_alarm_delay, alarm_duration, EXTI4_IRQn,
+	PIR_sensor_init(&PIR_4, barrier_alarm_delay, alarm_duration, EXTI4_IRQn,
 	GPIOC, GPIO_PIN_4, &htim9, buzzer);
 }
 

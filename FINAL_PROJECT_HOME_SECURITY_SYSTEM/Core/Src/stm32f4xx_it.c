@@ -361,7 +361,7 @@ void USART2_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 void EXTI4_IRQHandler(void) {
-	PIR_Sensor_handler(&PIR_4);
+	PIR_sensor_handler(&PIR_4);
 }
 
 void EXTI15_10_IRQHandler(void) {
@@ -407,14 +407,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		TAlarmState state = photoresistor1.state;
 		if (state == ALARM_STATE_DELAYED || state == ALARM_STATE_ALARMED) {
 			photoresistor1.counter += 1;
-			if (state
-					== ALARM_STATE_DELAYED&&
-					photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1,
-						ALARM_STATE_ALARMED);
-			} else if (state
-					== ALARM_STATE_ALARMED&&
-					photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
+			if (state == ALARM_STATE_DELAYED && photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
+				photoresistor_change_state(&photoresistor1, ALARM_STATE_ALARMED);
+			} else if (state == ALARM_STATE_ALARMED && photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
 				photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
 			}
 		}
@@ -427,7 +422,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == PIR_4.timer->Instance) {
-		PIR_Time_elapsed(&PIR_4);
+		PIR_time_elapsed(&PIR_4);
 	}
 }
 
