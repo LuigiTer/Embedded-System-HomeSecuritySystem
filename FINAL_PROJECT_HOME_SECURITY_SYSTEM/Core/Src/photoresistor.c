@@ -1,16 +1,21 @@
+/*
+ *	This module contains methods to handle with a photoresistor
+ */
+
 #include "photoresistor.h"
 
 extern TBuzzer *buzzer;
 
 /*
- * @fn 			void photoresistor_init(TPhotoresistor* photoresistor, uint8_t alarm_delay,
- * 											uint8_t alarm_duration, TIM_HandleTypeDef* htim, ADC_HandleTypeDef* hadc)
+ * @fn 			void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
+										uint8_t alarm_duration, TIM_HandleTypeDef *htim, ADC_HandleTypeDef *hadc, TBuzzer *buzzer);
  * @brief  		initialize the photoresistor module
  * @param   	photoresistor: reference to the photoresistor variable
  * @param   	alarm_delay: value of the alarm delay
  * @param   	alarm_duration: value of the alarm duration
  * @param   	htim: reference to the timer used for control the alarm duration
  * @param   	hadc: reference to the ADC who does the conversion
+ * @param 		buzzer: reference to the buzzer associated to the photoresistor
  */
 void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 		uint8_t alarm_duration, TIM_HandleTypeDef *htim,
@@ -44,48 +49,11 @@ void photoresistor_deactivate(TPhotoresistor *photoresistor) {
 }
 
 /*
- * INACTIVE -> ACTIVE -> DELAYED -> ALARMED -> ACTIVE
- * INACTIVE <- ...
+ * @fn 			void photoresistor_get_string_state(TPhotoresistor *photoresistor, char *barrier_state)
+ * @brief  	 	set in the barrier_state parameter the current state of the photoresistor
+ * @param   	photoresistor: reference to the photoresistor variable
+ * @param 		barrier_state: reference to the string where write the current state of photoresistor
  */
-void photoresistor_change_state(TPhotoresistor *photoresistor,
-		TAlarmState new_state) {
-	TPulse pulse = buzzer_short_pulse();
-	switch (new_state) {
-	case ALARM_STATE_INACTIVE:
-		photoresistor->state = ALARM_STATE_INACTIVE;
-		photoresistor->counter = 0;
-		buzzer_decrease_pulse(photoresistor->buzzer, pulse);
-		HAL_ADC_Stop_IT(photoresistor->hadc);
-		HAL_TIM_Base_Stop_IT(photoresistor->htim);
-		break;
-	case ALARM_STATE_ACTIVE:
-		photoresistor->state = ALARM_STATE_ACTIVE;
-		photoresistor->counter = 0;
-		buzzer_decrease_pulse(photoresistor->buzzer, pulse);
-		photoresistor1.hadc->Instance->HTR = 2500; //detect low light level, waiting for a thief
-		photoresistor1.hadc->Instance->LTR = 0; //ignore high light level, it's a sunny day
-		HAL_TIM_Base_Start_IT(photoresistor->htim);
-		break;
-	case ALARM_STATE_DELAYED:
-		photoresistor->state = ALARM_STATE_DELAYED;
-		photoresistor1.hadc->Instance->HTR = 4095; //ignore low light level, we know we have a thief
-		photoresistor1.hadc->Instance->LTR = 800; // we want to know only when the thief is gone
-		photoresistor->counter = 0;
-		buzzer_decrease_pulse(photoresistor->buzzer, pulse);
-		break;
-	case ALARM_STATE_ALARMED:
-		photoresistor->state = ALARM_STATE_ALARMED;
-		photoresistor1.hadc->Instance->HTR = 4095;
-		photoresistor1.hadc->Instance->LTR = 0; // ignore further trigger, we are in alarm
-		photoresistor->counter = 0;
-		buzzer_increase_pulse(photoresistor->buzzer, pulse);
-		HAL_ADC_Stop_IT(photoresistor->hadc);
-		break;
-	default:
-		break;
-	}
-}
-
 void photoresistor_get_string_state(TPhotoresistor *photoresistor,
 		char *barrier_state) {
 	switch (photoresistor->state) {
