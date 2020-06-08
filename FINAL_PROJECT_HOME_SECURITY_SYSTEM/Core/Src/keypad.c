@@ -2,8 +2,9 @@
 
 /* Private variable definition*/
 static volatile uint8_t last_row;
-extern char *message_to_log;
+
 extern TBuzzer *buzzer;
+extern TLogger *logger;
 
 /* Private function definition*/
 /**
@@ -172,36 +173,31 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 
 	// Checking the structure of the buffer
 	if (buffer[0] != KEYPAD_Button_HASH) {
-		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime();
+		logger_print(logger, MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
 	//if the pin is not correct, do not process the message
 	for (uint8_t i = 1; i < USER_PIN_LENGTH; i++) {
 		if (buffer[i] != get_configuration()->user_PIN[i - 1]) {
-			message_to_log = MESSAGE_WRONG_USER_PIN;
-			rtc_ds1307_get_datetime();
+			logger_print(logger, MESSAGE_WRONG_USER_PIN);
 			return;
 		}
 	}
 
 	if (!isalpha(buffer[5])) {
-		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime();
+		logger_print(logger, MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
 	if (buffer[6] != KEYPAD_Button_HASH && buffer[6] != KEYPAD_Button_STAR) {
-		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime();
+		logger_print(logger, MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
 	//if the system is disabled and we are not trying to enable it, return
 	if (system_state == SYSTEM_STATE_DISABLED && buffer[5] != KEYPAD_Button_D) {
-		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime();
+		logger_print(logger, MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
@@ -247,8 +243,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 		}
 	}
 
-	message_to_log = MESSAGE_COMMAND_ACCEPTED;
-	rtc_ds1307_get_datetime();
+	logger_print(logger, MESSAGE_COMMAND_ACCEPTED);
 	buzzer_play_beep(buzzer);
 
 	return;
