@@ -191,7 +191,7 @@ static uint16_t get_int_between(const uint16_t min, const uint16_t max, const ch
  * @retval	number in [1, max] read from the console
  */
 static uint16_t get_int_less_than(const uint16_t max, const char *error) {
-	return get_int_between(1, max, error);
+	return get_int_between(0, max, error);
 }
 
 /*
@@ -220,8 +220,7 @@ static void ask_for_PIN(TConfiguration *configuration) {
 	get_user_PIN(userPIN2);
 
 	// If the two sequences are not the same, an error message will be printed and the program ends
-	if (!are_equal(configuration->user_PIN, userPIN2, USER_PIN_LENGTH,
-			USER_PIN_LENGTH)) {
+	if (!are_equal(configuration->user_PIN, userPIN2, USER_PIN_LENGTH, USER_PIN_LENGTH)) {
 		print_on_console(CONFIG_MESSAGE_ERROR);
 		exit(1);
 	}
@@ -245,8 +244,7 @@ static void ask_for_area_alarm_delay(TConfiguration *configuration) {
 	print_on_console(CONFIG_REQUEST_AREA_ALARM_DELAY);
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_PROMPT);
-	uint8_t alarmDelay = get_int_less_than(MAX_ALARM_DELAY,
-			CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DELAY);
+	uint8_t alarmDelay = get_int_less_than(MAX_ALARM_DELAY, CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DELAY);
 
 	// Print number of seconds of the delay of the alarm for the AREA Sensor
 	print_on_console(CONFIG_NEWLINE);
@@ -256,7 +254,6 @@ static void ask_for_area_alarm_delay(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 	configuration->area_alarm_delay = alarmDelay;
 }
-
 
 /*
  * @fn		static void ask_for_barrier_alarm_delay(TConfiguration *configuration)
@@ -270,8 +267,7 @@ static void ask_for_barrier_alarm_delay(TConfiguration *configuration) {
 	print_on_console(CONFIG_REQUEST_BARRIER_ALARM_DELAY);
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_PROMPT);
-	uint8_t alarmDelay = get_int_less_than(MAX_ALARM_DELAY,
-			CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DELAY);
+	uint8_t alarmDelay = get_int_less_than(MAX_ALARM_DELAY, CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DELAY);
 
 	// Print number of seconds of the delay of the alarm for the BARRIER Sensor
 	print_on_console(CONFIG_NEWLINE);
@@ -281,7 +277,6 @@ static void ask_for_barrier_alarm_delay(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 	configuration->barrier_alarm_delay = alarmDelay;
 }
-
 
 /*
  * @fn		static void ask_for_alarm_duration(TConfiguration *configuration)
@@ -295,8 +290,7 @@ static void ask_for_alarm_duration(TConfiguration *configuration) {
 	print_on_console(CONFIG_REQUEST_ALARM_DURATION);
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_PROMPT);
-	uint8_t alarmDuration = get_int_less_than(MAX_ALARM_DURATION,
-			CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DURATION);
+	uint8_t alarmDuration = get_int_less_than(MAX_ALARM_DURATION, CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DURATION);
 
 	// Print number of seconds of the duration of the alarm
 	print_on_console(CONFIG_NEWLINE);
@@ -306,7 +300,6 @@ static void ask_for_alarm_duration(TConfiguration *configuration) {
 	print_on_console(CONFIG_NEWLINE);
 	configuration->alarm_duration = alarmDuration;
 }
-
 
 /*
  * @fn		static void ask_for_datetime(TConfiguration *configuration)

@@ -26,7 +26,9 @@ static void write_message_with_date_time(TDatetime *datetime, const char *messag
 			datetime->month, datetime->year, datetime->hour, datetime->minute,
 			datetime->second, message);
 
-	HAL_UART_Transmit(get_console(NULL)->huart, (uint8_t*) msg, 512, HAL_MAX_DELAY);
+	print_message(msg);
+
+	// HAL_UART_Transmit(get_console(NULL)->huart, (uint8_t*) msg, 512, HAL_MAX_DELAY);
 }
 
 /**
@@ -45,7 +47,10 @@ static void show_periodic_log(TDatetime *datetime) {
 	sprintf(msg, (uint8_t*) "[%02u-%02u-%02u %02u:%02u:%02u] Area %s - Barrier %s\r\n", datetime->date,
 			datetime->month, datetime->year, datetime->hour, datetime->minute,
 			datetime->second, area_state, barrier_state);
-	HAL_UART_Transmit(get_console(NULL)->huart, (uint8_t*) msg, 512, HAL_MAX_DELAY);
+
+	print_message(msg);
+
+	// HAL_UART_Transmit(get_console(NULL)->huart, (uint8_t*) msg, 512, HAL_MAX_DELAY);
 }
 
 void logger_callback(TLogger *logger);

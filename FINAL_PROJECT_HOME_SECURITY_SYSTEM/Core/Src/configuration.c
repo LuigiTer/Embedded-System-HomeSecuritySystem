@@ -80,8 +80,7 @@ void system_boot() {
 	if (!configuration->done) {
 		strcpy(configuration->user_PIN, tempConfiguration->user_PIN);
 		configuration->area_alarm_delay = tempConfiguration->area_alarm_delay;
-		configuration->barrier_alarm_delay =
-				tempConfiguration->barrier_alarm_delay;
+		configuration->barrier_alarm_delay = tempConfiguration->barrier_alarm_delay;
 		configuration->alarm_duration = tempConfiguration->alarm_duration;
 		configuration->datetime = tempConfiguration->datetime;
 		configuration->done = TRUE;
