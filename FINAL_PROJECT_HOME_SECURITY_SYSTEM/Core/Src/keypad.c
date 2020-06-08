@@ -8,6 +8,7 @@
 /* Private variable definition*/
 static volatile uint8_t last_row;
 
+extern uint8_t system_state;
 extern TBuzzer *buzzer;
 extern TLogger logger;
 
@@ -232,6 +233,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 			break;
 		case KEYPAD_Button_D:
 			system_state = SYSTEM_STATE_DISABLED;
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 			PIR_sensor_deactivate(&PIR_4);
 			photoresistor_deactivate(&photoresistor1);
 			break;

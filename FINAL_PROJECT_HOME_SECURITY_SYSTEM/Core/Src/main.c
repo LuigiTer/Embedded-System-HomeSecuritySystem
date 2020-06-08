@@ -46,6 +46,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,7 +57,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+/* Variable used to enable or disable commands */
+uint8_t system_state = SYSTEM_STATE_DISABLED;
+
 TBuzzer *buzzer;
+
 TLogger logger;
 
 bool log_on = FALSE;
@@ -114,6 +120,7 @@ int main(void) {
 	rtc_ds1307_init(get_configuration()->datetime);
 	rtc_ds1307_set_datetime(get_configuration()->datetime);
 	system_boot();
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
 	KEYPAD_init_default(&KEYPAD_1);
 	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);

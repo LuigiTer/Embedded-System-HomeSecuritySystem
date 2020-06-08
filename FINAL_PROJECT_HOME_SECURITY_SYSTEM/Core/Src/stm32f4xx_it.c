@@ -47,6 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+extern uint8_t system_state;
 extern bool systemOn;
 extern bool log_on;
 extern uint8_t rtc_read_buffer[MAX_BUFFER_SIZE];
@@ -401,6 +402,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		configuration->done = TRUE;
 	} else if (htim->Instance == TIM10 && log_on) {
 		logger_print(&logger, "\0");
+		if (system_state == SYSTEM_STATE_ENABLED) {
+			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		}
 	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
 		KEYPAD_time_elapsed(&KEYPAD_1);
 	} else if (htim->Instance == photoresistor1.htim->Instance) {

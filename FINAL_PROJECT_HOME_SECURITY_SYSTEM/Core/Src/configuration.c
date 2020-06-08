@@ -56,7 +56,6 @@ TConfiguration* get_configuration() {
  */
 void system_boot() {
 	// Initial phase
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 	clear_console();
 	print_welcome_message();
 	HAL_TIM_Base_Start_IT(&htim1);

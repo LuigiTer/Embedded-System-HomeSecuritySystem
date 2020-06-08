@@ -6,6 +6,7 @@
 #ifndef INC_KEYPAD_H_
 #define INC_KEYPAD_H_
 
+#include "main.h"
 #include "configuration.h"
 #include "keypad_configuration.h"
 #include "tim.h"
@@ -14,11 +15,6 @@
 #include "photoresistor.h"
 #include "logger.h"
 #include "buzzer.h"
-
-/* When the system is disabled, only the enable command can be accepted. */
-#define SYSTEM_STATE_DISABLED 	(0X0001U)
-#define SYSTEM_STATE_ENABLED 	(0X0002U)
-#define SYSTEM_STATE_ALARMED 	(0X0004U)
 
 #define MESSAGE_WRONG_USER_PIN 		("Wrong user pin inserted")
 #define MESSAGE_COMMAND_REJECTED	("Command rejected")
@@ -75,9 +71,6 @@ static const TKEYPAD_Button KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
 		KEYPAD_Button_8, KEYPAD_Button_9, KEYPAD_Button_C },
 		{ KEYPAD_Button_STAR, KEYPAD_Button_0, KEYPAD_Button_HASH,
 				KEYPAD_Button_D } };
-
-/* Variable used to enable or disable commands */
-static uint8_t system_state;
 
 /**
  * @fn 		void KEYPAD_init_default(TKeypad *keypad)

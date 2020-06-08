@@ -60,7 +60,10 @@ void Error_Handler(void);
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN Private defines */
-
+/* When the system is disabled, only the enable command can be accepted. */
+#define SYSTEM_STATE_DISABLED 	(0X0001U)
+#define SYSTEM_STATE_ENABLED 	(0X0002U)
+#define SYSTEM_STATE_ALARMED 	(0X0004U)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
