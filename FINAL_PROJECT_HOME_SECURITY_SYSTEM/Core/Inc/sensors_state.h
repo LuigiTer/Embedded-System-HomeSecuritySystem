@@ -1,9 +1,6 @@
 /*
- * sensors_state.h
- *
- *  Created on: 8 giu 2020
- *      Author: gioam
- */
+ * Here are defined the possible states of the sensors. These are common to both of them.
+ * */
 
 #ifndef INC_SENSORS_STATE_H_
 #define INC_SENSORS_STATE_H_

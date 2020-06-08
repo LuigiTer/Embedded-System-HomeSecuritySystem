@@ -15,7 +15,7 @@
  * @param	year	year in two digits (e.g. 1820, 1920, 2020 will be represented as 20)
  * @param	month	month number from 1 to 12 (e.g. 1 for January, 12 for December)
  * @param	date	date number from 1 to 31
- * @param	day		day of the week from 1 to 7 (e.g. 1 for Monday, 7 for Sunday) TODO check this
+ * @param	day		day of the week from 1 to 7 (e.g. 1 for Monday, 7 for Sunday)
  * @param	hour	hour from 0 to 23
  * @param	minute	minute from 0 to 59
  * @param	second	second from 0 to 59

@@ -1,8 +1,8 @@
 /*
- * pir_sensor.h
+ * This module is used to represent the PIR sensor. Offers a structure to configure more than one on the same system and
+ * functions to enable or disable it. The activation process should be called when the user enable the sensor, while the
+ * deactivation process when the system or the sensor is disabled.
  *
- *  Created on: May 31, 2020
- *      Author: gioam
  */
 
 #ifndef INC_PIR_SENSOR_H_
@@ -16,34 +16,47 @@
 #include "buzzer.h"
 #include "string.h"
 
+/* This is the mininum amount of time that a sensor must wait before going in alarm */
+#define NO_DELAY					(1U)
 
-
-/*
-#define INACTIVE_STATE 		(0x0001)
-#define ACTIVE_STATE		(0x0002)
-#define ALARMED_STATE		(0x0004)
-#define DELAYED_STATE		(0x0008)
-*/
-
-#define NO_DELAY			(1U)
-
-#define DEFAULT_PIR_TIMER 			htim9
-
+/**
+ * @brief 			Structure that holds the configuration parameters of the PIR sensor. This structure allows the installation of multiple sensor
+ * 						with small modifications.
+ * @param alarm_delay		the delay of the sensor
+ * @param remaining_delay	counter of the remaining delay
+ * @param state				current state of the sensor
+ * @param alarm_duration	the alarm duration. Remaining duration isn't necessary
+ * @param irq				the IRQn which is dedicated to the sensor
+ * @param port				the port which the sensor is connected to
+ * @param pin				the pin which the sensor is connected to
+ * @param timer				the timer used by the pir sensor
+ * @param buzzer			the buzzer associated to the sensor
+ */
 typedef struct PIR_sensor {
-	uint8_t delay; 				// the delay of the sensor
-	uint8_t remaining_delay;	// counter of the remaining delay
-	uint8_t state;				// current state of the sensor
-	uint8_t alarm_duration;		// the alarm duration. remainingg duration isn't necessary
-	IRQn_Type irq;				// the IRQn which is dedicated to the sensor
-	GPIO_TypeDef *port;			// the port which the sensor is connected to
-	uint16_t pin;				// the pin which the sensor is connected to
-	TIM_HandleTypeDef *timer; 	// the timer used by the pir sensor
+	uint8_t alarm_delay;
+	uint8_t remaining_delay;
+	uint8_t state;
+	uint8_t alarm_duration;
+	IRQn_Type irq;
+	GPIO_TypeDef *port;
+	uint16_t pin;
+	TIM_HandleTypeDef *timer;
 	TBuzzer *buzzer;
 } TPIR_sensor;
 
-static inline void PIR_Change_State(TPIR_sensor *pir, TAlarmState state) {
+
+/*
+ * @fn       static void PIR_change_state(TPIR_sensor *pir, TAlarmState new_state)
+ * @brief    private function that change the state of the pir sensor according to the new state passed as parameter. This funcion will also disable
+ * 				the corresponing IRQ and the buzzer
+ * @param    pir: reference to the pir structure which needs the state to be changed
+ * @param    new_state: the new state that the pir sensor must assume
+ */
+static void PIR_change_state(TPIR_sensor *pir, TAlarmState new_state) {
+	// Get the pulse associated to the pir sensor.
 	TPulse pulse = buzzer_medium_pulse();
-	switch (state) {
+
+	switch (new_state) {
 	case ALARM_STATE_INACTIVE:
 		HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
 		HAL_NVIC_DisableIRQ(pir->irq);
@@ -52,16 +65,17 @@ static inline void PIR_Change_State(TPIR_sensor *pir, TAlarmState state) {
 	case ALARM_STATE_ACTIVE:
 		HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
 		HAL_NVIC_EnableIRQ(pir->irq);
-		pir->remaining_delay = pir->delay;
+		pir->remaining_delay = pir->alarm_delay;
 		buzzer_decrease_pulse(pir->buzzer, pulse);
-		if(HAL_GPIO_ReadPin(pir->port, pir->pin) == GPIO_PIN_SET){
+		if (HAL_GPIO_ReadPin(pir->port, pir->pin) == GPIO_PIN_SET) {
+			//if the sensor is still high, retrigger the interrupt
 			HAL_NVIC_SetPendingIRQ(pir->irq);
 		}
 		break;
 	case ALARM_STATE_DELAYED:
 		pir->timer->Instance->CNT = 0;
 		HAL_TIM_OC_Start_IT(pir->timer, TIM_CHANNEL_1);
-		pir->remaining_delay = pir->delay;
+		pir->remaining_delay = pir->alarm_delay;
 		buzzer_decrease_pulse(pir->buzzer, pulse);
 		break;
 	case ALARM_STATE_ALARMED:
@@ -70,20 +84,71 @@ static inline void PIR_Change_State(TPIR_sensor *pir, TAlarmState state) {
 	default:
 		break;
 	}
-	pir->state = state;
+	pir->state = new_state;
 }
 
-void PIR_Time_elapsed();
-void PIR_Sensor_handler(TPIR_sensor *pir);
-void PIR_sensor_deactivate(TPIR_sensor *pir);
+
+/**
+ * @fn 		PIR_sensor_init(TPIR_sensor *pir, uint8_t delay, uint8_t alarm_duration,
+							IRQn_Type irq, GPIO_TypeDef *port, uint16_t pin,
+							TIM_HandleTypeDef *timer, TBuzzer *buzzer)
+ * @brief Initialize a pir sensor with the given parameters.
+ * @param pir				the structure which will hold the sensor
+ * @param delay				the alarm_delay in second. If zero, this will be set to NO_DELAY value
+ * @param alarm_duration 	for how much time in seconds the sensor will be in alarm state
+ * @param irq		 		the irq corresponding to the port of the pir sensor
+ * @param port				the port which the sensor is connected to
+ * @param pin				the port which the sensor is connected to
+ * @param timer 			the timer dedicated to the sensor
+ * @param buzzer			the buzzer associated to the sensor
+ * @return None
+ */
+void PIR_sensor_init(TPIR_sensor *pir, uint8_t delay, uint8_t alarm_duration,
+		IRQn_Type irq, GPIO_TypeDef *port, uint16_t pin,
+		TIM_HandleTypeDef *timer, TBuzzer *buzzer);
+
+/**
+ * @fn 			void PIR_sensor_activate(TPIR_sensor *pir)
+ * @brief		Reactivate and set as active a pir sensor using the previous configuration
+ * @param pir	the structure which holds the sensor to be activated
+ * @return 		None
+ */
 void PIR_sensor_activate(TPIR_sensor *pir);
-void PIR_sensor_Init(TPIR_sensor *pir, uint8_t delay,uint8_t alarm_duration, IRQn_Type irq,
-		GPIO_TypeDef *port, uint16_t pin,TIM_HandleTypeDef *timer, TBuzzer *buzzer);
+
+/**
+ * @fn 			 void PIR_sensor_deactivate(TPIR_sensor *pir)
+ * @brief		 Deactivate and set as inactive a pir sensor. NOTE: also the irq and the timer will be disabled
+ * @param pir	 the structure of the pin to deactivate
+ * @retval 		 None
+ */
+void PIR_sensor_deactivate(TPIR_sensor *pir);
+
+/**
+ * @fn 			PIR_sensor_handler(TPIR_sensor *pir)
+ * @brief 		ISR of the pir_sensor. This should be called both on rising and falling edge
+ * @param pir 	the structure of the pin which has triggered the interruption
+ * @retval		None
+ */
+void PIR_sensor_handler(TPIR_sensor *pir);
+
+/**
+ * @fn			PIR_time_elapsed(TPIR_sensor *pir)
+ * @brief 		ISR of the associated timer. This will reduce the remaing delay or the duration of the alarm
+ * @param pir 	the structure of the pin which is currently on alarm or delayed state
+ * @retval 		None
+ */
+void PIR_time_elapsed();
+
+/*
+ * @fn        PIR_get_string_state(TPIR_sensor *pir, char *area_state)
+ * @brief     set in the area_state parameter the current state of the pir sensor, as a string
+ * @param     pir sensor: reference to the photoresistor variable
+ * @param     area_state: reference to the buffer where to write the current state of pir sensor
+ * @retval	  None
+ */
 void PIR_get_string_state(TPIR_sensor *pir, char *area_state);
 
-
-
+/* Installed keypads should be declared here. The number indicates the pin number the sensor is connected to.*/
 TPIR_sensor PIR_4;
-
 
 #endif /* INC_PIR_SENSOR_H_ */
