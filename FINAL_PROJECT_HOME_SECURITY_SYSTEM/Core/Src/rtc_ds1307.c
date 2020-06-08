@@ -1,7 +1,6 @@
 #include "rtc_ds1307.h"
 
-extern TDatetime datetime;
-uint8_t temp_buffer[MAX_BUFFER_SIZE];
+uint8_t rtc_read_buffer[MAX_BUFFER_SIZE];
 
 /*
  * @fn 			static uint8_t bcd2Dec(uint8_t val)
@@ -74,7 +73,7 @@ int rtc_ds1307_set_datetime(const TDatetime *datetime) {
 	buffer[6] = dec2Bcd(datetime->year);
 
 	return_value = HAL_I2C_Mem_Write(&hi2c1, DS1307_ADDRESS, DS1307_SECOND,
-	ADDRESS_SIZE, &(buffer), MAX_BUFFER_SIZE, HAL_MAX_DELAY);
+	ADDRESS_SIZE, (uint8_t *)&buffer, MAX_BUFFER_SIZE, HAL_MAX_DELAY);
 	if (return_value != HAL_OK)
 		return RTC_DS1307_I2C_ERR;
 
@@ -82,17 +81,16 @@ int rtc_ds1307_set_datetime(const TDatetime *datetime) {
 }
 
 /*
- * @fn 			uint8_t rtc_ds1307_get_datetime(date_time_t* datetime)
- * @brief  		get the datetime from the register of the rtc
- * @param[in]	datetime: variable to store the date and time
+ * @fn 		   uint8_t rtc_ds1307_get_datetime()
+ * @brief  	   get the datetime from the register of the rtc
  * @return     RTC_DS1307_I2C_ERR if the transmit for the getting fails
  * @return     RTC_DS1307_OK if the transmit for the getting was successful
  */
-int rtc_ds1307_get_datetime(TDatetime *datetime) {
+int rtc_ds1307_get_datetime() {
 	HAL_StatusTypeDef return_value;
 
 	return_value = HAL_I2C_Mem_Read_DMA(&hi2c1, DS1307_ADDRESS, DS1307_SECOND,
-	ADDRESS_SIZE, &(temp_buffer), MAX_BUFFER_SIZE);
+	ADDRESS_SIZE, (uint8_t *)&rtc_read_buffer, MAX_BUFFER_SIZE);
 	if (return_value != HAL_OK)
 		return RTC_DS1307_I2C_ERR;
 

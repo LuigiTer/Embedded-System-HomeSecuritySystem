@@ -60,7 +60,7 @@ void photoresistor_change_state(TPhotoresistor *photoresistor,
 		photoresistor->state = ALARM_STATE_ACTIVE;
 		photoresistor->counter = 0;
 		set_sound_level(buzzer, 0);
-		photoresistor1.hadc->Instance->HTR = 2500; //detect low light level, waiting for a thieg
+		photoresistor1.hadc->Instance->HTR = 2500; //detect low light level, waiting for a thief
 		photoresistor1.hadc->Instance->LTR = 0; //ignore high light level, it's a sunny day
 		HAL_TIM_Base_Start_IT(photoresistor->htim);
 		break;
@@ -83,31 +83,3 @@ void photoresistor_change_state(TPhotoresistor *photoresistor,
 		break;
 	}
 }
-
-/*
- * @fn 			void photoresistor_time_elapsed(TPhotoresistor* photoresistor)
- * @brief  	 	check if the period of the alarm high is elapsed
- * @param   	photoresistor: reference to the photoresistor variable
- */
-/*
- void photoresistor_time_elapsed(TPhotoresistor *photoresistor) {
-
- static uint8_t counter = 0;
-
-
-
- photoresistor->remaining_delay -= 1;
-
- if (photoresistor->remaining_delay == 0) {
- photoresistor_change_state(photoresistor, ALARM_STATE_ALARMED);
- return;
- }
-
- // decreasing remaining delay will cause an underflow, so we sum it to the alarm duration (example 255 + 10 = 9 beacause uint8_t)
- // and wait until the total sum overflows the variable and then we have that the sum is zero so the alarm duration is elapsed
- uint8_t temp = photoresistor->remaining_delay + photoresistor->alarm_duration;
- if (temp == 0) {
- photoresistor_change_state(photoresistor, ALARM_STATE_ACTIVE);
- }
- }
- */

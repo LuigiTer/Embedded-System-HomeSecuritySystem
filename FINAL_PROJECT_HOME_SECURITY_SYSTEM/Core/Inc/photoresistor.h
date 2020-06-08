@@ -54,11 +54,4 @@ void photoresistor_deactivate(TPhotoresistor* photoresistor);
 
 void photoresistor_change_state(TPhotoresistor *photoresistor, TAlarmState new_state);
 
-/*
- * @fn 			void photoresistor_time_elapsed(TPhotoresistor* photoresistor)
- * @brief  	 	check if the period of the alarm high is elapsed
- * @param   	photoresistor: reference to the photoresistor variable
- */
-void photoresistor_time_elapsed(TPhotoresistor* photoresistor);
-
 #endif /* INC_PHOTORESISTOR_H_ */

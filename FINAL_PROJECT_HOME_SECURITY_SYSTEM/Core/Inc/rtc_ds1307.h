@@ -82,12 +82,11 @@ int rtc_ds1307_init(TDatetime* datetime);
 int rtc_ds1307_set_datetime (const TDatetime* datetime);
 
 /*
- * @fn 			uint8_t rtc_ds1307_get_datetime(date_time_t* datetime)
+ * @fn 			uint8_t rtc_ds1307_get_datetime()
  * @brief  		get the datetime from the register of the rtc
- * @param[in]	datetime: variable to store the date and time
  * @return     RTC_DS1307_I2C_ERR if the transmit for the getting fails
  * @return     RTC_DS1307_OK if the transmit for the getting was successful
  */
-int rtc_ds1307_get_datetime (TDatetime* datetime);
+int rtc_ds1307_get_datetime ();
 
 #endif

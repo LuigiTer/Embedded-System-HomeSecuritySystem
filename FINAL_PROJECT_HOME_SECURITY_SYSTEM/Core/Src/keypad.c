@@ -202,7 +202,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	// Checking the structure of the buffer
 	if (buffer[0] != KEYPAD_Button_HASH) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime(get_configuration()->datetime);
+		rtc_ds1307_get_datetime();
 		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
@@ -211,7 +211,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	for (uint8_t i = 1; i < USER_PIN_LENGTH; i++) {
 		if (buffer[i] != get_configuration()->user_PIN[i - 1]) {
 			message_to_log = MESSAGE_WRONG_USER_PIN;
-			rtc_ds1307_get_datetime(get_configuration()->datetime);
+			rtc_ds1307_get_datetime();
 			// write_message_with_date_time(MESSAGE_WRONG_USER_PIN);
 			return;
 		}
@@ -219,14 +219,14 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 
 	if (!isalpha(buffer[5])) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime(get_configuration()->datetime);
+		rtc_ds1307_get_datetime();
 		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
 	if (buffer[6] != KEYPAD_Button_HASH && buffer[6] != KEYPAD_Button_STAR) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime(get_configuration()->datetime);
+		rtc_ds1307_get_datetime();
 		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
@@ -234,7 +234,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	//if the system is disabled and we are not trying to enable it, return
 	if (system_state == SYSTEM_STATE_DISABLED && buffer[5] != KEYPAD_Button_D) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
-		rtc_ds1307_get_datetime(get_configuration()->datetime);
+		rtc_ds1307_get_datetime();
 		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
@@ -282,7 +282,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	}
 
 	message_to_log = MESSAGE_COMMAND_ACCEPTED;
-	rtc_ds1307_get_datetime(get_configuration()->datetime);
+	rtc_ds1307_get_datetime();
 	// write_message_with_date_time(MESSAGE_COMMAND_ACCEPTED);
 
 //todo log on console the changed status, the enableb process and make the buzzer sound for a second

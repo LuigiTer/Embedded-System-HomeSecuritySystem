@@ -8,7 +8,7 @@ void write_message_with_date_time(TDatetime *datetime, const char *message) {
 	periodic_call = FALSE;
 
 	/*
-	rtc_ds1307_get_datetime(get_configuration()->datetime);
+	rtc_ds1307_get_datetime();
 	TDatetime *datetime = get_configuration()->datetime;
 	*/
 
