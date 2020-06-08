@@ -57,7 +57,7 @@
 
 /* USER CODE BEGIN PV */
 TBuzzer *buzzer;
-TLogger *logger;
+TLogger logger;
 
 bool log_on = FALSE;
 /* USER CODE END PV */
@@ -96,7 +96,6 @@ int main(void) {
 
 	/* USER CODE BEGIN SysInit */
 	console_init(&huart2);
-	logger = logger_init(get_console(NULL)->huart);
 	/* USER CODE END SysInit */
 
 	/* Initialize all configured peripherals */
@@ -115,12 +114,13 @@ int main(void) {
 	rtc_ds1307_init(get_configuration()->datetime);
 	rtc_ds1307_set_datetime(get_configuration()->datetime);
 	system_boot();
-	logger_print(logger, "System boot");
 
 	KEYPAD_init_default(&KEYPAD_1);
 	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
 	configure_photoresistor();
 	configure_PIR_sensor();
+	logger_init(&logger, get_console(NULL)->huart, &PIR_4, &photoresistor1);
+	logger_print(&logger, "System boot");
 
 	TConfiguration *configuration = get_configuration();
 
