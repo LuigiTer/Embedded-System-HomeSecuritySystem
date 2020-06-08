@@ -1,12 +1,14 @@
 #ifndef INC_KEYPAD_H_
 #define INC_KEYPAD_H_
 
+#include "configuration.h"
 #include "keypad_configuration.h"
 #include "tim.h"
 #include "bool.h"
 #include "pir_sensor.h"
 #include "photoresistor.h"
 #include "logger.h"
+#include "buzzer.h"
 
 //when the system is disabled, only the enable command can be accepted
 #define SYSTEM_STATE_DISABLED 	(0X0001U)

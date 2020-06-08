@@ -36,7 +36,7 @@ TPhotoresistor photoresistor1;
  */
 void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 		uint8_t alarm_duration, TIM_HandleTypeDef *htim,
-		ADC_HandleTypeDef *hadc);
+		ADC_HandleTypeDef *hadc, TBuzzer *buzzer);
 
 /*
  * @fn 			void photoresistor_activate(TPhotoresistor* photoresistor)

@@ -1,9 +1,9 @@
 #include "keypad.h"
-#include "configuration.h"
 
 /* Private variable definition*/
 static volatile uint8_t last_row;
 extern char *message_to_log;
+extern TBuzzer *buzzer;
 
 /* Private function definition*/
 /**
@@ -249,8 +249,8 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 
 	message_to_log = MESSAGE_COMMAND_ACCEPTED;
 	rtc_ds1307_get_datetime();
+	buzzer_play_beep(buzzer);
 
-	//todo sound buzzer
 	return;
 }
 

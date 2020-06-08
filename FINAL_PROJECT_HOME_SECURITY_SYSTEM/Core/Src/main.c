@@ -192,7 +192,7 @@ void configure_photoresistor() {
 	uint8_t area_alarm_delay = get_configuration()->area_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
 	photoresistor_init(&photoresistor1, area_alarm_delay, alarm_duration,
-			&htim2, &hadc1);
+			&htim2, &hadc1, buzzer);
 }
 
 void configure_PIR_sensor() {

@@ -46,6 +46,7 @@ int get_month(char *month) {
 		return 11;
 	else if (strcmp(month, "Dec") == 0)
 		return 12;
+	return 0;
 }
 
 /*

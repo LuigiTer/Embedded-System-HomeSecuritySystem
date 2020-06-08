@@ -14,6 +14,7 @@
 #include "stm32f4xx_hal.h"
 #include "utils.h"
 #include "bool.h"
+#include "tim.h"
 
 #define BUZZER_MAX_PULSE		(1000)
 #define BUZZER_BEEP				(0.1 * BUZZER_MAX_PULSE)
@@ -38,6 +39,7 @@ typedef struct {
 	TIM_HandleTypeDef *htim;
 	uint32_t Channel;
 	TPulse pulse;
+	TPulse previous_pulse;
 	TDutyCycle duty_cycle;
 	bool single_pulse_mode;
 } TBuzzer;
@@ -85,7 +87,7 @@ void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle);
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	value		integer duty cycle value to set
  */
-void buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse)
+void buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse);
 
 void buzzer_play_duty_cycle(TBuzzer *buzzer, TDutyCycle duty_cycle);
 
@@ -121,25 +123,13 @@ static TDutyCycle get_duty_cycle_of_pulse(const TPulse pulse) {
 	return map(pulse, 0, BUZZER_MAX_PULSE, 0.0, 1.0);
 }
 
+TPulse buzzer_beep();
 
+TPulse buzzer_short_pulse();
 
-/*
- * @fn		void increase_duty_cycle(TBuzzer *buzzer)
- * @brief	Sets the duty cycle of a buzzer to a new value depending on the current value
- * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
- * @param	value		integer duty cycle value to set
- */
-void increase_duty_cycle(TBuzzer *buzzer);
+TPulse buzzer_medium_pulse();
 
-/*
- * @fn		void set_sound_level(TBuzzer *buzzer, uint8_t level)
- * @brief	Sets the duty cycle of a buzzer to one of N_LEVELS different levels depending.
- * 			The conversion formula for the i-th level is dutyCycle = i / N_LEVELS
- * 			For example, if N_LEVELS is 5, the 2nd level of duty cycle is 2/5 = 0.4
- * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
- * @param	level		the duty cycle level to set
- */
-void set_sound_level(TBuzzer *buzzer, uint8_t level);
+TPulse buzzer_long_pulse();
 
 #endif /* INC_BUZZER_H_ */
 
