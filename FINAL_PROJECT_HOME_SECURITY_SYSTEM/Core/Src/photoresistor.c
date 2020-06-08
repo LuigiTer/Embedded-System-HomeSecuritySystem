@@ -83,3 +83,23 @@ void photoresistor_change_state(TPhotoresistor *photoresistor,
 		break;
 	}
 }
+
+void photoresistor_get_string_state(TPhotoresistor *photoresistor,
+		char *barrier_state) {
+	switch (photoresistor->state) {
+	case ALARM_STATE_INACTIVE:
+		strncpy(barrier_state, "Inactive", 8);
+		break;
+	case ALARM_STATE_ACTIVE:
+		strncpy(barrier_state, "Active", 6);
+		break;
+	case ALARM_STATE_DELAYED:
+		strncpy(barrier_state, "Delayed", 7);
+		break;
+	case ALARM_STATE_ALARMED:
+		strncpy(barrier_state, "Alarmed", 7);
+		break;
+	default:
+		break;
+	}
+}

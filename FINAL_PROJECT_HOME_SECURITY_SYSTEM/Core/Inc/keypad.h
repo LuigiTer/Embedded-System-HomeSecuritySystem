@@ -66,7 +66,6 @@ static const TKEYPAD_Button KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
 		{ KEYPAD_Button_STAR, KEYPAD_Button_0, KEYPAD_Button_HASH,
 				KEYPAD_Button_D } };
 
-TKeypad KEYPAD_1;
 
 void KEYPAD_init_columns(TKeypad *keypad);
 
@@ -77,6 +76,8 @@ void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin);
 void KEYPAD_time_elapsed(TKeypad *keypad);
 void KEYPAD_check_buffer(uint8_t *buffer);
 
+
+TKeypad KEYPAD_1;
 uint8_t system_state;
 
 #endif /* INC_KEYPAD_H_ */

@@ -12,8 +12,10 @@
 #include "stm32f401xe.h"
 #include "tim.h"
 #include "gpio.h"
+#include "sensors_state.h"
+#include "buzzer.h"
+#include "string.h"
 
-#include "photoresistor.h" //FIXME: Move talarm state definition
 
 
 /*
@@ -76,6 +78,7 @@ void PIR_sensor_deactivate(TPIR_sensor *pir);
 void PIR_sensor_activate(TPIR_sensor *pir);
 void PIR_sensor_Init(TPIR_sensor *pir, uint8_t delay,uint8_t alarm_duration, IRQn_Type irq,
 		GPIO_TypeDef *port, uint16_t pin,TIM_HandleTypeDef *timer, TBuzzer *buzzer);
+void PIR_get_string_state(TPIR_sensor *pir, char *area_state);
 
 
 
