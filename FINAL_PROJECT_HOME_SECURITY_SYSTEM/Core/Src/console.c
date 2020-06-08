@@ -1,17 +1,17 @@
 /*
  * This module contains methods to handle with the console, representing it with a singleton.
- * To instantiate a console, just call consoleInit() with the UART interface you want to use to communicate.
+ * To instantiate a console, just call console_init() with the UART interface you want to use to communicate.
  * To print messages, just call the proper methods, without specifying again the UART interface.
  */
 
 #include "console.h"
 
 /*
- * @fn		void console_init(UART_HandleTypeDef *huart)
- * @brief	Creates the console singleton.
- * 			This function must be called before calling every other function in this module.
+ * @brief	This struct represents the console singleton,
+ * 			encapsulating the UART interface used for communication.
  * @param	huart	pointer to the UART_HandleTypeDef structure
- * 					representing the UART interface that will be used for communication
+ * 					representing the UART interface used for communication
+ * @param	ready	a boolean value set to TRUE if the console is ready for use, FALSE otherwise
  */
 void console_init(UART_HandleTypeDef *huart) {
 	get_console(huart);
@@ -21,11 +21,11 @@ void console_init(UART_HandleTypeDef *huart) {
  * @fn		TConsole* get_console(UART_HandleTypeDef *huart)
  * @brief	Returns the singleton console instance.
  * 			If the instance has not been initialized yet and huart is not NULL,
- * 				then it will be initialized with huart itself.
+ * 			then it will be initialized with huart itself.
  * 			If the instance has not been initialized yet and huart is NULL,
- * 				then the function will raise an error.
+ * 			then the function will raise an error.
  * 			If the instance has already been initialized, than the parameter huart will be uneffective
- * 				and the previous instance will be returned instead.
+ * 			and the previous instance will be returned instead.
  * @param	huart	pointer to the UART_HandleTypeDef structure
  * @retval	pointer to the TConsole structure representing the console
  */
@@ -46,6 +46,15 @@ TConsole* get_console(UART_HandleTypeDef *huart) {
 }
 
 /*
+ * @fn		void clear_console()
+ * @brief	Clears the console
+ */
+void clear_console() {
+	print_on_console(ESCAPE_SEQUENCE_CLEAR_CONSOLE);
+	print_on_console(ESCAPE_SEQUENCE_TOPLEFT_CURSOR);
+}
+
+/*
  * @fn		void free_console()
  * @brief	Waits unitl the console is ready to be used
  */
@@ -57,7 +66,8 @@ void free_console() {
 
 /*
  * @fn		void print_on_console(const char *message)
- * @brief	Prints a string on the console, waiting if it is not ready for use
+ * @brief	Prints a string on the console, waiting if it is not ready for use.
+* 			It wraps the particular mode for transmission.
  * @param	message		string to print
  */
 void print_on_console(const char *message) {
@@ -67,17 +77,9 @@ void print_on_console(const char *message) {
 }
 
 /*
- * @fn		void clear_console()
- * @brief	Clears the console
- */
-void clear_console() {
-	print_on_console(ESCAPE_SEQUENCE_CLEAR_CONSOLE);
-	print_on_console(ESCAPE_SEQUENCE_TOPLEFT_CURSOR);
-}
-
-/*
  * @fn		void print_int_on_console(const uint16_t n)
- * @brief	Prints an integer on the console, waiting if it is not ready for use
+ * @brief	Prints an integer on the console, waiting if it is not ready for use.
+ * 			It wraps the particular mode for transmission.
  * @param	n	number to print
  */
 void print_int_on_console(const uint16_t n) {
