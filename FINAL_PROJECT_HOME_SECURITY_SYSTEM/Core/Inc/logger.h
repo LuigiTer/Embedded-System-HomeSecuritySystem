@@ -9,8 +9,8 @@
 #include "bool.h"
 
 void write_message_with_date_time(TDatetime *datetime, const char *message);
-void show_date_time_callback(TDatetime *datetime);
-void show_log_general();
+void show_periodic_log(TDatetime *datetime);
+void show_log_general_callback();
 
 #endif /* INC_LOGGER_H_ */
 

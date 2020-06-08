@@ -1,10 +1,3 @@
-/*
- * keypad_configuration.h
- *
- *  Created on: May 28, 2020
- *      Author: gioam
- */
-
 #ifndef INC_KEYPAD_CONFIGURATION_H_
 #define INC_KEYPAD_CONFIGURATION_H_
 
@@ -40,12 +33,12 @@
 
 /* For the timer clock, please refer to the configuration*/
 #define KEYPAD_TIMER 					htim11
-#define TIMER_CLOCK 					42000000U
+#define TIMER_CLOCK 					(42000000U)
 #define KEYPAD_PRESCALER 				((TIMER_CLOCK/1000) - 1)
-#define DELAY_PERIOD   					(75U - 1U) //In milliseconds
+#define DELAY_PERIOD   					(75U - 1U) //In milliseconds, to prevent bouncing
 
-#define KEYPAD_DEFAULT_BUFFER_SIZE		(7U)
-#define MAX_DELAY_BETWEEN_PRESSIONS  	(5000U) //In milliseconds
+#define KEYPAD_DEFAULT_BUFFER_SIZE		(7U) //Follow the command protocol from keypad
+#define MAX_DELAY_BETWEEN_PRESSIONS  	(5000U) //In milliseconds, the maximum time to consider valid the pression
 
 
 

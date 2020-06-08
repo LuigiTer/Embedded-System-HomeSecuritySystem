@@ -238,7 +238,7 @@ static uint16_t get_int_less_than(const uint16_t max, const char *error) {
  */
 void show_date_time(TDatetime *datetime);
 
-void show_date_time_callback(TDatetime *datetime);
+void show_periodic_log(TDatetime *datetime);
 
 /*
  * @fn		static void perform_next_step(void (*nextStep)(TConfiguration*), TConfiguration *configuration)

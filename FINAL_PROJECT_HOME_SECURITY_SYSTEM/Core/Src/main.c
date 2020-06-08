@@ -122,7 +122,7 @@ int main(void)
 	rtc_ds1307_get_datetime();
 	// TODO logger prints [DATETIME] Configuration loaded / rejected
 
-	KEYPAD_Init_default(&KEYPAD_1);
+	KEYPAD_init_default(&KEYPAD_1);
 	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
 	configure_photoresistor();
 	configure_PIR_sensor();

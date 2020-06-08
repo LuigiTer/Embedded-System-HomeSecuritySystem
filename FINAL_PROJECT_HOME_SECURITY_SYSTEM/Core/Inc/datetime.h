@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_DURATION (4)
-
 /*
  * @brief	This struct represents date and time data.
  * 			It stores year, month, date, day, hour, minute and second.

@@ -371,7 +371,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 		datetime->date = bcd2Dec(rtc_read_buffer[4]);
 		datetime->month = bcd2Dec(rtc_read_buffer[5]);
 		datetime->year = bcd2Dec(rtc_read_buffer[6]);
-		show_log_general();
+		show_log_general_callback();
 	}
 }
 

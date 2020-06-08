@@ -1,10 +1,3 @@
-/*
- * keyboard.h
- *
- *  Created on: May 28, 2020
- *      Author: gioam
- */
-
 #ifndef INC_KEYPAD_H_
 #define INC_KEYPAD_H_
 
@@ -15,7 +8,7 @@
 #include "photoresistor.h"
 #include "logger.h"
 
-
+//when the system is disabled, only the enable command can be accepted
 #define SYSTEM_STATE_DISABLED 	(0X0001U)
 #define SYSTEM_STATE_ENABLED 	(0X0002U)
 #define SYSTEM_STATE_ALARMED 	(0X0004U)
@@ -48,7 +41,16 @@ typedef enum {
 	KEYPAD_Button_NOT_PRESSED = '\0' /* No button pressed */
 } TKEYPAD_Button;
 
-
+/**
+ * @brief This struct represents the keypad connected to the system.
+ * @param buffer			keeps the pressed button in a short period of time
+ * @param last_pressed_key 	keeps the last pressed key, useful for one byte reading
+ * @param index				keeps track of the pressed buttons
+ * @param *timer			timer used for debouncing
+ * @param last_pressed_time	used to check the time between different pressions
+ * @param rows_pins			used to scan through the rows
+ * @param cols_pins			used to scan through the columns
+ */
 typedef struct Keypad {
 	TKEYPAD_Button buffer[KEYPAD_DEFAULT_BUFFER_SIZE];
 	TKEYPAD_Button last_pressed_key;
@@ -59,6 +61,7 @@ typedef struct Keypad {
 	uint16_t cols_pins[COLUMNS_N];
 } TKeypad;
 
+//maps buttons to rows and columns number
 static const TKEYPAD_Button KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
 		KEYPAD_Button_2, KEYPAD_Button_3, KEYPAD_Button_A }, { KEYPAD_Button_4,
 		KEYPAD_Button_5, KEYPAD_Button_6, KEYPAD_Button_B }, { KEYPAD_Button_7,
@@ -66,18 +69,17 @@ static const TKEYPAD_Button KEYS[ROWS_N][COLUMNS_N] = { { KEYPAD_Button_1,
 		{ KEYPAD_Button_STAR, KEYPAD_Button_0, KEYPAD_Button_HASH,
 				KEYPAD_Button_D } };
 
+//used to enable or disable commands
+static uint8_t system_state;
+
 
 void KEYPAD_init_columns(TKeypad *keypad);
-
-void KEYPAD_Init_default(TKeypad *keypad);
-bool KEYPAD_buffer_read(TKeypad *keypad, TKEYPAD_Button *buffer);
-void KEYPAD_clear_buffer(TKeypad *keypad);
+void KEYPAD_init_default(TKeypad *keypad);
 void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin);
 void KEYPAD_time_elapsed(TKeypad *keypad);
 void KEYPAD_check_buffer(uint8_t *buffer);
 
-
+//Installed keypads should be declared here
 TKeypad KEYPAD_1;
-uint8_t system_state;
 
 #endif /* INC_KEYPAD_H_ */

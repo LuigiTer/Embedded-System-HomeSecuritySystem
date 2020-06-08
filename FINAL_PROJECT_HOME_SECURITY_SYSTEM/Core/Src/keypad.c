@@ -1,22 +1,13 @@
-/*
- * keypad.c
- *
- *  Created on: May 28, 2020
- *      Author: gioam
- */
-
 #include "keypad.h"
 #include "configuration.h"
 
 /* Private variable definition*/
-static volatile TKEYPAD_Button last_pressed_key = KEYPAD_Button_NOT_PRESSED;
 static volatile uint8_t last_row;
-
 extern char *message_to_log;
 
 /* Private function definition*/
 /**
- * @brief This function will initialize all the columns, setting them to high, in order to detect pression
+ * @brief This function will initialize all the columns, setting them to high state, in order to detect pression
  * @param Keypad_t *keypad a pointer to the structure of the keypad to inizialize
  * @return none
  */
@@ -29,12 +20,12 @@ void KEYPAD_init_columns(TKeypad *keypad) {
 
 /* Functions definitions */
 /**
- * @brief This function will initialize a keypad, using the settings that are in the header files. Useful for single keypad.
- * More keypad could be added, but the configuration process is a bit different.
- * @param Keypad_t *keypad a pointer to the structure of the keyboard to inizialize
+ * @brief This function will initialize a keypad, using the default settings that are in the header file. Useful for single keypad.
+ * More keypad could be added, but the configuration process is a bit different and needs another function.
+ * @param Keypad_t *keypad a pointer to the structure of the keyboard to initialize
  * @return none
  */
-void KEYPAD_Init_default(TKeypad *keypad) {
+void KEYPAD_init_default(TKeypad *keypad) {
 
 	keypad->last_pressed_key = KEYPAD_Button_NOT_PRESSED;
 	keypad->index = 0; //top of the buffer
@@ -60,41 +51,15 @@ void KEYPAD_Init_default(TKeypad *keypad) {
 	keypad->timer->Init.Period = DELAY_PERIOD;
 
 	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-
 	system_state = SYSTEM_STATE_DISABLED;
 
 	return;
 }
 
 /**
- * @brief This function will copy the buffer of the keypad into the destination buffer, without cleaning the keypad buffer.
- * @param Keypad_t *keypad a pointer to the structure of the keyboard to read from
- * @param[out]  KEYPAD_Button_t *buffer a pointer to the buffer where the keypad buffer will be copied
- * @return true if the buffer was modified, false otherwise
- */
-bool KEYPAD_buffer_read(TKeypad *keypad, TKEYPAD_Button *buffer) {
-	if (keypad->index == KEYPAD_DEFAULT_BUFFER_SIZE) {
-		for (uint8_t i = 0; i < KEYPAD_DEFAULT_BUFFER_SIZE; i++) {
-			buffer[i] = keypad->buffer[i];
-		}
-		return TRUE;
-	}
-	return FALSE;
-}
-
-/**
- * @brief This function will clear the buffer of the keypad. Note that the clear process consists in just resetting the index
- * @param Keypad_t *keypad a pointer to the structure of the keyboard which needs the buffer cleared.
- * @return none
- */
-void KEYPAD_clear_buffer(TKeypad *keypad) {
-	keypad->index = 0;
-}
-
-/**
  * @brief ISR of the interrupt of the pins of the keypad. Should be called only by the irq
  * @param Keypad_t *keypad a pointer to the structure of the keyboard that has generated the interrupt
- * @param uint16_t pin the pin that triggered the interruption
+ * @param uint16_t pin the pin that triggered the interrupt
  * @return none
  */
 void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin) {
@@ -189,6 +154,12 @@ void KEYPAD_time_elapsed(TKeypad *keypad) {
 	return;
 }
 
+
+/**
+ * @brief ISR of the timer used to check the buffer. This is called only when the buffer size is full
+ * @param *buffer a pointer to the buffer to be checked
+ * @return none
+ */
 void KEYPAD_check_buffer(uint8_t *buffer) {
 	//when 7 button have been pressed in a short period of time, check them
 	/**
@@ -203,7 +174,6 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	if (buffer[0] != KEYPAD_Button_HASH) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
 		rtc_ds1307_get_datetime();
-		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
@@ -212,7 +182,6 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 		if (buffer[i] != get_configuration()->user_PIN[i - 1]) {
 			message_to_log = MESSAGE_WRONG_USER_PIN;
 			rtc_ds1307_get_datetime();
-			// write_message_with_date_time(MESSAGE_WRONG_USER_PIN);
 			return;
 		}
 	}
@@ -220,14 +189,12 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	if (!isalpha(buffer[5])) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
 		rtc_ds1307_get_datetime();
-		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
 	if (buffer[6] != KEYPAD_Button_HASH && buffer[6] != KEYPAD_Button_STAR) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
 		rtc_ds1307_get_datetime();
-		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
@@ -235,7 +202,6 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	if (system_state == SYSTEM_STATE_DISABLED && buffer[5] != KEYPAD_Button_D) {
 		message_to_log = MESSAGE_COMMAND_REJECTED;
 		rtc_ds1307_get_datetime();
-		// write_message_with_date_time(MESSAGE_COMMAND_REJECTED);
 		return;
 	}
 
@@ -283,9 +249,8 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 
 	message_to_log = MESSAGE_COMMAND_ACCEPTED;
 	rtc_ds1307_get_datetime();
-	// write_message_with_date_time(MESSAGE_COMMAND_ACCEPTED);
 
-//todo log on console the changed status, the enableb process and make the buzzer sound for a second
+	//todo sound buzzer
 	return;
 }
 
