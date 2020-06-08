@@ -122,8 +122,6 @@ int main(void) {
 	configure_photoresistor();
 	configure_PIR_sensor();
 
-	TConfiguration *configuration = get_configuration();
-
 	HAL_TIM_Base_Start_IT(&htim10);
 	log_on = TRUE;
 

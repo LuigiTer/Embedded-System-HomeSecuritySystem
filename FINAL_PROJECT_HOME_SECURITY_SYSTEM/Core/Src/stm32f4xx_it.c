@@ -407,14 +407,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		TAlarmState state = photoresistor1.state;
 		if (state == ALARM_STATE_DELAYED || state == ALARM_STATE_ALARMED) {
 			photoresistor1.counter += 1;
-			if (state
-					== ALARM_STATE_DELAYED&&
-					photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1,
-						ALARM_STATE_ALARMED);
-			} else if (state
-					== ALARM_STATE_ALARMED&&
-					photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
+			if (state == ALARM_STATE_DELAYED && photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
+				photoresistor_change_state(&photoresistor1, ALARM_STATE_ALARMED);
+			} else if (state == ALARM_STATE_ALARMED && photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
 				photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
 			}
 		}
