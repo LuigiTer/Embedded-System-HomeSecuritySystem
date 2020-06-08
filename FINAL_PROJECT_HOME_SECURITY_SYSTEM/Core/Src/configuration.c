@@ -1,3 +1,10 @@
+/*
+ * This module contains methods to setup the initial configuration of the Home Security System.
+ * The configuration parameters are stored in a singleton structure.
+ * To instantiate the configuration, just call configuration_init() and system_boot() to setup.
+ * Note that you need to instiate a console before starting the configuration setup.
+ */
+
 #include <configuration.h>
 
 bool systemOn = FALSE;
@@ -8,7 +15,7 @@ extern TDatetime datetime;
  * @fn		void configuration_init()
  * @brief	Creates the configuration singleton.
  * 			This function must be called before calling every other function in this module.
- * 			Note that after calling this function for the first time, the done paramter will be FALSE.
+ * 			Note that after calling this function for the first time, the done parameter will be FALSE.
  */
 void configuration_init() {
 	get_configuration();
@@ -18,9 +25,9 @@ void configuration_init() {
  * @fn		TConfiguration* get_configuration()
  * @brief	Returns the singleton configuration instance.
  * 			If the instance has not been initialized yet,
- * 				then it will be initialized with the basic configuration.
+ * 			then it will be initialized with the basic configuration.
  * 			If the instance has already been initialized,
- * 				the configuration structure itself will be returned.
+ *			the configuration structure itself will be returned.
  * @retval	pointer to the TConfiguration structure representing the configuration
  */
 TConfiguration* get_configuration() {
@@ -30,11 +37,10 @@ TConfiguration* get_configuration() {
 		configuration = malloc(sizeof(*configuration));
 		configuration->datetime = malloc(sizeof(configuration->datetime));
 
-		strcpy(configuration->user_PIN, "0000");
-		configuration->area_alarm_delay = MAX_ALARM_DELAY;
-		configuration->barrier_alarm_delay = MAX_ALARM_DELAY;
-		configuration->alarm_duration = MAX_ALARM_DURATION;
-		//rtc_ds1307_get_datetime();
+		strcpy(configuration->user_PIN, (uint8_t*) CONFIG_DEFAULT_USER_PIN);
+		configuration->area_alarm_delay = CONFIG_DEFAULT_ALARM_DELAY;
+		configuration->barrier_alarm_delay = CONFIG_DEFAULT_ALARM_DELAY;
+		configuration->alarm_duration = CONFIG_DEFAULT_ALARM_DURATION;
 		retrieve_current_date_time(configuration->datetime);
 		configuration->done = FALSE;
 	}
@@ -46,7 +52,7 @@ TConfiguration* get_configuration() {
  *	@fn		void system_boot()
  *	@brief	Performs all the steps needed to setup all the configuration parameters, asking them to the user.
  *			If the user does not provide these parameters in 30 seconds,
- *				the basic configuration will be set.
+ *			the default configuration will be set.
  */
 void system_boot() {
 	// Initial phase
@@ -74,12 +80,13 @@ void system_boot() {
 	if (!configuration->done) {
 		strcpy(configuration->user_PIN, tempConfiguration->user_PIN);
 		configuration->area_alarm_delay = tempConfiguration->area_alarm_delay;
-		configuration->barrier_alarm_delay = tempConfiguration->barrier_alarm_delay;
+		configuration->barrier_alarm_delay =
+				tempConfiguration->barrier_alarm_delay;
 		configuration->alarm_duration = tempConfiguration->alarm_duration;
 		configuration->datetime = tempConfiguration->datetime;
 		configuration->done = TRUE;
 		HAL_TIM_Base_Stop_IT(&htim1);
-		} else {
+	} else {
 		print_on_console(CONFIG_NEWLINE);
 		print_on_console(CONFIG_TIMEOUT);
 		print_on_console(CONFIG_NEWLINE);
@@ -94,18 +101,18 @@ void system_boot() {
 	print_on_console(CONFIG_MESSAGE_READY);
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_NEWLINE);
-	while (!get_console(NULL)->ready){
+	while (!get_console(NULL)->ready) {
 		HAL_Delay(1);
 	}
 }
 
 /*
- * @fn		void configuration_recap(TConfiguration *configuration)
+ * @fn		void configuration_recap()
  * @brief	Prints all the configuration parameters in a compact way
- * @param	configuration	pointer to the TConfiguration structure
- * 				containing the system configuration parameters
  */
-void configuration_recap(TConfiguration *configuration) {
+void configuration_recap() {
+	TConfiguration *configuration = get_configuration();
+
 	// Recap start
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_SEPARATOR);
@@ -151,178 +158,8 @@ void configuration_recap(TConfiguration *configuration) {
 }
 
 /*
- * @fn		void print_welcome_message()
- * @brief	Prints a welcome message on the console.
- */
-void print_welcome_message() {
-	print_on_console(CONFIG_MESSAGE_WELCOME_MESSAGE);
-	print_on_console(CONFIG_NEWLINE);
-}
-
-/*
- * @fn		void ask_for_PIN(TConfiguration *configuration)
- * @brief	Prints a series of messages on the console, reading the user PIN
- * 				and setting it in the configuration strucutre.
- * 			For confirmation purposes, it will be asked twice.
- * 				If two different sequences are inserted, it will raise an error.
- * @param	configuration	pointer to the TConfiguration structure
- * 				containing the system configuration parameters
- */
-void ask_for_PIN(TConfiguration *configuration) {
-	uint8_t userPIN2[USER_PIN_LENGTH];
-
-	// Ask PIN for the first time
-	print_on_console(CONFIG_REQUEST_PIN);
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_PROMPT);
-	get_user_PIN(configuration->user_PIN);
-	print_on_console(CONFIG_NEWLINE);
-
-	// Ask PIN for the second time
-	print_on_console(CONFIG_MESSAGE_CONFIRM_PIN);
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_PROMPT);
-	get_user_PIN(userPIN2);
-
-	// If the two sequences are not the same, an error message will be printed and the program ends
-	if (!are_equal(configuration->user_PIN, userPIN2, USER_PIN_LENGTH, USER_PIN_LENGTH)) {
-		print_on_console(CONFIG_MESSAGE_ERROR);
-		exit(1);
-	}
-
-	// Print user PIN
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_MESSAGE_SHOW_PIN);
-	transmit(configuration->user_PIN, USER_PIN_LENGTH);
-	print_on_console(CONFIG_NEWLINE);
-}
-
-/*
- * @fn		void ask_for_area_alarm_delay(TConfiguration *configuration)
- * @brief	Prints a series of messages on the console,
- * 				reading the number of seconds of the delay of the alarm for the AREA Sensor
- * @param	configuration	pointer to the TConfiguration structure
- * 				containing the system configuration parameters
- */
-void ask_for_area_alarm_delay(TConfiguration *configuration) {
-	// Ask number of seconds of the delay of the alarm for the AREA Sensor
-	print_on_console(CONFIG_REQUEST_AREA_ALARM_DELAY);
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_PROMPT);
-	uint8_t alarmDelay = get_int_less_than(MAX_ALARM_DELAY, CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DELAY);
-
-	// Print number of seconds of the delay of the alarm for the AREA Sensor
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_MESSAGE_SHOW_AREA_ALARM_DELAY);
-	print_int_on_console(alarmDelay);
-	print_on_console(" seconds");
-	print_on_console(CONFIG_NEWLINE);
-	configuration->area_alarm_delay = alarmDelay;
-}
-
-/*
- * @fn		void ask_for_barrier_alarm_delay(TConfiguration *configuration)
- * @brief	Prints a series of messages on the console,
- * 				reading the number of seconds of the delay of the alarm for the BARRIER Sensor
- * @param	configuration	pointer to the TConfiguration structure
- * 				containing the system configuration parameters
- */
-void ask_for_barrier_alarm_delay(TConfiguration *configuration) {
-	// Ask number of seconds of the delay of the alarm for the BARRIER Sensor
-	print_on_console(CONFIG_REQUEST_BARRIER_ALARM_DELAY);
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_PROMPT);
-	uint8_t alarmDelay = get_int_less_than(MAX_ALARM_DELAY, CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DELAY);
-
-	// Print number of seconds of the delay of the alarm for the BARRIER Sensor
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_MESSAGE_SHOW_BARRIER_ALARM_DELAY);
-	print_int_on_console(alarmDelay);
-	print_on_console(" seconds");
-	print_on_console(CONFIG_NEWLINE);
-	configuration->barrier_alarm_delay = alarmDelay;
-}
-
-/*
- * @fn		void ask_for_alarm_duration(TConfiguration *configuration)
- * @brief	Prints a series of messages on the console,
- * 				reading the number of seconds of the duration of the alarm
- * @param	configuration	pointer to the TConfiguration structure
- * 				containing the system configuration parameters
- */
-void ask_for_alarm_duration(TConfiguration *configuration) {
-	// Ask number of seconds of the duration of the alarm
-	print_on_console(CONFIG_REQUEST_ALARM_DURATION);
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_PROMPT);
-	uint8_t alarmDuration = get_int_less_than(MAX_ALARM_DURATION, CONFIG_REQUEST_LESS_THAN_MAX_ALARM_DURATION);
-
-	// Print number of seconds of the duration of the alarm
-	print_on_console(CONFIG_NEWLINE);
-	print_on_console(CONFIG_MESSAGE_SHOW_ALARM_DURATION);
-	print_int_on_console(alarmDuration);
-	print_on_console(" seconds");
-	print_on_console(CONFIG_NEWLINE);
-	configuration->alarm_duration = alarmDuration;
-}
-
-/*
- * @fn		void ask_for_datetime(TConfiguration *configuration)
- * @brief	Prints a series of messages on the console,
- * 				reading the datetime set by the user
- * @param	configuration	pointer to the TConfiguration structure
- * 				containing the system configuration parameters
- */
-void ask_for_datetime(TConfiguration *configuration) {
-	print_on_console(CONFIG_REQUEST_DATE_TIME);
-	print_on_console(CONFIG_NEWLINE);
-
-	TDatetime *datetime = configuration->datetime;
-
-	// Ask year
-	print_on_console("year [0-99]: ");
-	datetime->year = get_int_less_than(99, "Please insert a valid year");
-	print_on_console(CONFIG_NEWLINE);
-
-	// Ask month
-	print_on_console("month [01-12]: ");
-	datetime->month = get_int_between(1, 12, "Month number must be in [01-12]");
-	print_on_console(CONFIG_NEWLINE);
-
-	// Ask date
-	char msg[32];
-	char msg2[32];
-	uint8_t maxDays = days_of_month(datetime->month - 1);
-	sprintf(msg, "date [01-%d]: ", maxDays);
-	print_on_console(msg);
-	sprintf(msg2, "Date number must be in [01-%d]", maxDays);
-	datetime->date = get_int_between(1, maxDays, msg2);
-	print_on_console(CONFIG_NEWLINE);
-
-	// Ask hour
-	print_on_console("hour [00-23]: ");
-	datetime->hour = get_int_less_than(23, "Hour must be in [00-23]");
-	print_on_console(CONFIG_NEWLINE);
-
-	// Ask minute
-	print_on_console("minute [00-59]: ");
-	datetime->minute = get_int_less_than(59, "Minute must be in [00-59]");
-	print_on_console(CONFIG_NEWLINE);
-
-	// Ask second
-	print_on_console("second [00-59]: ");
-	datetime->second = get_int_less_than(59, "Second must be in [00-59]");
-	print_on_console(CONFIG_NEWLINE);
-
-	// Print datetime set by the user
-	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
-	show_date_time(datetime);
-	print_on_console(CONFIG_NEWLINE);
-}
-
-/*
  * @fn		void show_date_time(TDatetime *datetime)
- * @brief	Prints a TDatetime structure in a compact and readble way (e.g. 08-11-1997 @ 23:00:00)
+ * @brief	Prints a TDatetime structure in a compact and readble way (e.g. [08-11-1997 23:00:00])
  * @param	datetime	pointer to the TDatetime structure to print
  */
 void show_date_time(TDatetime *datetime) {
