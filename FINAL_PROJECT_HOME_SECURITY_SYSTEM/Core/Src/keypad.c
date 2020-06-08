@@ -1,3 +1,8 @@
+/*
+ * This module allows to connect a keypad to the system. This module will also manage the activation and deactivation of
+ * the sensors. The user pin is automatically retrieved by the configuration.
+ * */
+
 #include "keypad.h"
 
 /* Private variable definition*/
@@ -6,25 +11,12 @@ static volatile uint8_t last_row;
 extern TBuzzer *buzzer;
 extern TLogger *logger;
 
-/* Private function definition*/
 /**
- * @brief This function will initialize all the columns, setting them to high state, in order to detect pression
- * @param Keypad_t *keypad a pointer to the structure of the keypad to inizialize
- * @return none
- */
-void KEYPAD_init_columns(TKeypad *keypad) {
-	for (uint8_t i = 0; i < COLUMNS_N; i++) {
-		HAL_GPIO_WritePin(COLUMN_1_PORT, keypad->cols_pins[i], GPIO_PIN_SET);
-	}
-	return;
-}
-
-/* Functions definitions */
-/**
- * @brief This function will initialize a keypad, using the default settings that are in the header file. Useful for single keypad.
- * More keypad could be added, but the configuration process is a bit different and needs another function.
- * @param Keypad_t *keypad a pointer to the structure of the keyboard to initialize
- * @return none
+ * @fn 		void KEYPAD_init_default(TKeypad *keypad)
+ * @brief 	This function will initialize a keypad, using the default settings that are in the header file. Useful for single keypad.
+ * 			More keypad could be added, but the configuration process is a bit different and needs another function.
+ * @param 	keypad a pointer to the structure of the keyboard to initialize
+ * @retval 	none
  */
 void KEYPAD_init_default(TKeypad *keypad) {
 
@@ -49,7 +41,7 @@ void KEYPAD_init_default(TKeypad *keypad) {
 
 	//setting up the timer, so even if it is not configured via gui, it is done directly here.
 	keypad->timer->Init.Prescaler = KEYPAD_PRESCALER;
-	keypad->timer->Init.Period = DELAY_PERIOD;
+	keypad->timer->Init.Period = KEYPAD_DELAY_PERIOD;
 
 	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 	system_state = SYSTEM_STATE_DISABLED;
@@ -58,10 +50,26 @@ void KEYPAD_init_default(TKeypad *keypad) {
 }
 
 /**
- * @brief ISR of the interrupt of the pins of the keypad. Should be called only by the irq
- * @param Keypad_t *keypad a pointer to the structure of the keyboard that has generated the interrupt
- * @param uint16_t pin the pin that triggered the interrupt
- * @return none
+ * @fn 				void KEYPAD_init_columns(TKeypad *keypad)
+ * @brief 			This function will initialize all the columns, setting them to high state, in order to detect when a button is pressed
+ * @param keypad 	a pointer to the structure of the keypad to initialize
+ * @retval			None
+ */
+void KEYPAD_init_columns(TKeypad *keypad) {
+	for (uint8_t i = 0; i < COLUMNS_N; i++) {
+		HAL_GPIO_WritePin(COLUMN_1_PORT, keypad->cols_pins[i], GPIO_PIN_SET);
+	}
+	return;
+}
+
+/**
+ * @fn		void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin)
+ * @brief 	ISR of the interrupt of the pins of the keypad. Should be called only by the irq.
+ * 			This function will check that the last pression is in a short period of time,save the
+ * 			corresponding row and starts a timer, in order to prevent bouncing.
+ * @param 	keypad a pointer to the structure of the keyboard that has generated the interrupt
+ * @param 	pin the pin that triggered the interrupt
+ * @retval 	none
  */
 void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin) {
 	if ((HAL_GetTick() - keypad->last_pressed_time)
@@ -99,9 +107,13 @@ void KEYPAD_key_pressed(TKeypad *keypad, uint16_t pin) {
 }
 
 /**
- * @brief ISR of the timer used to prevent bouncing (keypad is really bouncy:) ). Should be called only by the irq
- * @param Keypad_t *keypad a pointer to the structure of the keyboard that has started the timer
- * @return none
+ * @fn 		void KEYPAD_time_elapsed(TKeypad *keypad)
+ * @brief 	ISR of the timer used to prevent bouncing (keypad is really bouncy:) ). Should be called only by the irq.
+ * 			When the time is elapsed, the function will scan the columns and will read the last saved row. If it is valid,
+ * 			the read button will be saved in a buffer. When the buffer is full, the function will restart the timer,
+ * 			and the buffer will be checked later.
+ * @param 	keypad a pointer to the structure of the keyboard that has started the timer
+ * @retval	none
  */
 void KEYPAD_time_elapsed(TKeypad *keypad) {
 	//stop the timer
@@ -157,8 +169,11 @@ void KEYPAD_time_elapsed(TKeypad *keypad) {
 
 
 /**
- * @brief ISR of the timer used to check the buffer. This is called only when the buffer size is full
- * @param *buffer a pointer to the buffer to be checked
+ * @fn 		void KEYPAD_check_buffer(uint8_t *buffer)
+ * @brief 	ISR of the timer used to check the buffer. This is called only when the buffer size is full.
+ * 			The buffer will be checked and, if the command is valid,it is executed. So it will enable and disable
+ * 			the sensors and the system. This will also log on the console.
+ * @param 	buffer a pointer to the buffer to be checked
  * @return none
  */
 void KEYPAD_check_buffer(uint8_t *buffer) {
