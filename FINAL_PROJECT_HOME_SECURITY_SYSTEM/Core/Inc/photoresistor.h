@@ -18,6 +18,7 @@ typedef struct {
 	TAlarmState state;
 	TIM_HandleTypeDef *htim;
 	ADC_HandleTypeDef *hadc;
+	TBuzzer *buzzer;
 
 } TPhotoresistor;
 

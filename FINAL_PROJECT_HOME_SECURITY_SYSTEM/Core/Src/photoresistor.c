@@ -14,7 +14,7 @@ extern TBuzzer *buzzer;
  */
 void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 		uint8_t alarm_duration, TIM_HandleTypeDef *htim,
-		ADC_HandleTypeDef *hadc) {
+		ADC_HandleTypeDef *hadc, TBuzzer *buzzer) {
 	photoresistor->value = 0;
 	photoresistor->alarm_delay = alarm_delay;
 	photoresistor->counter = 0;
@@ -22,6 +22,7 @@ void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 	photoresistor->state = ALARM_STATE_INACTIVE;
 	photoresistor->htim = htim;
 	photoresistor->hadc = hadc;
+	photoresistor->buzzer = buzzer;
 }
 
 /*
@@ -52,14 +53,14 @@ void photoresistor_change_state(TPhotoresistor *photoresistor,
 	case ALARM_STATE_INACTIVE:
 		photoresistor->state = ALARM_STATE_INACTIVE;
 		photoresistor->counter = 0;
-		set_sound_level(buzzer, 0);
+		buzzer_decrease_pulse(photoresistor->buzzer, BUZZER_SHORT_PULSE);
 		HAL_ADC_Stop_IT(photoresistor->hadc);
 		HAL_TIM_Base_Stop_IT(photoresistor->htim);
 		break;
 	case ALARM_STATE_ACTIVE:
 		photoresistor->state = ALARM_STATE_ACTIVE;
 		photoresistor->counter = 0;
-		set_sound_level(buzzer, 0);
+		buzzer_decrease_pulse(photoresistor->buzzer, BUZZER_SHORT_PULSE);
 		photoresistor1.hadc->Instance->HTR = 2500; //detect low light level, waiting for a thief
 		photoresistor1.hadc->Instance->LTR = 0; //ignore high light level, it's a sunny day
 		HAL_TIM_Base_Start_IT(photoresistor->htim);
@@ -69,14 +70,14 @@ void photoresistor_change_state(TPhotoresistor *photoresistor,
 		photoresistor1.hadc->Instance->HTR = 4095; //ignore low light level, we know we have a thief
 		photoresistor1.hadc->Instance->LTR = 800; // we want to know only when the thief is gone
 		photoresistor->counter = 0;
-		set_sound_level(buzzer, 0);
+		buzzer_decrease_pulse(photoresistor->buzzer, BUZZER_SHORT_PULSE);
 		break;
 	case ALARM_STATE_ALARMED:
 		photoresistor->state = ALARM_STATE_ALARMED;
 		photoresistor1.hadc->Instance->HTR = 4095;
 		photoresistor1.hadc->Instance->LTR = 0; // ignore further trigger, we are in alarm
 		photoresistor->counter = 0;
-		set_sound_level(buzzer, 1);
+		buzzer_increase_pulse(photoresistor->buzzer, BUZZER_SHORT_PULSE);
 		HAL_ADC_Stop_IT(photoresistor->hadc);
 		break;
 	default:

@@ -46,13 +46,13 @@ static inline void PIR_Change_State(TPIR_sensor *pir, TAlarmState state) {
 	case ALARM_STATE_INACTIVE:
 		HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
 		HAL_NVIC_DisableIRQ(pir->irq);
-		set_sound_level(pir->buzzer, 0);
+		buzzer_decrease_pulse(pir->buzzer, BUZZER_MEDIUM_PULSE);
 		break;
 	case ALARM_STATE_ACTIVE:
 		HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
 		HAL_NVIC_EnableIRQ(pir->irq);
 		pir->remaining_delay = pir->delay;
-		set_sound_level(pir->buzzer, 0);
+		buzzer_decrease_pulse(pir->buzzer, BUZZER_MEDIUM_PULSE);
 		if(HAL_GPIO_ReadPin(pir->port, pir->pin) == GPIO_PIN_SET){
 			HAL_NVIC_SetPendingIRQ(pir->irq);
 		}
@@ -61,10 +61,10 @@ static inline void PIR_Change_State(TPIR_sensor *pir, TAlarmState state) {
 		pir->timer->Instance->CNT = 0;
 		HAL_TIM_OC_Start_IT(pir->timer, TIM_CHANNEL_1);
 		pir->remaining_delay = pir->delay;
-		set_sound_level(pir->buzzer, 0);
+		buzzer_decrease_pulse(pir->buzzer, BUZZER_MEDIUM_PULSE);
 		break;
 	case ALARM_STATE_ALARMED:
-		set_sound_level(pir->buzzer, 2);
+		buzzer_increase_pulse(pir->buzzer, BUZZER_MEDIUM_PULSE);
 		break;
 	default:
 		break;
