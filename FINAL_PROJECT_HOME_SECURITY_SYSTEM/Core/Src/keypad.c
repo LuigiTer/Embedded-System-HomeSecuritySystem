@@ -11,7 +11,8 @@ static volatile uint8_t last_row;
 extern uint8_t system_state;
 extern TBuzzer buzzer;
 extern TLogger logger;
-
+extern TPIR_sensor pir;
+extern TPhotoresistor photoresistor;
 
 /**
  * @fn 		void KEYPAD_init_default(TKeypad *keypad)
@@ -222,20 +223,20 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 		//if last element is '*' deactivate the corresponding sensor
 		switch (buffer[5]) {
 		case KEYPAD_Button_A:
-			PIR_sensor_deactivate(&PIR_4);
+			PIR_sensor_deactivate(&pir);
 			break;
 		case KEYPAD_Button_B:
-			photoresistor_deactivate(&photoresistor1);
+			photoresistor_deactivate(&photoresistor);
 			break;
 		case KEYPAD_Button_C:
-			PIR_sensor_deactivate(&PIR_4);
-			photoresistor_deactivate(&photoresistor1);
+			PIR_sensor_deactivate(&pir);
+			photoresistor_deactivate(&photoresistor);
 			break;
 		case KEYPAD_Button_D:
 			system_state = SYSTEM_STATE_DISABLED;
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-			PIR_sensor_deactivate(&PIR_4);
-			photoresistor_deactivate(&photoresistor1);
+			PIR_sensor_deactivate(&pir);
+			photoresistor_deactivate(&photoresistor);
 			break;
 		default:
 			break;
@@ -244,14 +245,14 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 		//if last element is '#' activate the corresponding sensor
 		switch (buffer[5]) {
 		case KEYPAD_Button_A:
-			PIR_sensor_activate(&PIR_4);
+			PIR_sensor_activate(&pir);
 			break;
 		case KEYPAD_Button_B:
-			photoresistor_activate(&photoresistor1);
+			photoresistor_activate(&photoresistor);
 			break;
 		case KEYPAD_Button_C:
-			PIR_sensor_activate(&PIR_4);
-			photoresistor_activate(&photoresistor1);
+			PIR_sensor_activate(&pir);
+			photoresistor_activate(&photoresistor);
 			break;
 		case KEYPAD_Button_D:
 			system_state = SYSTEM_STATE_ENABLED;

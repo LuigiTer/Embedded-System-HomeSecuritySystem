@@ -148,7 +148,4 @@ void PIR_time_elapsed();
  */
 void PIR_get_string_state(TPIR_sensor *pir, char *area_state);
 
-/* Installed keypads should be declared here. The number indicates the pin number the sensor is connected to.*/
-TPIR_sensor PIR_4;
-
 #endif /* INC_PIR_SENSOR_H_ */

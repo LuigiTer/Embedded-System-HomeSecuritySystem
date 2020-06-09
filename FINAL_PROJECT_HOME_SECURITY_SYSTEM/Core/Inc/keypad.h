@@ -121,7 +121,5 @@ void KEYPAD_time_elapsed(TKeypad *keypad);
  */
 void KEYPAD_check_buffer(uint8_t *buffer);
 
-/* Installed keypads should be declared here */
-TKeypad KEYPAD_1;
 
 #endif /* INC_KEYPAD_H_ */
