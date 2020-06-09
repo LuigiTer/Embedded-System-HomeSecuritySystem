@@ -89,7 +89,7 @@ void retrieve_date(int *date_buffer) {
 
 	date_buffer[0] = atoi(day);
 	date_buffer[1] = get_month(month);
-	date_buffer[2] = atoi(year) % 100;
+	date_buffer[2] = atoi(year);
 }
 
 /*
@@ -103,7 +103,9 @@ void retrieve_current_date_time(TDatetime *datetime) {
 	retrieve_date(current_date);
 	int current_time[3] = { 0 };
 	retrieve_time(current_time);
-	datetime->year = current_date[2];
+	uint16_t year = current_date[2];
+	datetime->year_prefix = year / 100;
+	datetime->year = year % 100;
 	datetime->month = current_date[1];
 	datetime->date = current_date[0];
 	datetime->day = 0;

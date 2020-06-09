@@ -9,8 +9,6 @@
 
 bool systemOn = FALSE;
 
-extern TDatetime datetime;
-
 /*
  * @fn		void configuration_init()
  * @brief	Creates the configuration singleton.
@@ -166,6 +164,7 @@ void show_date_time(TDatetime *datetime) {
 	print_on_console("-");
 	print_int_on_console(datetime->month);
 	print_on_console("-");
+	print_int_on_console(datetime->year_prefix);
 	print_int_on_console(datetime->year);
 	print_on_console(" ");
 	print_int_on_console(datetime->hour);

@@ -315,8 +315,10 @@ static void ask_for_datetime(TConfiguration *configuration) {
 	TDatetime *datetime = configuration->datetime;
 
 	// Ask year
-	print_on_console("year [0-99]: ");
-	datetime->year = get_int_less_than(99, "Please insert a valid year");
+	print_on_console("year (4 digits): ");
+	uint16_t year = get_int_less_than(9999, "Please insert a valid year");
+	datetime->year_prefix = year / 100;
+	datetime->year = year % 100;
 	print_on_console(CONFIG_NEWLINE);
 
 	// Ask month

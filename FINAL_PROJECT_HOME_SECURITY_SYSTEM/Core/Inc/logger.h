@@ -52,9 +52,10 @@ void logger_init(TLogger *logger, UART_HandleTypeDef *huart, TPIR_sensor *pir, T
  */
 static void logger_show_event_message(TDatetime *datetime, const char *event_message) {
 	char msg[512] = { '\0' };
-	sprintf(msg, (char*) "[%02u-%02u-%02u %02u:%02u:%02u] %s\r\n", datetime->date,
-			datetime->month, datetime->year, datetime->hour, datetime->minute,
-			datetime->second, event_message);
+	sprintf(msg, (char*) "[%02u-%02u-%u%02u %02u:%02u:%02u] %s\r\n",
+			datetime->date, datetime->month, datetime->year_prefix, datetime->year,
+			datetime->hour, datetime->minute, datetime->second,
+			event_message);
 
 	print_message(msg);
 }
@@ -73,9 +74,10 @@ static void logger_show_periodic_message(TLogger *logger, TDatetime *datetime) {
 	PIR_get_string_state(logger->pir, area_state);
 	photoresistor_get_string_state(logger->photoresistor, barrier_state);
 
-	sprintf(msg, (uint8_t*) "[%02u-%02u-%02u %02u:%02u:%02u] Area %s - Barrier %s\r\n", datetime->date,
-			datetime->month, datetime->year, datetime->hour, datetime->minute,
-			datetime->second, area_state, barrier_state);
+	sprintf(msg, (char*) "[%02u-%02u-%u%02u %02u:%02u:%02u] Area %s - Barrier %s\r\n",
+			datetime->date, datetime->month, datetime->year_prefix, datetime->year,
+			datetime->hour, datetime->minute, datetime->second,
+			area_state, barrier_state);
 
 	print_message(msg);
 }

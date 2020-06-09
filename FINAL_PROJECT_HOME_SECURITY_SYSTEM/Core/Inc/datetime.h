@@ -21,6 +21,7 @@
  * @param	second	second from 0 to 59
  */
 typedef struct {
+	uint8_t year_prefix;
 	uint8_t year;       	// year (0 - 99)
 	uint8_t month;      	// month (1 - 12)
 	uint8_t date;      		// date (1 - 31)
