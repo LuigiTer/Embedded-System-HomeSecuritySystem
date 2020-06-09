@@ -100,7 +100,7 @@ static void photoresistor_change_state(TPhotoresistor *photoresistor,
 	case ALARM_STATE_DELAYED:
 		photoresistor->state = ALARM_STATE_DELAYED;
 		photoresistor->hadc->Instance->HTR = 4095; 	// ignore low light level (HTR) because now we want to check
-		photoresistor->hadc->Instance->LTR = 800; 	// if the intruder go away (photoresistor read LTR value) before that the state change to alarmed
+		photoresistor->hadc->Instance->LTR = 1500; 	// if the intruder go away (photoresistor read LTR value) before that the state change to alarmed
 		photoresistor->counter = 0;
 		buzzer_decrease_pulse(photoresistor->buzzer, pulse);
 		break;
