@@ -40,8 +40,6 @@ typedef struct {
 
 } TPhotoresistor;
 
-TPhotoresistor photoresistor1;
-
 /*
  * @fn 			void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 										uint8_t alarm_duration, TIM_HandleTypeDef *htim, ADC_HandleTypeDef *hadc, TBuzzer *buzzer);
@@ -92,21 +90,21 @@ static void photoresistor_change_state(TPhotoresistor *photoresistor,
 		photoresistor->state = ALARM_STATE_ACTIVE;
 		photoresistor->counter = 0;
 		buzzer_decrease_pulse(photoresistor->buzzer, pulse);
-		photoresistor1.hadc->Instance->HTR = 2500; 	//detect low light level (with HTR) and
-		photoresistor1.hadc->Instance->LTR = 0; 	//ignore high light level (with LTR) in order to detect an intruder
+		photoresistor->hadc->Instance->HTR = 2500; 	//detect low light level (with HTR) and
+		photoresistor->hadc->Instance->LTR = 0; 	//ignore high light level (with LTR) in order to detect an intruder
 		HAL_TIM_Base_Start_IT(photoresistor->htim);
 		break;
 	case ALARM_STATE_DELAYED:
 		photoresistor->state = ALARM_STATE_DELAYED;
-		photoresistor1.hadc->Instance->HTR = 4095; 	// ignore low light level (HTR) because now we want to check
-		photoresistor1.hadc->Instance->LTR = 800; 	// if the intruder go away (photoresistor read LTR value) before that the state change to alarmed
+		photoresistor->hadc->Instance->HTR = 4095; 	// ignore low light level (HTR) because now we want to check
+		photoresistor->hadc->Instance->LTR = 800; 	// if the intruder go away (photoresistor read LTR value) before that the state change to alarmed
 		photoresistor->counter = 0;
 		buzzer_decrease_pulse(photoresistor->buzzer, pulse);
 		break;
 	case ALARM_STATE_ALARMED:
 		photoresistor->state = ALARM_STATE_ALARMED;
-		photoresistor1.hadc->Instance->HTR = 4095;  // here with HTR and LTR we ignore both low and high value of light beacuase
-		photoresistor1.hadc->Instance->LTR = 0; 	// we are in alarmed state so the intruder is detected
+		photoresistor->hadc->Instance->HTR = 4095;  // here with HTR and LTR we ignore both low and high value of light beacuase
+		photoresistor->hadc->Instance->LTR = 0; 	// we are in alarmed state so the intruder is detected
 		photoresistor->counter = 0;
 		buzzer_increase_pulse(photoresistor->buzzer, pulse);
 		HAL_ADC_Stop_IT(photoresistor->hadc);

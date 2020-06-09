@@ -48,11 +48,16 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 extern uint8_t system_state;
-extern bool systemOn;
-extern bool log_on;
+
+extern TKeypad keypad;
+extern TLogger logger;
+extern TPIR_sensor pir;
+extern TPhotoresistor photoresistor;
+
 extern uint8_t rtc_read_buffer[MAX_BUFFER_SIZE];
 
-extern TLogger logger;
+extern bool systemOn;
+extern bool log_on;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -362,7 +367,7 @@ void USART2_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 void EXTI4_IRQHandler(void) {
-	PIR_sensor_handler(&PIR_4);
+	PIR_sensor_handler(&pir);
 }
 
 void EXTI15_10_IRQHandler(void) {
@@ -374,7 +379,7 @@ void EXTI15_10_IRQHandler(void) {
 
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 	if (pin & (GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15)) {
-		KEYPAD_key_pressed(&KEYPAD_1, pin);
+		KEYPAD_key_pressed(&keypad, pin);
 	}
 }
 
@@ -405,39 +410,38 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		if (system_state == SYSTEM_STATE_ENABLED) {
 			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 		}
-	} else if (htim->Instance == KEYPAD_1.timer->Instance) {
-		KEYPAD_time_elapsed(&KEYPAD_1);
-	} else if (htim->Instance == photoresistor1.htim->Instance) {
-		TAlarmState state = photoresistor1.state;
+	} else if (htim->Instance == keypad.timer->Instance) {
+		KEYPAD_time_elapsed(&keypad);
+	} else if (htim->Instance == photoresistor.htim->Instance) {
+		TAlarmState state = photoresistor.state;
 		if (state == ALARM_STATE_DELAYED || state == ALARM_STATE_ALARMED) {
-			photoresistor1.counter += 1;
-			if (state == ALARM_STATE_DELAYED && photoresistor1.counter == photoresistor1.alarm_delay * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1, ALARM_STATE_ALARMED);
-			} else if (state == ALARM_STATE_ALARMED && photoresistor1.counter == photoresistor1.alarm_duration * ALARM_COUNTER_FACTOR) {
-				photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
+			photoresistor.counter += 1;
+			if (state == ALARM_STATE_DELAYED && photoresistor.counter == photoresistor.alarm_delay * ALARM_COUNTER_FACTOR) {
+				photoresistor_change_state(&photoresistor, ALARM_STATE_ALARMED);
+			} else if (state == ALARM_STATE_ALARMED && photoresistor.counter == photoresistor.alarm_duration * ALARM_COUNTER_FACTOR) {
+				photoresistor_change_state(&photoresistor, ALARM_STATE_ACTIVE);
 			}
 		}
 
 		if (state == ALARM_STATE_ACTIVE || state == ALARM_STATE_DELAYED) {
-			HAL_ADC_Start_IT(photoresistor1.hadc);
+			HAL_ADC_Start_IT(photoresistor.hadc);
 		}
 	}
 }
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
-	if (htim->Instance == PIR_4.timer->Instance) {
-		PIR_time_elapsed(&PIR_4);
+	if (htim->Instance == pir.timer->Instance) {
+		PIR_time_elapsed(&pir);
 	}
 }
 
 void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc) {
-	if (hadc->Instance == photoresistor1.hadc->Instance) {
-		photoresistor1.value = HAL_ADC_GetValue(photoresistor1.hadc);
-		if (photoresistor1.state == ALARM_STATE_ACTIVE) {
-			photoresistor_change_state(&photoresistor1, ALARM_STATE_DELAYED);
+	if (hadc->Instance == photoresistor.hadc->Instance) {
+		if (photoresistor.state == ALARM_STATE_ACTIVE) {
+			photoresistor_change_state(&photoresistor, ALARM_STATE_DELAYED);
 
-		} else if (photoresistor1.state == ALARM_STATE_DELAYED) {
-			photoresistor_change_state(&photoresistor1, ALARM_STATE_ACTIVE);
+		} else if (photoresistor.state == ALARM_STATE_DELAYED) {
+			photoresistor_change_state(&photoresistor, ALARM_STATE_ACTIVE);
 		}
 	}
 }
