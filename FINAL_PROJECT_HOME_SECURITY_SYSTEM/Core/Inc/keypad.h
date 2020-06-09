@@ -10,7 +10,6 @@
 #include "configuration.h"
 #include "keypad_configuration.h"
 #include "tim.h"
-#include "bool.h"
 #include "pir_sensor.h"
 #include "photoresistor.h"
 #include "logger.h"

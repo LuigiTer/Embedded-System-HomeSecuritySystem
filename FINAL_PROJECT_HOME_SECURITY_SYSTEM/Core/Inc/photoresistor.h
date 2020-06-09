@@ -5,14 +5,17 @@
 #ifndef INC_PHOTORESISTOR_H_
 #define INC_PHOTORESISTOR_H_
 
+#include "string.h"
+
 #include "stm32f4xx_hal.h"
 #include "adc.h"
 #include "buzzer.h"
 #include "sensors_state.h"
-#include "string.h"
 
-/*Factor needed to be multiplied with the alarm duration/delay of the photoresistor in order check if the photoresistor
- * has reached the max time in alarmed/delayed state and then change its current state*/
+/* Factor needed to be multiplied with the alarm duration/delay of the photoresistor in order check if the photoresistor
+ * has reached the max time in alarmed/delayed state and then change its current state.
+ * It depends on the photoresistor timer period T. For example, if T is 1  second and the photoresistor
+ * ADC completes a conversione every 10ms, then ALARM_COUNTER_FACTOR is 10*/
 #define ALARM_COUNTER_FACTOR		(20)
 
 /*

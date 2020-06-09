@@ -5,14 +5,8 @@
 #ifndef RTC_DS1307_H
 #define RTC_DS1307_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 #include "i2c.h"
-#include "main.h"
 #include "datetime.h"
-#include "configuration.h"
-#include "bool.h"
 
 #define RTC_DS1307_OK       	 			(0)
 #define RTC_DS1307_ERR      	 			(-1)

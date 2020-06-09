@@ -4,8 +4,6 @@
 
 #include "photoresistor.h"
 
-extern TBuzzer buzzer;
-
 /*
  * @fn 			void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 										uint8_t alarm_duration, TIM_HandleTypeDef *htim, ADC_HandleTypeDef *hadc, TBuzzer *buzzer);

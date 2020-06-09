@@ -10,6 +10,7 @@
 #ifndef INC_LOGGER_H_
 #define INC_LOGGER_H_
 
+#include "configuration.h"
 #include "console.h"
 #include "pir_sensor.h"
 #include "photoresistor.h"
