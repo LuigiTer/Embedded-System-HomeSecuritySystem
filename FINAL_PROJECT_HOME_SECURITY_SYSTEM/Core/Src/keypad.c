@@ -9,7 +9,7 @@
 static volatile uint8_t last_row;
 
 extern uint8_t system_state;
-extern TBuzzer *buzzer;
+extern TBuzzer buzzer;
 extern TLogger logger;
 
 
@@ -262,7 +262,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	}
 
 	logger_print(&logger, MESSAGE_COMMAND_ACCEPTED);
-	buzzer_play_beep(buzzer);
+	buzzer_play_beep(&buzzer);
 
 	return;
 }

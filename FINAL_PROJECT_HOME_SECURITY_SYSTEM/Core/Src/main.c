@@ -61,7 +61,7 @@
 /* Variable used to enable or disable commands */
 uint8_t system_state = SYSTEM_STATE_DISABLED;
 
-TBuzzer *buzzer;
+TBuzzer buzzer;
 
 TLogger logger;
 
@@ -123,7 +123,7 @@ int main(void) {
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
 	KEYPAD_init_default(&KEYPAD_1);
-	buzzer = buzzer_init(&htim3, TIM_CHANNEL_1);
+	buzzer_init(&buzzer, &htim3, TIM_CHANNEL_1);
 	configure_photoresistor();
 	configure_PIR_sensor();
 	logger_init(&logger, get_console(NULL)->huart, &PIR_4, &photoresistor1);
@@ -188,14 +188,14 @@ void configure_photoresistor() {
 	uint8_t area_alarm_delay = get_configuration()->area_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
 	photoresistor_init(&photoresistor1, area_alarm_delay, alarm_duration,
-			&htim2, &hadc1, buzzer);
+			&htim2, &hadc1, &buzzer);
 }
 
 void configure_PIR_sensor() {
 	uint8_t barrier_alarm_delay = get_configuration()->barrier_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
 	PIR_sensor_init(&PIR_4, barrier_alarm_delay, alarm_duration, EXTI4_IRQn,
-	GPIOC, GPIO_PIN_4, &htim9, buzzer);
+	GPIOC, GPIO_PIN_4, &htim9, &buzzer);
 }
 
 /* USER CODE END 4 */

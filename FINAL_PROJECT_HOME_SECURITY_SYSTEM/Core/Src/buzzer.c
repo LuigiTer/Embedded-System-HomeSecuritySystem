@@ -12,7 +12,7 @@
 #include "buzzer.h"
 
 /* buzzer used in the main program */
-extern TBuzzer *buzzer;
+extern TBuzzer buzzer;
 
 /*
  * @fn		TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel)
@@ -22,9 +22,7 @@ extern TBuzzer *buzzer;
  * @param	Channel		the timer channel holding the PWM signal
  * @retval	pointer to the TBuzzer structure representing the buzzer
  */
-TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel) {
-	TBuzzer *buzzer = NULL;
-	buzzer = malloc(sizeof(buzzer));
+void buzzer_init(TBuzzer *buzzer, TIM_HandleTypeDef *htim, uint32_t Channel) {
 	buzzer->htim = htim;
 	buzzer->Channel = Channel;
 	buzzer->pulse = 0;
@@ -237,12 +235,12 @@ void buzzer_decrease_pulse(TBuzzer *buzzer, TPulse previous_pulse) {
  */
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim) {
 	if (htim->Instance == TIM3) {
-		if (buzzer->single_pulse_mode) {
-			TPulse previous_pulse = buzzer->previous_pulse;
-			HAL_TIM_PWM_Stop_IT(buzzer->htim, buzzer->Channel);
-			buzzer->previous_pulse = 0;
-			buzzer->single_pulse_mode = FALSE;
-			buzzer_play_pulse(buzzer, previous_pulse);
+		if (buzzer.single_pulse_mode) {
+			TPulse previous_pulse = buzzer.previous_pulse;
+			HAL_TIM_PWM_Stop_IT(buzzer.htim, buzzer.Channel);
+			buzzer.previous_pulse = 0;
+			buzzer.single_pulse_mode = FALSE;
+			buzzer_play_pulse(&buzzer, previous_pulse);
 		}
 	}
 }

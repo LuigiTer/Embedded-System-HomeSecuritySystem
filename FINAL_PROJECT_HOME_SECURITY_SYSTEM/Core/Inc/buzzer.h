@@ -64,14 +64,15 @@ typedef struct {
 } TBuzzer;
 
 /*
- * @fn		TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel)
+ * @fn		void buzzer_init(TBuzzer *buzzer, TIM_HandleTypeDef *htim, uint32_t Channel)
  * @brief	Instantiates a buzzer
+ * @param	buzzer		pointer to the TBuzzer structure representing the buzzer to instantiate
  * @param	htim		pointer to the TIM_HandleTypeDef structure representing the timer interface
  * 						used to generate the PWM signal that control the buzzer
  * @param	Channel		the timer channel holding the PWM signal
  * @retval	pointer to the TBuzzer structure representing the buzzer
  */
-TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel);
+void buzzer_init(TBuzzer *buzzer, TIM_HandleTypeDef *htim, uint32_t Channel);
 
 /*
  * @fn		TDutyCycle buzzer_get_duty_cycle(TBuzzer *buzzer)
