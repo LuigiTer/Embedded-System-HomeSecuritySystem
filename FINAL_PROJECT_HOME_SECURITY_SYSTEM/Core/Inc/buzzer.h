@@ -20,6 +20,10 @@
 #include "bool.h"
 #include "tim.h"
 
+#define BUZZER_OK				(0)
+#define BUZZER_ERR_DUTY_CYCLE	(-1)
+#define BUZZER_ERR_PULSE		(-2)
+
 /* Period of the buzzer timer */
 #define BUZZER_MAX_PULSE		(1000)
 
@@ -92,16 +96,17 @@ TPulse buzzer_get_pulse(TBuzzer *buzzer);
 
 
 /*
- * @fn		void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle)
+ * @fn		int buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle)
  * @brief	Sets the duty cycle of a buzzer to a specified value in [0, 1[,
  * 			without playing any sound
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	duty_cycle	duty cycle to set
+ * @retval	BUZZER_ERR_DUTY_CYCLE if duty_cycle is not in [0, 1[, BUZZER_OK otherwise
  */
-void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle);
+int buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle);
 
 /*
- * @fn		void buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse)
+ * @fn		int buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse)
  * @brief	Sets the duty cycle of a buzzer to a value corresponding
  * 			to an integer value in [0, BUZZER_MAX_PULSE[, without playing any sound.
  * 			The conversion formula is duty_cycle = pulse / BUZZER_MAX_PULSE
@@ -109,8 +114,9 @@ void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle);
  * 			then the duty cycle will be 100 / 255 = 0.3922
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	pulse		duty cycle pulse to set
+ * @retval	BUZZER_ERR_PULSE if pulse is not in [0, BUZZER_MAX_PULSE[, BUZZER_OK otherwise
  */
-void buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse);
+int buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse);
 
 /*
  * @fn		void buzzer_play_duty_cycle(TBuzzer *buzzer, TDutyCycle duty_cycle)
@@ -205,18 +211,7 @@ void buzzer_decrease_pulse(TBuzzer *buzzer, TPulse previous_pulse);
  * @param	pulse		duty cycle pulse in [0, BUZZER_MAX_PULSE[ to set
  */
 static void buzzer_change_pulse(TBuzzer *buzzer, uint16_t pulse) {
-	TIM_OC_InitTypeDef sConfigOC = { 0 };
-	TIM_HandleTypeDef *htim = buzzer->htim;
-	uint32_t Channel = buzzer->Channel;
-
-	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = pulse;
-	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	if (HAL_TIM_PWM_ConfigChannel(htim, &sConfigOC, Channel) != HAL_OK) {
-		Error_Handler();
-	}
-	HAL_TIM_MspPostInit(htim);
+	__HAL_TIM_SET_COMPARE(buzzer->htim, buzzer->Channel, pulse);
 }
 
 /*

@@ -23,7 +23,7 @@ void console_init(UART_HandleTypeDef *huart) {
  * 			If the instance has not been initialized yet and huart is not NULL,
  * 			then it will be initialized with huart itself.
  * 			If the instance has not been initialized yet and huart is NULL,
- * 			then the function will raise an error.
+ * 			then the function will return NULL.
  * 			If the instance has already been initialized, than the parameter huart will be uneffective
  * 			and the previous instance will be returned instead.
  * @param	huart	pointer to the UART_HandleTypeDef structure
@@ -33,7 +33,7 @@ TConsole* get_console(UART_HandleTypeDef *huart) {
 	static TConsole *console = NULL;
 
 	if (huart == NULL && console == NULL) {
-		exit(EXIT_FAILURE);
+		return NULL;
 	}
 
 	if (console == NULL) {

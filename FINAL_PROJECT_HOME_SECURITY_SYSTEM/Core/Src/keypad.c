@@ -196,7 +196,7 @@ void KEYPAD_check_buffer(uint8_t *buffer) {
 	}
 
 	//if the pin is not correct, do not process the message
-	for (uint8_t i = 1; i < USER_PIN_LENGTH; i++) {
+	for (uint8_t i = 1; i < USER_PIN_LENGTH + 1; i++) {
 		if (buffer[i] != get_configuration()->user_PIN[i - 1]) {
 			logger_print(&logger, MESSAGE_WRONG_USER_PIN);
 			return;

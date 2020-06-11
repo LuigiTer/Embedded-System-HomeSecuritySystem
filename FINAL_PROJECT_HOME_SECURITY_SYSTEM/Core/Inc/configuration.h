@@ -22,9 +22,12 @@
 #include "utils.h"
 
 
-#define USER_PIN_LENGTH		(4)
-#define MAX_ALARM_DELAY		(30)
-#define MAX_ALARM_DURATION	(60)
+#define CONFIG_OK						(0)
+#define CONFIG_ERR_WRONG_PIN			(-1)
+
+#define USER_PIN_LENGTH					(4)
+#define MAX_ALARM_DELAY					(30)
+#define MAX_ALARM_DURATION				(60)
 
 #define CONFIG_DEFAULT_USER_PIN 		("0000")
 #define CONFIG_DEFAULT_ALARM_DELAY 		(0)
@@ -195,15 +198,16 @@ static uint16_t get_int_less_than(const uint16_t max, const char *error) {
 }
 
 /*
- * @fn		static void ask_for_PIN(TConfiguration *configuration)
+ * @fn		static int ask_for_PIN(TConfiguration *configuration)
  * @brief	Prints a series of messages on the console, reading the user PIN
  * 			and setting it in the configuration strucutre.
  * 			For confirmation purposes, it will be asked twice.
  * 			If two different sequences are inserted, it will raise an error.
  * @param	configuration	pointer to the TConfiguration structure
  * 			containing the system configuration parameters
+ * @retval	CONFIG_ERR_WRONG_PIN if the PINs inserted are different, CONFIG_OK otherwise
  */
-static void ask_for_PIN(TConfiguration *configuration) {
+static int ask_for_PIN(TConfiguration *configuration) {
 	uint8_t userPIN2[USER_PIN_LENGTH];
 
 	// Ask PIN for the first time
@@ -222,7 +226,7 @@ static void ask_for_PIN(TConfiguration *configuration) {
 	// If the two sequences are not the same, an error message will be printed and the program ends
 	if (!are_equal(configuration->user_PIN, userPIN2, USER_PIN_LENGTH, USER_PIN_LENGTH)) {
 		print_on_console(CONFIG_MESSAGE_ERROR);
-		exit(1);
+		return CONFIG_ERR_WRONG_PIN;
 	}
 
 	// Print user PIN
@@ -230,6 +234,8 @@ static void ask_for_PIN(TConfiguration *configuration) {
 	print_on_console(CONFIG_MESSAGE_SHOW_PIN);
 	transmit(configuration->user_PIN, USER_PIN_LENGTH);
 	print_on_console(CONFIG_NEWLINE);
+
+	return CONFIG_OK;
 }
 
 /*

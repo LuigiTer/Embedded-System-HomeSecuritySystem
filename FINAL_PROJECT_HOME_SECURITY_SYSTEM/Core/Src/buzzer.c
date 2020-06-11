@@ -15,8 +15,9 @@
 extern TBuzzer buzzer;
 
 /*
- * @fn		TBuzzer* buzzer_init(TIM_HandleTypeDef *htim, uint32_t Channel)
+ * @fn		void buzzer_init(TBuzzer *buzzer, TIM_HandleTypeDef *htim, uint32_t Channel)
  * @brief	Instantiates a buzzer
+ * @param	buzzer		pointer to the TBuzzer structure representing the buzzer to instantiate
  * @param	htim		pointer to the TIM_HandleTypeDef structure representing the timer interface
  * 						used to generate the PWM signal that control the buzzer
  * @param	Channel		the timer channel holding the PWM signal
@@ -28,8 +29,6 @@ void buzzer_init(TBuzzer *buzzer, TIM_HandleTypeDef *htim, uint32_t Channel) {
 	buzzer->pulse = 0;
 	buzzer->previous_pulse = 0;
 	buzzer->duty_cycle = 0;
-
-	return buzzer;
 }
 
 /*
@@ -53,24 +52,29 @@ TPulse buzzer_get_pulse(TBuzzer *buzzer) {
 }
 
 /*
- * @fn		void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle)
+ * @fn		int buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle)
  * @brief	Sets the duty cycle of a buzzer to a specified value in [0, 1[,
  * 			without playing any sound
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	duty_cycle	duty cycle to set
+ * @retval	BUZZER_ERR_DUTY_CYCLE if duty_cycle is not in [0, 1[, BUZZER_OK otherwise
  */
-void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle) {
-	assert(0 <= duty_cycle && duty_cycle < 1);
+int buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle) {
+	if (!(0 <= duty_cycle && duty_cycle < 1)) {
+		return BUZZER_ERR_DUTY_CYCLE;
+	}
 
 	TPulse pulse = get_pulse_of_duty_cycle(duty_cycle);
 	buzzer_change_pulse(buzzer, pulse);
 	buzzer->previous_pulse = buzzer->pulse;
 	buzzer->pulse = pulse;
 	buzzer->duty_cycle = duty_cycle;
+
+	return BUZZER_OK;
 }
 
 /*
- * @fn		void buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse)
+ * @fn		int buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse)
  * @brief	Sets the duty cycle of a buzzer to a value corresponding
  * 			to an integer value in [0, BUZZER_MAX_PULSE[, without playing any sound.
  * 			The conversion formula is duty_cycle = pulse / BUZZER_MAX_PULSE
@@ -78,14 +82,19 @@ void buzzer_set_duty_cycle(TBuzzer *buzzer, const TDutyCycle duty_cycle) {
  * 			then the duty cycle will be 100 / 255 = 0.3922
  * @param	buzzer		pointer to the TBuzzer structure representing the buzzer
  * @param	pulse		duty cycle pulse to set
+ * @retval	BUZZER_ERR_PULSE if pulse is not in [0, BUZZER_MAX_PULSE[, BUZZER_OK otherwise
  */
-void buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse) {
-	assert(0 <= pulse && pulse < BUZZER_MAX_PULSE);
+int buzzer_set_pulse(TBuzzer *buzzer, const TPulse pulse) {
+	if (!(0 <= pulse && pulse < BUZZER_MAX_PULSE)) {
+		return BUZZER_ERR_PULSE;
+	}
 
 	buzzer_change_pulse(buzzer, pulse);
 	buzzer->previous_pulse = buzzer->pulse;
 	buzzer->pulse = pulse;
 	buzzer->duty_cycle = get_duty_cycle_of_pulse(pulse);
+
+	return BUZZER_OK;
 }
 
 /*
