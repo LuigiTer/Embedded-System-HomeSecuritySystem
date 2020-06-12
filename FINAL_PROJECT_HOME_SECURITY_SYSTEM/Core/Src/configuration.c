@@ -7,8 +7,6 @@
 
 #include <configuration.h>
 
-bool systemOn = FALSE;
-
 /*
  * @fn		void configuration_init()
  * @brief	Creates the configuration singleton.
@@ -57,7 +55,6 @@ void system_boot() {
 	clear_console();
 	print_welcome_message();
 	HAL_TIM_Base_Start_IT(&htim1);
-	systemOn = TRUE;
 
 	// tempConfiguration will store the information asked to the user
 	TConfiguration *tempConfiguration = NULL;

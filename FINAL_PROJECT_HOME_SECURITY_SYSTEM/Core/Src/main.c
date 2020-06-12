@@ -76,9 +76,6 @@ TPIR_sensor pir;
 /* Used photoresistor */
 TPhotoresistor photoresistor;
 
-/* boolean variable to stop the first fired interrupt */
-bool log_on = FALSE;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -143,7 +140,6 @@ int main(void) {
 
 	logger_print(&logger, "System boot");
 	HAL_TIM_Base_Start_IT(&htim10);
-	log_on = TRUE;
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -200,8 +196,8 @@ void SystemClock_Config(void) {
 void configure_photoresistor() {
 	uint8_t area_alarm_delay = get_configuration()->area_alarm_delay;
 	uint8_t alarm_duration = get_configuration()->alarm_duration;
-	photoresistor_init(&photoresistor, area_alarm_delay, alarm_duration,
-			&htim2, &hadc1, &buzzer);
+	photoresistor_init(&photoresistor, area_alarm_delay, alarm_duration, &htim2,
+			&hadc1, &buzzer);
 }
 
 void configure_PIR_sensor() {

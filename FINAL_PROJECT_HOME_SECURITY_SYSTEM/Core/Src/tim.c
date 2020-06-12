@@ -64,6 +64,7 @@ void MX_TIM1_Init(void)
     Error_Handler();
   }
 
+  __HAL_TIM_CLEAR_IT(&htim1, TIM_IT_UPDATE);
 }
 /* TIM2 init function */
 void MX_TIM2_Init(void)
@@ -178,6 +179,7 @@ void MX_TIM10_Init(void)
     Error_Handler();
   }
 
+  __HAL_TIM_CLEAR_IT(&htim10, TIM_IT_UPDATE);
 }
 /* TIM11 init function */
 void MX_TIM11_Init(void)
