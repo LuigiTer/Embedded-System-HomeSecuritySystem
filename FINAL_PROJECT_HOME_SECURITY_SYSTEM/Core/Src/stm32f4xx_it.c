@@ -393,7 +393,8 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	 * Last, it writes on the console the proepr log message.
 	 */
 	if (hi2c->Instance == I2C1) {
-		TDatetime *datetime = get_configuration()->datetime;
+		TConfiguration *configuration = get_configuration();
+		TDatetime *datetime = configuration->datetime;
 		datetime->second = bcd2Dec(rtc_read_buffer[0]);
 		datetime->minute = bcd2Dec(rtc_read_buffer[1]);
 		datetime->hour = bcd2Dec(rtc_read_buffer[2]);
@@ -401,7 +402,9 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 		datetime->date = bcd2Dec(rtc_read_buffer[4]);
 		datetime->month = bcd2Dec(rtc_read_buffer[5]);
 		datetime->year = bcd2Dec(rtc_read_buffer[6]);
-		logger_callback(&logger);
+		if (configuration->done) {
+			logger_callback(&logger);
+		}
 	}
 }
 

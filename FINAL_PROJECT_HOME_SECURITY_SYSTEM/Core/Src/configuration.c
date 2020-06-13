@@ -37,7 +37,8 @@ TConfiguration* get_configuration() {
 		configuration->area_alarm_delay = CONFIG_DEFAULT_ALARM_DELAY;
 		configuration->barrier_alarm_delay = CONFIG_DEFAULT_ALARM_DELAY;
 		configuration->alarm_duration = CONFIG_DEFAULT_ALARM_DURATION;
-		retrieve_current_date_time(configuration->datetime);
+		configuration->datetime->year_prefix = 20;
+		rtc_ds1307_get_datetime();
 		configuration->done = FALSE;
 	}
 
@@ -79,6 +80,7 @@ void system_boot() {
 		configuration->datetime = tempConfiguration->datetime;
 		configuration->done = TRUE;
 		HAL_TIM_Base_Stop_IT(&htim1);
+		rtc_ds1307_set_datetime(configuration->datetime);
 	} else {
 		print_on_console(CONFIG_NEWLINE);
 		print_on_console(CONFIG_TIMEOUT);
@@ -87,7 +89,6 @@ void system_boot() {
 
 	// Prints all the configuration parameters in a compact way
 	configuration_recap(configuration);
-	rtc_ds1307_set_datetime(configuration->datetime);
 
 	// Inform the user the system is ready for use
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
@@ -138,38 +139,11 @@ void configuration_recap() {
 	print_on_console(" seconds");
 	print_on_console(CONFIG_NEWLINE);
 
-	// Print datetime of the first use of the system
-	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
-	show_date_time(configuration->datetime);
-	print_on_console(CONFIG_NEWLINE);
-
 	// Recap end
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_SEPARATOR);
 	print_on_console(CONFIG_NEWLINE);
 	print_on_console(CONFIG_NEWLINE);
-}
-
-/*
- * @fn		void show_date_time(TDatetime *datetime)
- * @brief	Prints a TDatetime structure in a compact and readble way (e.g. [08-11-1997 23:00:00])
- * @param	datetime	pointer to the TDatetime structure to print
- */
-void show_date_time(TDatetime *datetime) {
-	print_on_console("[");
-	print_int_on_console(datetime->date);
-	print_on_console("-");
-	print_int_on_console(datetime->month);
-	print_on_console("-");
-	print_int_on_console(datetime->year_prefix);
-	print_int_on_console(datetime->year);
-	print_on_console(" ");
-	print_int_on_console(datetime->hour);
-	print_on_console(":");
-	print_int_on_console(datetime->minute);
-	print_on_console(":");
-	print_int_on_console(datetime->second);
-	print_on_console("]");
 }
 
 /*

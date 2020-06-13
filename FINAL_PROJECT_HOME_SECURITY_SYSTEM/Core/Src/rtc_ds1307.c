@@ -51,8 +51,6 @@ int rtc_ds1307_init(TDatetime *datetime) {
 	if (is_ds1307_ready != HAL_OK)
 		return RTC_DS1307_ERR;
 
-	init_struct(datetime);
-
 	return RTC_DS1307_OK;
 }
 

@@ -128,7 +128,6 @@ int main(void) {
 	MX_TIM9_Init();
 	/* USER CODE BEGIN 2 */
 	rtc_ds1307_init(get_configuration()->datetime);
-	rtc_ds1307_set_datetime(get_configuration()->datetime);
 	system_boot();
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 

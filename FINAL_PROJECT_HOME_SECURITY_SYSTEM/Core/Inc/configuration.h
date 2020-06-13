@@ -115,13 +115,6 @@ void system_boot();
 void configuration_recap();
 
 /*
- * @fn		void show_date_time(TDatetime *datetime)
- * @brief	Prints a TDatetime structure in a compact and readble way (e.g. [08-11-1997 23:00:00])
- * @param	datetime	pointer to the TDatetime structure to print
- */
-void show_date_time(TDatetime *datetime);
-
-/*
  * @fn		void print_welcome_message()
  * @brief	Prints a welcome message on the console.
  */
@@ -364,11 +357,6 @@ static void ask_for_datetime(TConfiguration *configuration) {
 	// Ask second
 	print_on_console("second [00-59]: ");
 	datetime->second = get_int_less_than(59, "Second must be in [00-59]");
-	print_on_console(CONFIG_NEWLINE);
-
-	// Print datetime set by the user
-	print_on_console(CONFIG_MESSAGE_SHOW_DATETIME);
-	show_date_time(datetime);
 	print_on_console(CONFIG_NEWLINE);
 }
 
