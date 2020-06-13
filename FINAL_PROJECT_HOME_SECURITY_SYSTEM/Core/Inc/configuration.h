@@ -22,9 +22,6 @@
 #include "utils.h"
 
 
-#define CONFIG_OK						(0)
-#define CONFIG_ERR_WRONG_PIN			(-1)
-
 #define USER_PIN_LENGTH					(4)
 #define MAX_ALARM_DELAY					(30)
 #define MAX_ALARM_DURATION				(60)
@@ -59,7 +56,7 @@ You have 30 seconds to setup all the configuration parameters.\n\r")
 #define CONFIG_MESSAGE_READY ("Configuration completed. Your Home Security System is ready for use.")
 
 #define CONFIG_TIMEOUT ("Timeout! Basic configuration will be used...")
-#define CONFIG_MESSAGE_ERROR ("Fatal Error!")
+#define CONFIG_MESSAGE_ERROR ("Fatal Error! ")
 #define CONFIG_MESSAGE_ERROR_WRONG_PIN ("Wrong PIN!")
 
 #define CONFIG_NEWLINE ("\n\r")
@@ -198,7 +195,7 @@ static uint16_t get_int_less_than(const uint16_t max, const char *error) {
 }
 
 /*
- * @fn		static int ask_for_PIN(TConfiguration *configuration)
+ * @fn		static void ask_for_PIN(TConfiguration *configuration)
  * @brief	Prints a series of messages on the console, reading the user PIN
  * 			and setting it in the configuration strucutre.
  * 			For confirmation purposes, it will be asked twice.
@@ -207,7 +204,7 @@ static uint16_t get_int_less_than(const uint16_t max, const char *error) {
  * 			containing the system configuration parameters
  * @retval	CONFIG_ERR_WRONG_PIN if the PINs inserted are different, CONFIG_OK otherwise
  */
-static int ask_for_PIN(TConfiguration *configuration) {
+static void ask_for_PIN(TConfiguration *configuration) {
 	uint8_t userPIN2[USER_PIN_LENGTH];
 
 	// Ask PIN for the first time
@@ -224,9 +221,23 @@ static int ask_for_PIN(TConfiguration *configuration) {
 	get_user_PIN(userPIN2);
 
 	// If the two sequences are not the same, an error message will be printed and the program ends
-	if (!are_equal(configuration->user_PIN, userPIN2, USER_PIN_LENGTH, USER_PIN_LENGTH)) {
+	while (!are_equal(configuration->user_PIN, userPIN2, USER_PIN_LENGTH, USER_PIN_LENGTH)) {
 		print_on_console(CONFIG_MESSAGE_ERROR);
-		return CONFIG_ERR_WRONG_PIN;
+		print_on_console(CONFIG_MESSAGE_ERROR_WRONG_PIN);
+		print_on_console(CONFIG_NEWLINE);
+
+		// Ask PIN for the first time
+		print_on_console(CONFIG_REQUEST_PIN);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(CONFIG_PROMPT);
+		get_user_PIN(configuration->user_PIN);
+		print_on_console(CONFIG_NEWLINE);
+
+		// Ask PIN for the second time
+		print_on_console(CONFIG_MESSAGE_CONFIRM_PIN);
+		print_on_console(CONFIG_NEWLINE);
+		print_on_console(CONFIG_PROMPT);
+		get_user_PIN(userPIN2);
 	}
 
 	// Print user PIN
@@ -234,8 +245,6 @@ static int ask_for_PIN(TConfiguration *configuration) {
 	print_on_console(CONFIG_MESSAGE_SHOW_PIN);
 	transmit(configuration->user_PIN, USER_PIN_LENGTH);
 	print_on_console(CONFIG_NEWLINE);
-
-	return CONFIG_OK;
 }
 
 /*
