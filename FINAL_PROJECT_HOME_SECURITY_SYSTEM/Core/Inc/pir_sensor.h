@@ -16,9 +16,6 @@
 #include "buzzer.h"
 #include "string.h"
 
-/* This is the mininum amount of time that a sensor must wait before going in alarm */
-#define NO_DELAY					(1U)
-
 /**
  * @brief 			Structure that holds the configuration parameters of the PIR sensor. This structure allows the installation of multiple sensor
  * 						with small modifications.

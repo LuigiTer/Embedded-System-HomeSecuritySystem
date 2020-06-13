@@ -18,6 +18,11 @@
 void photoresistor_init(TPhotoresistor *photoresistor, uint8_t alarm_delay,
 		uint8_t alarm_duration, TIM_HandleTypeDef *htim,
 		ADC_HandleTypeDef *hadc, TBuzzer *buzzer) {
+
+	if(alarm_delay == 0) {
+		alarm_delay = NO_DELAY;
+	}
+
 	photoresistor->value = 0;
 	photoresistor->alarm_delay = alarm_delay;
 	photoresistor->counter = 0;
