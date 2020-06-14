@@ -86,7 +86,7 @@ static void photoresistor_change_state(TPhotoresistor *photoresistor,
 		photoresistor->state = ALARM_STATE_INACTIVE;
 		photoresistor->counter = 0;
 		buzzer_decrease_pulse(photoresistor->buzzer, pulse);
-		HAL_ADC_Stop_IT(photoresistor->hadc);
+		HAL_ADC_Stop_DMA(photoresistor->hadc);
 		HAL_TIM_Base_Stop_IT(photoresistor->htim);
 		break;
 	case ALARM_STATE_ACTIVE:
@@ -110,7 +110,7 @@ static void photoresistor_change_state(TPhotoresistor *photoresistor,
 		photoresistor->hadc->Instance->LTR = 0; 	// we are in alarmed state so the intruder is detected
 		photoresistor->counter = 0;
 		buzzer_increase_pulse(photoresistor->buzzer, pulse);
-		HAL_ADC_Stop_IT(photoresistor->hadc);
+		HAL_ADC_Stop_DMA(photoresistor->hadc);
 		break;
 	default:
 		break;

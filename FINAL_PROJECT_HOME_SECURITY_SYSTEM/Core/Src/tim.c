@@ -199,7 +199,6 @@ void MX_TIM11_Init(void)
     Error_Handler();
   }
 
-  __HAL_TIM_CLEAR_IT(&htim11, TIM_IT_UPDATE);
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
