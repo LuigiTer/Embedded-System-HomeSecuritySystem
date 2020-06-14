@@ -55,12 +55,12 @@ static void PIR_change_state(TPIR_sensor *pir, TAlarmState new_state) {
 
 	switch (new_state) {
 	case ALARM_STATE_INACTIVE:
-		HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
+		HAL_TIM_Base_Stop_IT(pir->timer);
 		HAL_NVIC_DisableIRQ(pir->irq);
 		buzzer_decrease_pulse(pir->buzzer, pulse);
 		break;
 	case ALARM_STATE_ACTIVE:
-		HAL_TIM_OC_Stop_IT(pir->timer, TIM_CHANNEL_1);
+		HAL_TIM_Base_Stop_IT(pir->timer);
 		HAL_NVIC_EnableIRQ(pir->irq);
 		pir->remaining_delay = pir->alarm_delay;
 		buzzer_decrease_pulse(pir->buzzer, pulse);
@@ -71,7 +71,7 @@ static void PIR_change_state(TPIR_sensor *pir, TAlarmState new_state) {
 		break;
 	case ALARM_STATE_DELAYED:
 		pir->timer->Instance->CNT = 0;
-		HAL_TIM_OC_Start_IT(pir->timer, TIM_CHANNEL_1);
+		HAL_TIM_Base_Start_IT(pir->timer);
 		pir->remaining_delay = pir->alarm_delay;
 		buzzer_decrease_pulse(pir->buzzer, pulse);
 		break;
