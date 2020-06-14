@@ -94,6 +94,7 @@ void MX_TIM2_Init(void)
     Error_Handler();
   }
 
+  __HAL_TIM_CLEAR_IT(&htim2, TIM_IT_UPDATE);
 }
 /* TIM3 init function */
 void MX_TIM3_Init(void)
@@ -137,6 +138,7 @@ void MX_TIM3_Init(void)
   }
   HAL_TIM_MspPostInit(&htim3);
 
+  __HAL_TIM_CLEAR_IT(&htim3, TIM_IT_UPDATE);
 }
 /* TIM9 init function */
 void MX_TIM9_Init(void)
@@ -163,6 +165,7 @@ void MX_TIM9_Init(void)
   }
   __HAL_TIM_ENABLE_OCxPRELOAD(&htim9, TIM_CHANNEL_1);
 
+  __HAL_TIM_CLEAR_IT(&htim9, TIM_IT_UPDATE);
 }
 /* TIM10 init function */
 void MX_TIM10_Init(void)
@@ -196,6 +199,7 @@ void MX_TIM11_Init(void)
     Error_Handler();
   }
 
+  __HAL_TIM_CLEAR_IT(&htim11, TIM_IT_UPDATE);
 }
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)

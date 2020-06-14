@@ -28,7 +28,7 @@ void KEYPAD_init_default(TKeypad *keypad) {
 	keypad->timer = &KEYPAD_TIMER; //pointer to the timer to use, defined in the header file
 	keypad->last_pressed_time = 0;
 
-	//setting up the structure f the pins. Please note that the porte used is the same for every pin.
+	//setting up the structure f the pins. Please note that the port used is the same for every pin.
 	// if different ports are used, this library needs some changes
 	keypad->rows_pins[0] = ROW_1_PIN;
 	keypad->rows_pins[1] = ROW_2_PIN;

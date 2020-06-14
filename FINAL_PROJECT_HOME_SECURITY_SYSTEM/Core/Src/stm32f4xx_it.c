@@ -390,7 +390,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	/*
 	 * When the reception from the RTC is completed, before assigning the values read to the buffer,
 	 * they must be converted in decimal.
-	 * Last, it writes on the console the proepr log message.
+	 * Last, it writes on the console the proper log message.
 	 */
 	if (hi2c->Instance == I2C1) {
 		TConfiguration *configuration = get_configuration();
